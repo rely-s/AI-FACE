@@ -18,6 +18,7 @@ from ai_face.constants import (
 )
 from ai_face.exporter import SessionExporter
 from ai_face.extractor import FaceLandmarkerExtractor
+from ai_face.facs_dass import map_blendshapes_to_facs_aus, predict_dass_from_aus
 from ai_face.models import EstimationStatus, SessionSummary, SlotRecord
 from ai_face.scheduler import SlotScheduler
 from ai_face.single_frame_classifier import evaluate_frame_emotions
@@ -139,17 +140,21 @@ class SessionRunner:
                 # Render GUI preview if enabled
                 if self.config.preview:
                     current_emotions = None
+                    current_dass = None
                     if (
                         processed_slots
                         and processed_slots[-1].valid
                         and processed_slots[-1].blendshapes
                     ):
                         current_emotions = evaluate_frame_emotions(processed_slots[-1].blendshapes)
+                        current_aus = map_blendshapes_to_facs_aus(processed_slots[-1].blendshapes)
+                        current_dass = predict_dass_from_aus(current_aus)
 
                     hud_frame = render_shore_style_overlay(
                         frame_bgr=frame_bgr,
                         detection_result=last_result,
                         emotions=current_emotions,
+                        dass=current_dass,
                         subject_id=self.session_id[:8],
                         uptime_s=elapsed_s,
                         mirror=self.config.preview_mirror,

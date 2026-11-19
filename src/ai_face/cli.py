@@ -166,6 +166,20 @@ Keybindings:
         action="store_true",
         help="Download the official Google MediaPipe face_landmarker.task model and exit.",
     )
+    parser.add_argument(
+        "--train-from-photos",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help="Train an XGBoost classifier from a folder of class subdirectories with face photos.",
+    )
+    parser.add_argument(
+        "--photo-model-out",
+        type=Path,
+        default=Path("models/photo_distress_classifier.joblib"),
+        metavar="PATH",
+        help="Output path for trained photo model.",
+    )
 
     return parser.parse_args(args)
 
@@ -177,6 +191,19 @@ def main(args: list[str] | None = None) -> int:
     if parsed.download_model:
         download_official_model(parsed.model_path)
         return 0
+
+    if parsed.train_from_photos is not None:
+        from ai_face.training.train_photo_classifier import train_photo_classifier
+
+        try:
+            train_photo_classifier(
+                dataset_dir=parsed.train_from_photos,
+                output_model_path=parsed.photo_model_out,
+            )
+            return 0
+        except Exception as e:
+            print(f"[AI-FACE] Training failed: {e}", file=sys.stderr)
+            return 1
 
     if (
         parsed.camera_index is None
@@ -219,6 +246,16 @@ def main(args: list[str] | None = None) -> int:
                 print(f"[AI-FACE] Distress Level: {level} (Score: {score})")
                 if res.get("emotions"):
                     print(f"[AI-FACE] Emotions: {res['emotions']}")
+                if res.get("dass_clinical_assessment"):
+                    dass = res["dass_clinical_assessment"]
+                    print("[AI-FACE] Clinical DASS-3 Assessment (Gavrilescu 2019):")
+                    dep = dass["depression"]
+                    anx = dass["anxiety"]
+                    stress = dass["stress"]
+                    print(f"  - Depression : {dep['level'].upper()} (Score: {dep['score']:.3f})")
+                    print(f"  - Anxiety    : {anx['level'].upper()} (Score: {anx['score']:.3f})")
+                    str_score = stress["score"]
+                    print(f"  - Stress     : {stress['level'].upper()} (Score: {str_score:.3f})")
                 if res.get("annotated_image_path"):
                     print(f"[AI-FACE] Visual Feedback Image: {res['annotated_image_path']}")
             else:

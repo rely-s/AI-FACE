@@ -6,6 +6,7 @@ from typing import Any
 import cv2
 import numpy as np
 
+from ai_face.facs_dass import DASSResult
 from ai_face.single_frame_classifier import FrameEmotionResult
 
 
@@ -120,10 +121,77 @@ def draw_emotion_bars(
         )
 
 
+DASS_COLORS = {
+    "Normal": (0, 220, 0),
+    "Mild": (0, 220, 180),
+    "Moderate": (0, 180, 255),
+    "Severe": (0, 80, 255),
+    "Extremely Severe": (0, 0, 255),
+}
+
+
+def draw_dass_panel(
+    img: np.ndarray,
+    top_left: tuple[int, int],
+    width: int,
+    dass: DASSResult,
+) -> None:
+    """Draw upper right clinical DASS-3 assessment panel (Depression, Anxiety, Stress)."""
+    x, y = top_left
+    spacing = 16
+    metrics = [
+        ("DEP", dass.depression.level, dass.depression.score),
+        ("ANX", dass.anxiety.level, dass.anxiety.score),
+        ("STR", dass.stress.level, dass.stress.score),
+    ]
+
+    panel_h = len(metrics) * spacing + 22
+    sub = img[y : y + panel_h, x : x + width]
+    if sub.shape[0] > 0 and sub.shape[1] > 0:
+        dark_rect = np.zeros_like(sub)
+        cv2.addWeighted(dark_rect, 0.7, sub, 0.3, 0, sub)
+        cv2.rectangle(img, (x, y), (x + width, y + panel_h), (0, 180, 80), 1)
+
+    # Header
+    cv2.putText(
+        img,
+        "DASS-3 CLINICAL (FACS)",
+        (x + 6, y + 12),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.32,
+        (0, 240, 200),
+        1,
+    )
+
+    for i, (code, level_name, score) in enumerate(metrics):
+        by = y + 26 + i * spacing
+        color = DASS_COLORS.get(level_name, (200, 200, 200))
+        label = f"{code}: {level_name[:4]}"
+        cv2.putText(img, label, (x + 6, by - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.32, (220, 220, 220), 1)
+
+        track_x = x + 72
+        track_w = width - 110
+        cv2.rectangle(img, (track_x, by - 8), (track_x + track_w, by), (50, 50, 50), -1)
+        fill_w = int(track_w * min(1.0, max(0.0, score)))
+        cv2.rectangle(img, (track_x, by - 8), (track_x + fill_w, by), color, -1)
+
+        pct_text = f"{score * 100:.0f}%"
+        cv2.putText(
+            img,
+            pct_text,
+            (track_x + track_w + 4, by - 2),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.30,
+            color,
+            1,
+        )
+
+
 def render_shore_style_overlay(
     frame_bgr: np.ndarray,
     detection_result: Any,
     emotions: FrameEmotionResult | None,
+    dass: DASSResult | None = None,
     subject_id: str = "Subject-01",
     uptime_s: float = 0.0,
     mirror: bool = False,
@@ -193,5 +261,10 @@ def render_shore_style_overlay(
         # 3. Bottom Emotion Progression Bar Panel
         bar_w = min(320, w - 40)
         draw_emotion_bars(display, (w // 2 - bar_w // 2, h - 120), bar_w, emotions)
+
+        # 4. Top-Right DASS Clinical Panel
+        if dass is not None and w >= 400:
+            dass_w = 180
+            draw_dass_panel(display, (w - dass_w - 10, 10), dass_w, dass)
 
     return display

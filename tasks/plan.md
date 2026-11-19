@@ -1,105 +1,69 @@
-# Implementation Plan: AI-FACE Image-Based Emotion & Distress Assessment System
+# Implementation Plan: AI-FACE Image-Based FACS-DASS Emotion & Distress System
 
 ## Overview
-Transformasi arsitektur AI-FACE menjadi sistem berbasis citra foto statis (image-based) untuk mendeteksi dan mengklasifikasikan tingkatan distress/stres penderita kanker secara instan, terinspirasi oleh studi klinis Fraunhofer IIS & RS Johanniter Bonn (Binz et al., 2023) dengan engine SHORE. Seluruh proses pelatihan, pengujian, dan inferensi menggunakan dataset foto objek (bukan time-series video 30 detik), didukung visual feedback HUD real-time (polar emotion dial, action unit bars, dan status distress level).
+Peningkatan komprehensif arsitektur AI-FACE mengintegrasikan metodologi ilmiah dari penelitian **Gavrilescu & Vizireanu (Sensors 2019)**: *"Predicting Depression, Anxiety, and Stress Levels from Videos Using the Facial Action Coding System (FACS)"* serta studi klinis onkologi **Binz et al. (2023)**. 
+
+Sistem beroperasi murni berbasis citra foto statis (image-based) dengan memetakan 52 blendshape MediaPipe ke dalam **31 FACS Action Units (AUs)** terstandarisasi, kemudian mengonversinya menjadi estimasi klinis **DASS (Depression, Anxiety, Stress Scale)** dengan 5 tingkat keparahan (*Normal, Mild, Moderate, Severe, Extremely Severe*).
 
 ---
 
 ## Architecture Decisions
 
-1. **Format Input & Dataset Foto Murni:**
-   - Masukan pelatihan dan pengujian berupa file citra statis (`.jpg`, `.jpeg`, `.png`, `.bmp`) terorganisir per folder kelas (`low_distress/`, `moderate_distress/`, `high_distress/`) atau tabular manifest (`image_path, label, subject_id`).
-   - Menghilangkan dependensi terhadap grid waktu/slot nominal 450 time-series pada pipeline foto, menggantikannya dengan inferensi per-foto instan.
+1. **Struktur Multi-Layer Sesuai Gavrilescu (2019):**
+   - **Layer 1:** Ekstraksi intensitas 31 Action Units FACS dari citra foto statis, dikuantisasi ke 6 level diskrit anatomis (Level O=0, A=0.2, B=0.4, C=0.6, D=0.8, E=0.9).
+   - **Layer 2:** Pembangunan Vektor Intensitas Wajah (*Facial Matrix / Vector*) per foto berdimensi $[0, 1]^{31}$.
+   - **Layer 3:** Model Pola Hubungan Bersama (*Joint Pattern Model*) untuk memprediksi sekaligus 3 dimensi DASS:
+     - **Depression Score & Level** (korelasi primer: AU6, AU12, AU15, AU26)
+     - **Anxiety Score & Level** (korelasi primer: AU2, AU9, AU25, AU45)
+     - **Stress Score & Level** (korelasi primer: AU1, AU6, AU12, AU15)
 
-2. **Ekstraksi Fitur Citra Statis (MediaPipe Image Mode):**
-   - Menggunakan MediaPipe Face Landmarker `RunningMode.IMAGE`.
-   - Vektor fitur per-foto: 52 ARKit blendshapes + 3 pose angles (yaw, pitch, roll) + turunan geometris FACS Action Units (AU1, AU4, AU6, AU9, AU12, AU15, AU20, AU24).
+2. **Skema Ambang Batas 5 Level Klinis DASS:**
+   - `Normal`: $[0.00, 0.15)$
+   - `Mild`: $[0.15, 0.30)$
+   - `Moderate`: $[0.30, 0.60)$
+   - `Severe`: $[0.60, 0.80)$
+   - `Extremely Severe`: $[0.80, 1.00]$
 
-3. **Model Klasifikasi Foto Berbasis Algoritma XGBoost / LightGBM:**
-   - Model dilatih langsung di atas matriks fitur foto yang diekstraksi dari dataset citra.
-   - Menggunakan GroupKFold berdasarkan `subject_id` untuk memastikan zero-leakage antarpartisi latih dan uji.
-
-4. **Visual Feedback HUD Ala SHORE (Fraunhofer IIS):**
-   - Menghasilkan visualisasi lengkap persis seperti pada Gambar 1 makalah:
-     - Radar dial kompas emosi (Happy, Sad, Angry, Surprised).
-     - Bounding box klinis dan kontur wajah.
-     - Header badge status (ID, Uptime, Status Distress: LOW / MODERATE / HIGH).
-     - Emotion progress bar (Happy, Sad, Angry/Tension, Surprised, Neutral, Valence).
+3. **Format Dataset Foto Murni (Image-Based):**
+   - Pelatihan dan pengujian menggunakan foto wajah pasien/subjek (JPG/PNG).
+   - Menghasilkan rekap JSON/CSV berisi skor FACS AUs, DASS tri-aksial, dan foto beranotasi visual HUD SHORE.
 
 ---
 
 ## Task List
 
-### Phase 1: Image Dataset Structure & Ingestion Pipeline
-- [ ] **Task 1.1: Image Dataset Specification & Folder Loader**
-  - Implementasi modul dataset loader di `src/ai_face/dataset/image_dataset.py`.
-  - Menerima struktur direktori foto (`data/{train,val,test}/{class}/` atau `manifest.csv`).
-  - Menyaring citra corrupt, memeriksa format gambar, dan memvalidasi metadata `subject_id`.
-- [ ] **Task 1.2: Image Feature Batch Extractor**
-  - Implementasi ekstraktor batch foto ke matriks fitur tabular (`features.csv` / `dataset.parquet`).
-  - Ekstraksi 52 blendshape + 3 pose untuk setiap foto secara deterministik.
-  - Logging status foto tanpa wajah (`NO_FACE`) secara transparan.
+### Phase 1: FACS-DASS Mapping Engine (Gavrilescu 2019)
+- [ ] **Task 1.1: FACS 31 Action Units Extractor & Quantizer**
+  - Implementasi modul `src/ai_face/facs_dass.py`.
+  - Pemetaan 52 ARKit blendshapes ke 31 FACS AUs (AU1, AU2, AU4, AU5, AU6, AU7, AU9, AU10, AU11, AU12, AU13, AU14, AU15, AU16, AU17, AU18, AU20, AU22, AU23, AU24, AU25, AU26, AU27, AU28, AU33, AU34, AU35, AU43, AU45).
+  - Kuantisasi intensitas ke level 0, A, B, C, D, E.
+- [ ] **Task 1.2: DASS-3 Multi-Output Prediction Model**
+  - Implementasi formula inferensi DASS (Depression, Anxiety, Stress) berbasis korelasi empiris Gavrilescu Tabel 3 & Tabel 4.
+  - Implementasi deteksi langsung level *Extremely Severe* saat AU kunci mencapai level D atau E (akurasi paper: Depression 84.51%, Anxiety 72.92%, Stress 88.41%).
 
-### Checkpoint: Phase 1 (Dataset & Fitur Foto Siap)
-- [ ] Validasi bahwa folder dataset foto dapat diekstrak menjadi file tabular fitur bersih.
-- [ ] Unit tests lulus untuk loader dan validator foto.
+### Checkpoint: Phase 1 (Mesin FACS-DASS Terverifikasi)
+- [ ] Unit tests memvalidasi akurasi ekstraksi 31 AUs dan skor DASS.
 
 ---
 
-### Phase 2: Image-Based Model Training & Evaluation Engine
-- [ ] **Task 2.1: Photo Distress Model Trainer**
-  - Implementasi `src/ai_face/training/train_from_photos.py`.
-  - Melatih model XGBoost / Multi-Layer Perceptron langsung dari file fitur foto.
-  - Pembagian dataset menggunakan `GroupKFold` berdasarkan `subject_id` foto.
-  - Menghasilkan metrik evaluasi: Confusion Matrix, Balanced Accuracy, Macro F1, dan AUROC.
-- [ ] **Task 2.2: Synthetic/Public Photo Benchmark Generator & Benchmarking**
-  - Menyediakan utilitas untuk mengonversi anotasi dataset publik citra statis (seperti RAF-DB / CK+ / UNBC-McMaster) ke skema AI-FACE.
-  - Menyimpan model terlatih ke `models/distress_photo_classifier.joblib` berserta metadata skema di `models/distress_photo_meta.json`.
+### Phase 2: Integrasi Image Processor & Model Foto
+- [ ] **Task 2.1: Image Processor Upgrade**
+  - Perbarui `src/ai_face/image_processor.py` agar menyertakan data FACS AUs dan DASS multi-dimensi pada setiap foto.
+  - Ekspor hasil ke `<foto>_dass_result.json`.
+- [ ] **Task 2.2: Batch Dataset Processing**
+  - Pemrosesan direktori dataset foto menghasilkan rekapitulasi tabular `batch_facs_dass_summary.csv`.
 
-### Checkpoint: Phase 2 (Model Foto Terlatih & Terverifikasi)
-- [ ] Model foto berhasil dilatih dengan cross-validation tanpa kebocoran subjek.
-- [ ] Evaluasi performa tersimpan dalam metadata JSON berversi.
+### Checkpoint: Phase 2 (Pemrosesan Foto Menghasilkan DASS)
+- [ ] Foto uji menghasilkan prediksi DASS 3 dimensi lengkap.
 
 ---
 
-### Phase 3: Single-Photo & Batch Inference CLI
-- [ ] **Task 3.1: Image Distress Predictor API**
-  - Implementasi engine inferensi foto `src/ai_face/image_classifier.py`.
-  - Menerima 1 foto, memvalidasi kualitas deteksi wajah, menjalankan model foto terlatih, dan mengembalikan `level`, `confidence`, `probabilities`, dan rincian emosi.
-- [ ] **Task 3.2: CLI Image Mode Integration**
-  - Menghubungkan argumen CLI `--image <path>` dan `--image-dir <path>` dengan model foto terlatih.
-  - Mendukung opsi `--save-annotated` untuk menghasilkan foto beranotasi HUD.
-  - Menghasilkan laporan rekap `summary_results.csv` untuk pemrosesan folder foto.
+### Phase 3: Visual Feedback HUD Upgrade (SHORE + DASS Gauge)
+- [ ] **Task 3.1: Visualizer Enhancement**
+  - Memperbarui `src/ai_face/visualizer.py` dengan penanda visual DASS 3 dimensi (D, A, S bar / badges) bersanding dengan radar dial emosi SHORE.
+- [ ] **Task 3.2: CLI & Live Display Integration**
+  - Menampilkan ringkasan DASS di terminal dan pada live webcam/foto.
 
-### Checkpoint: Phase 3 (Inferensi Foto Berjalan End-to-End)
-- [ ] CLI dapat mengeksekusi foto tunggal dan menghasilkan output klasifikasi instan.
-- [ ] CLI dapat memproses seluruh folder foto dataset pengujian dan menghasilkan rekap tabular.
-
----
-
-### Phase 4: Interactive Real-Time SHORE-Style HUD & Visual Feedback
-- [ ] **Task 4.1: Real-Time HUD Overlay Generator**
-  - Memperkaya `src/ai_face/visualizer.py` dengan penanda visual emosi, polar dial, dan progress bar sesuai makalah Binz et al. (2023).
-  - Skema warna adaptif: Hijau (Low Distress), Kuning (Moderate Distress), Merah (High Distress/Pain).
-- [ ] **Task 4.2: Live Camera Instant Emotion & Distress Display**
-  - Memperbarui mode kamera (`ai-face --camera-index 0`) agar menampilkan inferensi foto/frame instan secara langsung di layar secara real-time tanpa menunggu sesi 30 detik selesai.
-
-### Checkpoint: Phase 4 (Sistem Visual Selesai)
-- [ ] Foto hasil olahan memuat visualisasi HUD SHORE yang tajam dan akurat.
-- [ ] Kamera webcam menampilkan status stres dan dial emosi seketika pada setiap frame.
-
----
-
-## Risks and Mitigations
-
-| Risk | Impact | Mitigation |
-|---|---|---|
-| **Variasi Lansia & Kanker:** Kerutan wajah alami lansia disalahartikan sebagai ketegangan (*browDown*). | High | Kalibrasi baseline netral subjek (*valence evaluation*) dan normalisasi fitur pose/kontur. |
-| **Foto Tanpa Deteksi Wajah:** Foto dengan pencahayaan ekstrem atau sudut menyamping gagal dideteksi MediaPipe. | Med | Kembalikan error terstruktur `NO_FACE` dan simpan foto ke folder `unprocessed/` dengan log yang jelas. |
-| **Data Leakage pada Foto:** Foto dari pasien yang sama berada di data train dan test, menghasilkan akurasi palsu (*overfitting*). | High | Wajib menyertakan `subject_id` pada manifest dataset dan mengunci partisi dengan `GroupKFold`. |
-
----
-
-## Open Questions
-- Apakah dataset foto Anda sudah memiliki format folder tertentu (misal folder per kelas `low/moderate/high`) atau berupa file gambar lepas dengan file spreadsheet CSV (manifest)?
-- Apakah output klasifikasi yang diinginkan adalah 3 kelas (`Low`, `Moderate`, `High`) atau skor numerik distress skala 0-10 (Distress Thermometer)?
+### Checkpoint: Complete
+- [ ] Seluruh unit tests lulus.
+- [ ] CLI siap menerima foto dan menampilkan prediksi DASS akurat.

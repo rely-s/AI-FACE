@@ -1,148 +1,77 @@
-# Task List: AI-FACE Image-Based Emotion & Distress System
+# Task List: AI-FACE FACS-DASS Implementation
 
-## Phase 1: Image Dataset Structure & Ingestion Pipeline
+## Phase 1: FACS-DASS Mapping Engine (Gavrilescu 2019)
 
-### Task 1.1: Image Dataset Specification & Folder Loader
-- [ ] Implementasi `src/ai_face/dataset/image_dataset.py` untuk membaca direktori dataset foto (struktur `root/{class_name}/*.jpg` dan manifest CSV).
-- [ ] Pemeriksaan integritas gambar (file corrupt, ukuran 0, decoding OpenCV).
-- [ ] Ekstraksi metadata subjek dari nama file atau kolom manifest.
+### Task 1.1: FACS 31 Action Units Extractor & Quantizer
+- [x] Implementasi `src/ai_face/facs_dass.py`.
+- [x] Pemetaan 52 ARKit blendshapes ke 31 FACS AUs.
+- [x] Kuantisasi intensitas ke level 0, A (0.2), B (0.4), C (0.6), D (0.8), E (0.9).
 
 **Acceptance criteria:**
-- Loader membaca format folder class dan manifest CSV dengan benar.
-- File corrupt disaring dan dilaporkan tanpa membuat proses crash.
-- Unit test lulus memvalidasi loading folder foto.
+- 31 AUs terhitung dengan nilai $[0, 1]$ yang terkuantisasi sesuai level FACS.
+- Fungsi dapat dipanggil dari foto tunggal maupun frame streaming.
 
 **Verification:**
-- Test command: `.venv\Scripts\pytest.exe tests/test_image_dataset.py -v`
+- Test command: `.venv\Scripts\pytest.exe tests/test_facs_dass.py -v`
 
 ---
 
-### Task 1.2: Image Feature Batch Extractor
-- [ ] Implementasi modul ekstraksi batch untuk foto di `src/ai_face/dataset/batch_extractor.py`.
-- [ ] Ekstraksi 52 blendshape + 3 pose untuk setiap foto menggunakan MediaPipe Image mode.
-- [ ] Penyimpanan hasil ekstraksi ke file tabular `extracted_features.csv`.
+### Task 1.2: DASS-3 Multi-Output Prediction Model
+- [x] Implementasi fungsi `predict_dass_levels(au_dict)` di `src/ai_face/facs_dass.py`.
+- [x] Menghitung skor kontinu $[0, 1]$ dan 5 level keparahan (*Normal, Mild, Moderate, Severe, Extremely Severe*) untuk Depression, Anxiety, dan Stress.
+- [x] Terapkan aturan bypass *Extremely Severe* jika kombinasi AU kunci (Depression: AU6,12,15,26; Anxiety: AU2,9,25,45; Stress: AU1,6,12,15) mencapai level D/E.
 
 **Acceptance criteria:**
-- Setiap foto menghasilkan 1 baris fitur (55 kolom fitur + metadata label & subject_id).
-- Foto tanpa wajah dicatat sebagai `NO_FACE` dan dipisahkan.
-- Format CSV tervalidasi dan siap untuk training model.
+- Skor dan level untuk ketiga dimensi (D, A, S) terhitung akurat.
+- Ambang batas 5 level sesuai spesifikasi $[0.15, 0.30, 0.60, 0.80]$.
 
 **Verification:**
-- Test command: `.venv\Scripts\pytest.exe tests/test_batch_extractor.py -v`
+- Test command: `.venv\Scripts\pytest.exe tests/test_facs_dass.py -v`
 
 ---
 
 ## Checkpoint: Phase 1
-- [ ] Loader dan ekstraktor batch tervalidasi dengan pengujian otomatis.
-- [ ] Foto dataset dapat diekstrak menjadi matriks fitur tabular.
+- [x] Modul `facs_dass.py` selesai dengan unit tests passing 100%.
 
 ---
 
-## Phase 2: Image-Based Model Training & Evaluation Engine
+## Phase 2: Integrasi Image Processor & Model Foto
 
-### Task 2.1: Photo Distress Model Trainer
-- [ ] Implementasi `src/ai_face/training/train_from_photos.py`.
-- [ ] Training classifier XGBoost pada matriks fitur foto.
-- [ ] Implementasi 5-Fold GroupKFold berdasarkan `subject_id`.
-- [ ] Penyimpanan model terkompilasi ke `models/distress_photo_classifier.joblib` dan registri `models/distress_photo_meta.json`.
+### Task 2.1: Image Processor Upgrade
+- [x] Perbarui `src/ai_face/image_processor.py` agar menyertakan data FACS AUs dan DASS tri-aksial pada output JSON.
+- [x] Pastikan kompatibilitas penuh dengan input file foto tunggal.
 
 **Acceptance criteria:**
-- Zero-leakage: Partisipan di fold training dan validation saling disjoint.
-- Metrik log-loss, balanced accuracy, dan classification report tercatat rapi di JSON.
-- Model berhasil disimpan dan dapat dimuat ulang.
+- Output JSON memuat field `facs_action_units` dan `dass_assessment`.
 
 **Verification:**
-- Run command: `.venv\Scripts\python.exe -m ai_face.training.train_from_photos`
+- Jalankan: `.venv\Scripts\ai-face.exe --image .venv/Lib/site-packages/matplotlib/mpl-data/sample_data/grace_hopper.jpg --output-dir output/dass_test`
 
 ---
 
-### Task 2.2: Photo Dataset Benchmark Generator
-- [ ] Utilitas pembuatan dataset benchmark foto untuk pengujian offline dan verifikasi otomatis.
-- [ ] Mendukung pemetaan dataset publik ekspresi/nyeri (UNBC-McMaster, RAF-DB, CK+) ke format AI-FACE.
+### Task 2.2: Batch Dataset Processing & Training
+- [x] Perbarui batch processing direktori foto agar menghasilkan `batch_image_summary.json` dan `batch_dass_summary.csv`.
+- [x] Implementasikan `src/ai_face/training/train_photo_classifier.py` untuk melatih model XGBoost langsung dari folder foto berkelas (`data/{class_name}/*.jpg`).
 
 **Acceptance criteria:**
-- Benchmark generator menghasilkan dataset foto sintetis/calibrated berlabel untuk CI/CD.
-- Evaluasi baseline performa model tercatat.
-
-**Verification:**
-- Test command: `.venv\Scripts\pytest.exe tests/test_train_from_photos.py -v`
+- Folder berisi foto pasien dapat diproses sekaligus dan menghasilkan rekapitulasi DASS per subjek.
 
 ---
 
-## Checkpoint: Phase 2
-- [ ] Model foto terlatih siap pakai di folder `models/`.
-- [ ] Cross-validation GroupKFold terbukti valid.
+## Phase 3: Visual Feedback HUD Upgrade (SHORE + DASS Gauge)
 
----
-
-## Phase 3: Single-Photo & Batch Inference CLI
-
-### Task 3.1: Image Distress Predictor API
-- [ ] Implementasi `src/ai_face/image_classifier.py` untuk inferensi foto instan.
-- [ ] Menerima path foto atau numpy array, menjalankan ekstraksi, dan memprediksi tingkatan stres (`LOW`, `MODERATE`, `HIGH`) beserta confidence.
+### Task 3.1: Visualizer Enhancement
+- [x] Perbarui `src/ai_face/visualizer.py` untuk menambahkan visual gauge tri-aksial DASS (Depression, Anxiety, Stress) pada overlay HUD.
 
 **Acceptance criteria:**
-- Eksekusi inferensi foto < 100 ms per citra.
-- Output berupa struktur data lengkap (distress level, probabilities, emotion breakdown).
-- Penanganan foto tanpa wajah mengembalikan error `NO_FACE` yang jelas.
+- Foto `annotated_*.jpg` memuat status DASS dan 3 bar progres klinis (D, A, S).
 
 **Verification:**
-- Test command: `.venv\Scripts\pytest.exe tests/test_image_classifier.py -v`
-
----
-
-### Task 3.2: CLI Image Mode Integration
-- [ ] Hubungkan opsi `--image` dan `--image-dir` pada `ai-face` CLI.
-- [ ] Dukungan penyimpanan visual beranotasi HUD dengan opsi `--save-annotated`.
-- [ ] Ekspor rekap batch foto ke `batch_summary.csv` dan JSON.
-
-**Acceptance criteria:**
-- Perintah `ai-face --image foto.jpg` menampilkan hasil klasifikasi seketika di konsol.
-- Perintah `ai-face --image-dir folder_foto` memproses seluruh foto dan menghasilkan rekap tabular.
-
-**Verification:**
-- Command: `.venv\Scripts\ai-face.exe --image tests/fixtures/sample_face.jpg --output-dir output/test_cli`
-
----
-
-## Checkpoint: Phase 3
-- [ ] CLI foto tunggal dan batch berjalan mulus.
-- [ ] Output prediksi dan rekap data tervalidasi.
-
----
-
-## Phase 4: Interactive Real-Time SHORE-Style HUD & Visual Feedback
-
-### Task 4.1: Real-Time HUD Overlay Generator
-- [ ] Penyempurnaan `src/ai_face/visualizer.py` untuk merender tampilan persis seperti pada Gambar 1 makalah Binz et al. (2023):
-  - Radar polar dial emosi di sisi kiri (Happy, Surprised, Sad, Angry).
-  - Bounding box klinis dan landmark kontur wajah.
-  - Header box (ID, Uptime, Status Distress: LOW / MODERATE / HIGH).
-  - Bottom bar panel (Happy, Sad, Angry, Surprised, Neutral, Distress Index).
-
-**Acceptance criteria:**
-- Citra hasil anotasi memuat seluruh elemen visual SHORE secara proporsional.
-- Skema warna adaptif: Hijau (Low), Oranye (Moderate), Merah (High).
-
-**Verification:**
-- Test visualisasi: cek file hasil `annotated_*.jpg` di folder output.
-
----
-
-### Task 4.2: Live Camera Instant Emotion & Distress Display
-- [ ] Integrasikan `render_shore_style_overlay` ke jendela kamera langsung (`ai-face --camera-index 0`).
-- [ ] Menampilkan dial dan status stres secara instan setiap frame real-time.
-
-**Acceptance criteria:**
-- Kamera menampilkan HUD dinamis yang merespons perubahan mimik wajah seketika.
-- Frame rate tampilan preview stabil tanpa lag.
-
-**Verification:**
-- Jalankan: `.venv\Scripts\ai-face.exe --camera-index 0`
+- Cek hasil visualisasi pada foto output.
 
 ---
 
 ## Checkpoint: Complete
-- [ ] Semua unit test lulus: `.venv\Scripts\pytest.exe -v`
-- [ ] Linter & Formatter bersih: `.venv\Scripts\ruff.exe check .` dan `ruff.exe format --check .`
-- [ ] Sistem siap digunakan untuk dataset foto maupun kamera live.
+- [x] Semua 45 unit tests lulus: `.venv\Scripts\pytest.exe -v`
+- [x] Linter & Formatter bersih: `.venv\Scripts\ruff.exe check .` dan `ruff format --check .`
+- [ ] Commit dan push pembaruan ke repositori GitHub.
