@@ -47,7 +47,8 @@ sessions/
 !tests/fixtures/*.png
 
 # Model weights / tasks (large binaries - instructions provided to download)
-# models/*.task
+models/*.task
+models/
 
 # OS files
 .DS_Store
