@@ -5,6 +5,10 @@ import sys
 import urllib.request
 from pathlib import Path
 
+from ai_face.classifier import (
+    DEFAULT_DISTRESS_MODEL_PATH,
+    DistressClassifier,
+)
 from ai_face.config import SessionConfig
 from ai_face.constants import (
     DEFAULT_MODEL_PATH,
@@ -131,6 +135,18 @@ Keybindings:
         help="Permit processing even if multiple faces are observed in the frame.",
     )
     parser.add_argument(
+        "--classify",
+        action="store_true",
+        help="Run offline distress level classification model on session features.",
+    )
+    parser.add_argument(
+        "--distress-model",
+        type=Path,
+        default=Path(DEFAULT_DISTRESS_MODEL_PATH),
+        metavar="PATH",
+        help=f"Path to distress model file (default: {DEFAULT_DISTRESS_MODEL_PATH}).",
+    )
+    parser.add_argument(
         "--download-model",
         action="store_true",
         help="Download the official Google MediaPipe face_landmarker.task model and exit.",
@@ -199,11 +215,24 @@ def main(args: list[str] | None = None) -> int:
         print(f"[AI-FACE] Failed to initialize feature extractor: {e}", file=sys.stderr)
         return 1
 
+    distress_classifier = None
+    if parsed.classify or (
+        parsed.distress_model.is_file()
+        and parsed.distress_model != Path(DEFAULT_DISTRESS_MODEL_PATH)
+    ):
+        try:
+            distress_classifier = DistressClassifier(model_path=parsed.distress_model)
+        except Exception as e:
+            print(
+                f"[AI-FACE] Warning: Could not initialize distress classifier: {e}", file=sys.stderr
+            )
+
     try:
         runner = SessionRunner(
             config=config,
             source=source,
             extractor=extractor,
+            distress_classifier=distress_classifier,
             session_id=parsed.session_id,
         )
         summary = runner.run()

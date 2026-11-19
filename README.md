@@ -38,6 +38,9 @@ CLI menyediakan dua opsi input yang saling eksklusif: `--camera-index` (webcam) 
 # Jalankan sesi 30 detik dari webcam default (index 0)
 ai-face --camera-index 0
 
+# Menjalankan langsung dengan model klasifikasi distress
+ai-face --camera-index 0 --classify
+
 # Opsi kustom durasi dan output
 ai-face --camera-index 0 --duration 30.0 --fps 15.0 --output-dir ./output
 ```
@@ -109,7 +112,18 @@ Menampilkan status sesi (`completed`, `cancelled`, `failed`), rasio validitas `v
 
 ---
 
-## 5. Pengujian & Linting
+## 5. Pelatihan Model Distress (Fase C Offline)
+
+Menggunakan dataset benchmark stres publik (StressID/TSST experimental task distributions) dengan validasi silang Group-K-Fold berbasis ID partisipan tanpa data leakage:
+
+```powershell
+python -m ai_face.training.train_distress
+```
+Menghasilkan model di `models/distress_classifier.joblib` dan metadata di `models/distress_classifier_meta.json`.
+
+---
+
+## 6. Pengujian & Linting
 
 ```powershell
 # Jalankan unit test

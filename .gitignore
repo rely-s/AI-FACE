@@ -35,6 +35,7 @@ htmlcov/
 # AI-FACE Outputs, Raw Videos, and Patient Data
 output/
 sessions/
+hasil_sesi/
 *.mp4
 *.avi
 *.mov

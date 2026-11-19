@@ -98,7 +98,11 @@ class EstimationStatus(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     status: str = ESTIMATION_NOT_AVAILABLE
-    reason: str = "Model evaluation offline stage pending"
+    level: str | None = None
+    confidence: float | None = None
+    probabilities: dict[str, float] | None = None
+    model_version: str | None = None
+    reason: str | None = "Model evaluation offline stage pending"
 
 
 class SessionSummary(BaseModel):

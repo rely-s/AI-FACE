@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 import cv2
 
+from ai_face.classifier import DistressClassifier
 from ai_face.config import SessionConfig
 from ai_face.constants import (
     REASON_FRAME_MISSED,
@@ -17,7 +18,7 @@ from ai_face.constants import (
 )
 from ai_face.exporter import SessionExporter
 from ai_face.extractor import FaceLandmarkerExtractor, render_preview_overlay
-from ai_face.models import SessionSummary, SlotRecord
+from ai_face.models import EstimationStatus, SessionSummary, SlotRecord
 from ai_face.scheduler import SlotScheduler
 from ai_face.source import FrameSource
 
@@ -30,11 +31,13 @@ class SessionRunner:
         config: SessionConfig,
         source: FrameSource,
         extractor: FaceLandmarkerExtractor,
+        distress_classifier: DistressClassifier | None = None,
         session_id: str | None = None,
     ) -> None:
         self.config = config
         self.source = source
         self.extractor = extractor
+        self.distress_classifier = distress_classifier
         self.session_id = session_id or str(uuid.uuid4())
         self.scheduler = SlotScheduler(
             duration_s=config.duration_s,
@@ -201,6 +204,20 @@ class SessionRunner:
         valid_ratio = round(valid_count / nominal_slots, 4) if nominal_slots > 0 else 0.0
         effective_rate_hz = round(valid_count / actual_duration_s, 2)
 
+        # Run distress classification if classifier is configured
+        estimation = EstimationStatus()
+        if self.distress_classifier is not None:
+            if status == STATUS_COMPLETED:
+                estimation = self.distress_classifier.predict_session(
+                    slots=processed_slots,
+                    nominal_slots=nominal_slots,
+                )
+            else:
+                estimation = EstimationStatus(
+                    status="withheld",
+                    reason=f"Session incomplete (status: '{status}')",
+                )
+
         summary = SessionSummary(
             schema_version=self.config.config_version,
             config_version=self.config.config_version,
@@ -221,6 +238,7 @@ class SessionRunner:
             reasons_count=reasons_count,
             device_metadata=self.source.get_metadata(),
             model_metadata=self.extractor.get_metadata(),
+            estimation=estimation,
         )
 
         final_path = self.exporter.finalize(summary)
@@ -230,5 +248,13 @@ class SessionRunner:
             f"[AI-FACE] Slots: {valid_count}/{nominal_slots} valid "
             f"({valid_ratio * 100:.1f}%), Effective rate: {effective_rate_hz:.1f} Hz."
         )
+        if estimation.status == "available":
+            print(
+                f"[AI-FACE] Distress Level: {estimation.level.upper()} "
+                f"(Confidence: {estimation.confidence * 100:.1f}%)"
+            )
+            print(f"[AI-FACE] Class Probabilities: {estimation.probabilities}")
+        elif estimation.status == "withheld":
+            print(f"[AI-FACE] Distress Estimation: WITHHELD ({estimation.reason})")
 
         return summary
