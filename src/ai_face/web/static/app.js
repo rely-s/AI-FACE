@@ -89,7 +89,6 @@ async function startCamera() {
       audio: false
     });
     video.srcObject = liveStream;
-    video.classList.remove("hidden");
     placeholder.classList.add("hidden");
     overlay.classList.remove("hidden");
 
@@ -114,9 +113,10 @@ function stopCamera() {
   }
   const video = document.getElementById("webcam-video");
   video.srcObject = null;
-  video.classList.add("hidden");
   document.getElementById("camera-placeholder").classList.remove("hidden");
-  document.getElementById("live-annotated-overlay").classList.add("hidden");
+  const overlay = document.getElementById("live-annotated-overlay");
+  overlay.classList.add("hidden");
+  overlay.src = "";
 
   document.getElementById("btn-start-camera").classList.remove("hidden");
   document.getElementById("btn-stop-camera").classList.add("hidden");

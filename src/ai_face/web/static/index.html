@@ -99,10 +99,10 @@
               </button>
             </div>
 
-            <div class="relative w-full bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner min-h-[380px] max-h-[520px]">
-              <video id="webcam-video" autoplay playsinline muted class="w-full h-full max-h-[480px] object-contain hidden"></video>
-              <img id="live-annotated-overlay" class="w-full h-full max-h-[480px] object-contain z-10" alt="HUD Stream" />
+            <div class="relative w-full aspect-[4/3] max-w-[640px] bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner mx-auto">
+              <video id="webcam-video" autoplay playsinline muted class="hidden"></video>
               <canvas id="capture-canvas" class="hidden"></canvas>
+              <img id="live-annotated-overlay" class="w-full h-full object-contain hidden" alt="HUD Stream" />
 
               <div id="camera-placeholder" class="text-center p-6 text-slate-500">
                 <i data-lucide="video-off" class="w-12 h-12 mx-auto mb-2 text-slate-600"></i>
