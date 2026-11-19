@@ -10,7 +10,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="/static/styles.css?v=2.2" />
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -99,12 +99,18 @@
               </button>
             </div>
 
-            <div class="relative w-full aspect-[4/3] max-w-[640px] bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner mx-auto">
-              <video id="webcam-video" autoplay playsinline muted class="hidden"></video>
-              <canvas id="capture-canvas" class="hidden"></canvas>
-              <img id="live-annotated-overlay" class="w-full h-full object-contain hidden" alt="HUD Stream" />
+            <div id="live-video-box" onclick="handleVideoBoxClick(event)" class="relative w-full aspect-[4/3] max-w-[640px] bg-black rounded-lg overflow-hidden border border-slate-800 mx-auto shadow-inner cursor-pointer" title="Klik layar atau tekan 'E' untuk beralih mode ekspresi">
+              <!-- Raw Video Stream (active in GPU, stacked behind overlay) -->
+              <video id="webcam-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-contain"></video>
 
-              <div id="camera-placeholder" class="text-center p-6 text-slate-500">
+              <!-- Offscreen Canvas for Frame Grabbing -->
+              <canvas id="capture-canvas" class="hidden"></canvas>
+
+              <!-- Annotated HUD Overlay (stacked on top with exact alignment) -->
+              <img id="live-annotated-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none hidden" alt="HUD Stream" />
+
+              <!-- Idle Placeholder -->
+              <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-slate-500 bg-slate-950 z-20">
                 <i data-lucide="video-off" class="w-12 h-12 mx-auto mb-2 text-slate-600"></i>
                 <p class="text-sm font-medium">Kamera belum diaktifkan</p>
                 <p class="text-xs text-slate-500">Klik tombol di bawah untuk memulai asesmen real-time</p>
@@ -545,6 +551,6 @@
     <p>AI-FACE Research Platform &copy; 2026 &bull; Berdasarkan protokol klinis Gavrilescu (2019) &amp; Binz et al. (2023)</p>
   </footer>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=2.2"></script>
 </body>
 </html>

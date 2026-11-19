@@ -6,7 +6,7 @@ from typing import Any
 
 import cv2
 import numpy as np
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -224,6 +224,15 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
         allow_headers=["*"],
     )
 
+    @app.middleware("http")
+    async def add_no_cache_headers(request: Request, call_next: Any) -> Any:
+        response = await call_next(request)
+        if request.url.path.startswith("/static") or request.url.path == "/":
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
+
     processor: ImageDistressProcessor | None = None
     if Path(model_path).is_file():
         processor = ImageDistressProcessor(model_path=model_path)
@@ -268,6 +277,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
     async def analyze_photo(
         file: UploadFile = File(...),
         show_emotions: bool = Form(False),
+        subject_id: str = Form("Subject"),
     ) -> dict[str, Any]:
         if processor is None:
             raise HTTPException(status_code=503, detail="Face Landmarker model is not loaded.")
@@ -278,9 +288,13 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
         if img is None:
             raise HTTPException(status_code=400, detail="Could not decode uploaded image.")
 
+        resolved_subject_id = (
+            subject_id if subject_id != "Subject" else Path(file.filename or "patient").stem
+        )
+
         blendshapes, emotions, dass, facs_aus, result = processor.process_image(
             img_bgr=img,
-            subject_id=Path(file.filename or "patient").stem,
+            subject_id=resolved_subject_id,
         )
 
         annotated_bgr = render_shore_style_overlay(
@@ -290,7 +304,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
             dass=dass,
             facs_aus=facs_aus,
             show_emotions=show_emotions,
-            subject_id=Path(file.filename or "patient").stem[:8],
+            subject_id=resolved_subject_id[:12],
         )
 
         # Encode annotated image to JPEG base64
@@ -327,9 +341,10 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
     async def analyze_frame(
         file: UploadFile = File(...),
         show_emotions: bool = Form(False),
+        subject_id: str = Form("Subject"),
     ) -> dict[str, Any]:
         """Real-time webcam frame snapshot evaluation from the web browser."""
-        return await analyze_photo(file=file, show_emotions=show_emotions)
+        return await analyze_photo(file=file, show_emotions=show_emotions, subject_id=subject_id)
 
     # Mount static assets
     if STATIC_DIR.is_dir():

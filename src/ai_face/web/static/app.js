@@ -76,6 +76,8 @@ function getAUIntensityLetter(score) {
 // TAB 1: LIVE WEBCAM MONITORING
 // =========================================================================
 
+let isAnalyzingFrame = false;
+
 async function startCamera() {
   const video = document.getElementById("webcam-video");
   const placeholder = document.getElementById("camera-placeholder");
@@ -89,14 +91,19 @@ async function startCamera() {
       audio: false
     });
     video.srcObject = liveStream;
+    await video.play();
+
     placeholder.classList.add("hidden");
-    overlay.classList.remove("hidden");
+    if (overlay) overlay.classList.remove("hidden");
 
     btnStart.classList.add("hidden");
     btnStop.classList.remove("hidden");
 
     liveStartTime = Date.now();
-    document.getElementById("live-subject-id").textContent = "SUBJ-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+    const subjId = "SUBJ-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+    document.getElementById("live-subject-id").textContent = subjId;
+
+    isAnalyzingFrame = false;
 
     // Start frame loop at ~10-15 Hz (every 100ms)
     liveInterval = setInterval(captureAndSendLiveFrame, 100);
@@ -112,11 +119,15 @@ function stopCamera() {
     liveStream = null;
   }
   const video = document.getElementById("webcam-video");
-  video.srcObject = null;
+  if (video) video.srcObject = null;
   document.getElementById("camera-placeholder").classList.remove("hidden");
   const overlay = document.getElementById("live-annotated-overlay");
-  overlay.classList.add("hidden");
-  overlay.src = "";
+  if (overlay) {
+    overlay.src = "";
+    overlay.classList.add("hidden");
+  }
+
+  isAnalyzingFrame = false;
 
   document.getElementById("btn-start-camera").classList.remove("hidden");
   document.getElementById("btn-stop-camera").classList.add("hidden");
@@ -135,10 +146,29 @@ function toggleLiveEmotions() {
   lucide.createIcons();
 }
 
+function handleVideoBoxClick(event) {
+  // Toggle emotion calculation when clicking video box
+  toggleLiveEmotions();
+}
+
+// Global hotkey: 'E' or 'e' to toggle emotion calculation
+window.addEventListener("keydown", (e) => {
+  if (e.key === "e" || e.key === "E") {
+    if (document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+      return;
+    }
+    toggleLiveEmotions();
+  }
+});
+
 async function captureAndSendLiveFrame() {
+  if (isAnalyzingFrame) return; // Prevent network piling
+
   const video = document.getElementById("webcam-video");
   const canvas = document.getElementById("capture-canvas");
-  if (!video || video.readyState !== 4) return;
+  if (!video || video.readyState < 2 || !video.videoWidth) return;
+
+  isAnalyzingFrame = true;
 
   canvas.width = video.videoWidth || 640;
   canvas.height = video.videoHeight || 480;
@@ -146,10 +176,15 @@ async function captureAndSendLiveFrame() {
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
   canvas.toBlob(async (blob) => {
-    if (!blob) return;
+    if (!blob) {
+      isAnalyzingFrame = false;
+      return;
+    }
     const formData = new FormData();
     formData.append("file", blob, "live_frame.jpg");
     formData.append("show_emotions", liveShowEmotions ? "true" : "false");
+    const subjId = document.getElementById("live-subject-id")?.textContent || "Subject";
+    formData.append("subject_id", subjId);
 
     try {
       const res = await fetch("/api/v1/analyze/frame", {
@@ -161,6 +196,8 @@ async function captureAndSendLiveFrame() {
       updateLiveDashboard(data);
     } catch (err) {
       // frame dropped, ignore silently
+    } finally {
+      isAnalyzingFrame = false;
     }
   }, "image/jpeg", 0.75);
 }
@@ -168,7 +205,11 @@ async function captureAndSendLiveFrame() {
 function updateLiveDashboard(data) {
   // Update HUD overlay image
   if (data.annotated_image_base64) {
-    document.getElementById("live-annotated-overlay").src = data.annotated_image_base64;
+    const overlay = document.getElementById("live-annotated-overlay");
+    if (overlay) {
+      overlay.src = data.annotated_image_base64;
+      overlay.classList.remove("hidden");
+    }
   }
 
   // Update uptime

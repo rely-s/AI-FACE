@@ -407,5 +407,15 @@ def render_shore_style_overlay(
                 draw_facs_action_units_panel(
                     display, (w // 2 - panel_w // 2, h - 116), panel_w, facs_aus
                 )
+    else:
+        cv2.putText(
+            display,
+            "MENCARI WAJAH...",
+            (w // 2 - 70, 36),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.45,
+            (0, 180, 255),
+            1,
+        )
 
     return display
