@@ -1,0 +1,219 @@
+"""AI-FACE Command-Line Interface (CLI)."""
+
+import argparse
+import sys
+import urllib.request
+from pathlib import Path
+
+from ai_face.config import SessionConfig
+from ai_face.constants import (
+    DEFAULT_MODEL_PATH,
+    OFFICIAL_MODEL_SHA256,
+    OFFICIAL_MODEL_URL,
+)
+from ai_face.extractor import FaceLandmarkerExtractor, compute_file_sha256
+from ai_face.session_runner import SessionRunner
+from ai_face.source import VideoFileSource, WebcamSource
+
+
+def download_official_model(dest_path: Path) -> None:
+    """Download the official Google MediaPipe Face Landmarker model asset."""
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    print(f"[AI-FACE] Downloading official model from:\n  {OFFICIAL_MODEL_URL}")
+    print(f"[AI-FACE] Saving to: {dest_path.resolve()} ...")
+
+    urllib.request.urlretrieve(OFFICIAL_MODEL_URL, dest_path)
+    checksum = compute_file_sha256(dest_path)
+    print(f"[AI-FACE] Model downloaded successfully. SHA-256: {checksum}")
+    if checksum == OFFICIAL_MODEL_SHA256:
+        print("[AI-FACE] Checksum verified: Match official release.")
+    else:
+        print(f"[AI-FACE] Warning: Checksum differs from expected ({OFFICIAL_MODEL_SHA256}).")
+
+
+def parse_arguments(args: list[str] | None = None) -> argparse.Namespace:
+    """Parse and validate command line arguments."""
+    parser = argparse.ArgumentParser(
+        prog="ai-face",
+        description=(
+            "AI-FACE: Facial Feature Acquisition & Quality Monitoring for Distress Research.\n"
+            "Captures 30-second sessions at 15 Hz nominal rate (450 slots) from webcam or video.\n"
+            "Extracts 52 ARKit blendshapes and 3D head pose (yaw, pitch, roll in degrees)."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  1. Live acquisition from default webcam:
+     ai-face --camera-index 0
+
+  2. Automated headless extraction from a local video file:
+     ai-face --video ./sample.mp4 --headless --output-dir ./output
+
+  3. Custom session duration and custom output directory:
+     ai-face --camera-index 0 --duration 10.0 --fps 15.0 --output-dir ./sessions
+
+  4. Download the official MediaPipe Face Landmarker task model:
+     ai-face --download-model
+
+Keybindings:
+  During webcam preview, press 'q' or 'ESC' to gracefully terminate and export session.
+  Press Ctrl+C in terminal at any time for graceful shutdown.
+""",
+    )
+
+    input_group = parser.add_mutually_exclusive_group()
+    input_group.add_argument(
+        "--camera-index",
+        type=int,
+        default=None,
+        metavar="INT",
+        help="Webcam device index (e.g. 0 for default integrated webcam / Logitech C922).",
+    )
+    input_group.add_argument(
+        "--video",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="Path to local video file for offline or automated testing.",
+    )
+
+    parser.add_argument(
+        "--model-path",
+        type=Path,
+        default=Path(DEFAULT_MODEL_PATH),
+        metavar="PATH",
+        help=f"Path to MediaPipe face_landmarker.task model (default: '{DEFAULT_MODEL_PATH}').",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("output"),
+        metavar="DIR",
+        help="Root output directory where session folder will be created (default: 'output').",
+    )
+    parser.add_argument(
+        "--session-id",
+        type=str,
+        default=None,
+        metavar="UUID",
+        help="Optional explicit session UUID. If omitted, a fresh UUIDv4 is generated.",
+    )
+    parser.add_argument(
+        "--duration",
+        type=float,
+        default=30.0,
+        metavar="SECONDS",
+        help="Session target acquisition duration in seconds (default: 30.0).",
+    )
+    parser.add_argument(
+        "--fps",
+        type=float,
+        default=15.0,
+        metavar="HZ",
+        help="Target extraction sampling rate in Hz (default: 15.0).",
+    )
+    parser.add_argument(
+        "--headless",
+        "--no-preview",
+        action="store_true",
+        dest="headless",
+        help="Disable GUI preview window. Recommended for automated tests and headless servers.",
+    )
+    parser.add_argument(
+        "--no-mirror",
+        action="store_true",
+        dest="no_mirror",
+        help="Disable horizontal flip in GUI preview window.",
+    )
+    parser.add_argument(
+        "--allow-multiple-faces",
+        action="store_true",
+        help="Permit processing even if multiple faces are observed in the frame.",
+    )
+    parser.add_argument(
+        "--download-model",
+        action="store_true",
+        help="Download the official Google MediaPipe face_landmarker.task model and exit.",
+    )
+
+    return parser.parse_args(args)
+
+
+def main(args: list[str] | None = None) -> int:
+    """CLI application entry point."""
+    parsed = parse_arguments(args)
+
+    if parsed.download_model:
+        download_official_model(parsed.model_path)
+        return 0
+
+    if parsed.camera_index is None and parsed.video is None:
+        print(
+            "Error: Either '--camera-index <INT>' or '--video <PATH>' must be specified.\n"
+            "Use 'ai-face --help' to see usage examples.",
+            file=sys.stderr,
+        )
+        return 1
+
+    # Verify model presence
+    if not parsed.model_path.is_file():
+        print(
+            f"Error: Face landmarker model not found at '{parsed.model_path.resolve()}'.\n"
+            f"Please download the official model using:\n"
+            f"  ai-face --download-model --model-path {parsed.model_path}\n"
+            f"Or download directly from:\n  {OFFICIAL_MODEL_URL}\n",
+            file=sys.stderr,
+        )
+        return 1
+
+    # Default preview is disabled in headless mode
+    is_preview = not parsed.headless
+
+    config = SessionConfig(
+        duration_s=parsed.duration,
+        target_fps=parsed.fps,
+        allow_multiple_faces=parsed.allow_multiple_faces,
+        output_dir=parsed.output_dir,
+        model_path=parsed.model_path,
+        preview=is_preview,
+        preview_mirror=not parsed.no_mirror,
+    )
+
+    try:
+        if parsed.camera_index is not None:
+            source = WebcamSource(camera_index=parsed.camera_index)
+        else:
+            source = VideoFileSource(video_path=parsed.video)
+    except Exception as e:
+        print(f"[AI-FACE] Failed to initialize input source: {e}", file=sys.stderr)
+        return 1
+
+    try:
+        extractor = FaceLandmarkerExtractor(
+            model_path=config.model_path,
+            thresholds=config.quality,
+            allow_multiple_faces=config.allow_multiple_faces,
+        )
+    except Exception as e:
+        source.close()
+        print(f"[AI-FACE] Failed to initialize feature extractor: {e}", file=sys.stderr)
+        return 1
+
+    try:
+        runner = SessionRunner(
+            config=config,
+            source=source,
+            extractor=extractor,
+            session_id=parsed.session_id,
+        )
+        summary = runner.run()
+        return 0 if summary.status in ("completed", "cancelled") else 1
+    except Exception as e:
+        print(f"[AI-FACE] Execution error: {e}", file=sys.stderr)
+        return 1
+    finally:
+        extractor.close()
+
+
+if __name__ == "__main__":
+    sys.exit(main())

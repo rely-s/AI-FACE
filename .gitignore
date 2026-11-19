@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Testing & quality
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# AI-FACE Outputs, Raw Videos, and Patient Data
+output/
+sessions/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+*.jpg
+*.jpeg
+*.png
+!doc/assets/*.png
+!tests/fixtures/*.png
+
+# Model weights / tasks (large binaries - instructions provided to download)
+# models/*.task
+
+# OS files
+.DS_Store
+Thumbs.db
