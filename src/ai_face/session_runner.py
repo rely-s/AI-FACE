@@ -17,10 +17,12 @@ from ai_face.constants import (
     STATUS_FAILED,
 )
 from ai_face.exporter import SessionExporter
-from ai_face.extractor import FaceLandmarkerExtractor, render_preview_overlay
+from ai_face.extractor import FaceLandmarkerExtractor
 from ai_face.models import EstimationStatus, SessionSummary, SlotRecord
 from ai_face.scheduler import SlotScheduler
+from ai_face.single_frame_classifier import evaluate_frame_emotions
 from ai_face.source import FrameSource
+from ai_face.visualizer import render_shore_style_overlay
 
 
 class SessionRunner:
@@ -92,7 +94,6 @@ class SessionRunner:
                 scheduled_slots = self.scheduler.process_frame(frame_bgr, frame_ms)
 
                 last_result = None
-                status_text = "PROCESSING"
 
                 for slot in scheduled_slots:
                     if slot.frame is None:
@@ -111,7 +112,6 @@ class SessionRunner:
                         reasons_count[REASON_FRAME_MISSED] = (
                             reasons_count.get(REASON_FRAME_MISSED, 0) + 1
                         )
-                        status_text = f"MISSED (Slot {slot.slot_index})"
                     else:
                         blendshapes, pose_deg, reasons, last_result = self.extractor.extract(
                             slot.frame, slot.frame_ms
@@ -132,22 +132,26 @@ class SessionRunner:
                         )
                         for r in reasons:
                             reasons_count[r] = reasons_count.get(r, 0) + 1
-                        status_text = "VALID" if is_valid else f"INVALID ({','.join(reasons)})"
 
                     self.exporter.write_slot(slot_rec)
                     processed_slots.append(slot_rec)
 
                 # Render GUI preview if enabled
                 if self.config.preview:
-                    measured_fps = len(processed_slots) / max(elapsed_s, 0.001)
-                    current_slot_idx = processed_slots[-1].slot_index if processed_slots else 0
-                    hud_frame = render_preview_overlay(
+                    current_emotions = None
+                    if (
+                        processed_slots
+                        and processed_slots[-1].valid
+                        and processed_slots[-1].blendshapes
+                    ):
+                        current_emotions = evaluate_frame_emotions(processed_slots[-1].blendshapes)
+
+                    hud_frame = render_shore_style_overlay(
                         frame_bgr=frame_bgr,
                         detection_result=last_result,
-                        slot_index=current_slot_idx,
-                        elapsed_s=elapsed_s,
-                        status_text=status_text,
-                        fps=measured_fps,
+                        emotions=current_emotions,
+                        subject_id=self.session_id[:8],
+                        uptime_s=elapsed_s,
                         mirror=self.config.preview_mirror,
                     )
                     cv2.imshow(window_name, hud_frame)

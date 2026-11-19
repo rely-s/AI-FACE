@@ -16,6 +16,7 @@ from ai_face.constants import (
     OFFICIAL_MODEL_URL,
 )
 from ai_face.extractor import FaceLandmarkerExtractor, compute_file_sha256
+from ai_face.image_processor import ImageDistressProcessor
 from ai_face.session_runner import SessionRunner
 from ai_face.source import VideoFileSource, WebcamSource
 
@@ -79,6 +80,20 @@ Keybindings:
         default=None,
         metavar="PATH",
         help="Path to local video file for offline or automated testing.",
+    )
+    input_group.add_argument(
+        "--image",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="Path to a single face photo/image to classify distress and emotions directly.",
+    )
+    input_group.add_argument(
+        "--image-dir",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help="Path to a folder of face photos for batch dataset processing and classification.",
     )
 
     parser.add_argument(
@@ -163,9 +178,14 @@ def main(args: list[str] | None = None) -> int:
         download_official_model(parsed.model_path)
         return 0
 
-    if parsed.camera_index is None and parsed.video is None:
+    if (
+        parsed.camera_index is None
+        and parsed.video is None
+        and parsed.image is None
+        and parsed.image_dir is None
+    ):
         print(
-            "Error: Either '--camera-index <INT>' or '--video <PATH>' must be specified.\n"
+            "Error: Specify one of: '--camera-index', '--video', '--image', or '--image-dir'.\n"
             "Use 'ai-face --help' to see usage examples.",
             file=sys.stderr,
         )
@@ -181,6 +201,37 @@ def main(args: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 1
+
+    # Handle image mode (single photo or photo directory)
+    if parsed.image is not None or parsed.image_dir is not None:
+        try:
+            processor = ImageDistressProcessor(model_path=parsed.model_path)
+            if parsed.image is not None:
+                res = processor.process_file(
+                    image_path=parsed.image,
+                    output_dir=parsed.output_dir,
+                    save_annotated=True,
+                )
+                print(f"[AI-FACE] Image: {res['image_name']}")
+                print(f"[AI-FACE] Face Detected: {res['face_detected']}")
+                level = res["distress_level"]
+                score = res["distress_score"]
+                print(f"[AI-FACE] Distress Level: {level} (Score: {score})")
+                if res.get("emotions"):
+                    print(f"[AI-FACE] Emotions: {res['emotions']}")
+                if res.get("annotated_image_path"):
+                    print(f"[AI-FACE] Visual Feedback Image: {res['annotated_image_path']}")
+            else:
+                processor.process_directory(
+                    directory_path=parsed.image_dir,
+                    output_dir=parsed.output_dir,
+                    save_annotated=True,
+                )
+            processor.close()
+            return 0
+        except Exception as e:
+            print(f"[AI-FACE] Image processing error: {e}", file=sys.stderr)
+            return 1
 
     # Default preview is disabled in headless mode
     is_preview = not parsed.headless
