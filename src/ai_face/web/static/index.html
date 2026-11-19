@@ -99,9 +99,9 @@
               </button>
             </div>
 
-            <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner">
-              <video id="webcam-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover hidden"></video>
-              <img id="live-annotated-overlay" class="absolute inset-0 w-full h-full object-cover z-10" alt="HUD Stream" />
+            <div class="relative w-full bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner min-h-[380px] max-h-[520px]">
+              <video id="webcam-video" autoplay playsinline muted class="w-full h-full max-h-[480px] object-contain hidden"></video>
+              <img id="live-annotated-overlay" class="w-full h-full max-h-[480px] object-contain z-10" alt="HUD Stream" />
               <canvas id="capture-canvas" class="hidden"></canvas>
 
               <div id="camera-placeholder" class="text-center p-6 text-slate-500">
@@ -292,11 +292,11 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <div class="text-[11px] text-slate-400 mb-1">Foto Asli</div>
-                  <img id="photo-original-preview" class="w-full aspect-square object-cover rounded-lg border border-slate-800" alt="Original" />
+                  <img id="photo-original-preview" class="w-full max-h-[380px] object-contain rounded-lg border border-slate-800 bg-black" alt="Original" />
                 </div>
                 <div>
                   <div class="text-[11px] text-slate-400 mb-1">Deteksi Anotasi HUD AI-FACE</div>
-                  <img id="photo-annotated-preview" class="w-full aspect-square object-cover rounded-lg border border-slate-800 shadow" alt="Annotated" />
+                  <img id="photo-annotated-preview" class="w-full max-h-[380px] object-contain rounded-lg border border-slate-800 bg-black shadow" alt="Annotated" />
                 </div>
               </div>
             </div>
