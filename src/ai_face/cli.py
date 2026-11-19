@@ -185,6 +185,23 @@ Keybindings:
         action="store_true",
         help="Display emotion bars and radar dial (default: False, shows clinical FACS only).",
     )
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Start the interactive AI-FACE Clinical Web Platform in the browser.",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        metavar="PORT",
+        help="Port to bind the web server (default: 8000).",
+    )
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Do not automatically open the web browser on server startup.",
+    )
 
     return parser.parse_args(args)
 
@@ -210,6 +227,20 @@ def main(args: list[str] | None = None) -> int:
             print(f"[AI-FACE] Training failed: {e}", file=sys.stderr)
             return 1
 
+    if parsed.web:
+        from ai_face.web.server import run_server
+
+        try:
+            run_server(
+                port=parsed.port,
+                model_path=parsed.model_path,
+                auto_open=not parsed.no_browser,
+            )
+            return 0
+        except Exception as e:
+            print(f"[AI-FACE] Web server error: {e}", file=sys.stderr)
+            return 1
+
     if (
         parsed.camera_index is None
         and parsed.video is None
@@ -217,7 +248,8 @@ def main(args: list[str] | None = None) -> int:
         and parsed.image_dir is None
     ):
         print(
-            "Error: Specify one of: '--camera-index', '--video', '--image', or '--image-dir'.\n"
+            "Error: Specify one of: '--web', '--camera-index', '--video', "
+            "'--image', or '--image-dir'.\n"
             "Use 'ai-face --help' to see usage examples.",
             file=sys.stderr,
         )

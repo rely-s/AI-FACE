@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-FACE | Clinical Oncology & Pediatric Platform</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            },
+            clinical: {
+              bg: '#0a0f1d',
+              card: '#111827',
+              border: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen font-sans flex flex-col">
+
+  <!-- Header Navbar -->
+  <header class="border-b border-slate-800 bg-[#0d1424]/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+          <i data-lucide="scan-face" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            AI-FACE <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Clinical FACS</span>
+          </h1>
+          <p class="text-xs text-slate-400">Facial Action Coding System & DASS-3 Oncology Monitoring</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-sm">
+        <button id="tab-btn-live" class="nav-tab active px-3.5 py-1.5 rounded-lg flex items-center gap-2 transition bg-emerald-600 text-white font-medium" onclick="switchTab('live')">
+          <i data-lucide="video" class="w-4 h-4"></i> Live Camera
+        </button>
+        <button id="tab-btn-photo" class="nav-tab px-3.5 py-1.5 rounded-lg flex items-center gap-2 transition text-slate-300 hover:text-white" onclick="switchTab('photo')">
+          <i data-lucide="image" class="w-4 h-4"></i> Diagnostik Foto
+        </button>
+        <button id="tab-btn-batch" class="nav-tab px-3.5 py-1.5 rounded-lg flex items-center gap-2 transition text-slate-300 hover:text-white" onclick="switchTab('batch')">
+          <i data-lucide="folder-kanban" class="w-4 h-4"></i> Batch Dataset
+        </button>
+        <button id="tab-btn-glossary" class="nav-tab px-3.5 py-1.5 rounded-lg flex items-center gap-2 transition text-slate-300 hover:text-white" onclick="switchTab('glossary')">
+          <i data-lucide="book-open" class="w-4 h-4"></i> Panduan Klinis
+        </button>
+      </nav>
+
+      <!-- Status Indicators -->
+      <div class="hidden sm:flex items-center gap-3 text-xs">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> MediaPipe Float16 Active
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: LIVE WEBCAM MONITORING -->
+    <!-- ============================================================== -->
+    <div id="tab-content-live" class="tab-pane">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Video Stream Box (Left 7 Cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          <div class="clinical-card p-4 relative overflow-hidden flex flex-col items-center">
+            <div class="w-full flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="camera" class="w-4 h-4 text-emerald-400"></i>
+                <span class="text-sm font-semibold text-slate-200">Pratinjau Kamera Browser</span>
+              </div>
+              <!-- Emotion Toggle Button -->
+              <button id="live-emotion-toggle" onclick="toggleLiveEmotions()" class="text-xs px-3 py-1.5 rounded-lg font-medium border flex items-center gap-1.5 transition border-slate-700 bg-slate-800 text-slate-300 hover:border-emerald-500">
+                <i data-lucide="toggle-left" class="w-4 h-4"></i> Mode Klinis Murni (Ekspresi OFF)
+              </button>
+            </div>
+
+            <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center shadow-inner">
+              <video id="webcam-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover hidden"></video>
+              <img id="live-annotated-overlay" class="absolute inset-0 w-full h-full object-cover z-10" alt="HUD Stream" />
+              <canvas id="capture-canvas" class="hidden"></canvas>
+
+              <div id="camera-placeholder" class="text-center p-6 text-slate-500">
+                <i data-lucide="video-off" class="w-12 h-12 mx-auto mb-2 text-slate-600"></i>
+                <p class="text-sm font-medium">Kamera belum diaktifkan</p>
+                <p class="text-xs text-slate-500">Klik tombol di bawah untuk memulai asesmen real-time</p>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="w-full flex items-center justify-between mt-4">
+              <div class="flex items-center gap-2">
+                <button id="btn-start-camera" onclick="startCamera()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg shadow-emerald-900/30 transition">
+                  <i data-lucide="play" class="w-4 h-4"></i> Mulai Kamera
+                </button>
+                <button id="btn-stop-camera" onclick="stopCamera()" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition">
+                  <i data-lucide="square" class="w-4 h-4"></i> Berhenti
+                </button>
+              </div>
+              <span id="live-fps-indicator" class="text-xs font-mono text-slate-400">Target: 15 Hz (VIDEO Mode)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Metrics & DASS-3 (Right 5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <!-- Session Status Card -->
+          <div class="clinical-card p-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i> Status Monitoring Subjek
+            </h3>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                <div class="text-xs text-slate-400">Subjek ID</div>
+                <div id="live-subject-id" class="font-mono text-sm font-bold text-white mt-0.5">N/A</div>
+              </div>
+              <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                <div class="text-xs text-slate-400">Uptime</div>
+                <div id="live-uptime" class="font-mono text-sm font-bold text-white mt-0.5">0.0s</div>
+              </div>
+              <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                <div class="text-xs text-slate-400">Tingkat Distres</div>
+                <div id="live-distress-badge" class="text-xs font-bold px-2 py-0.5 rounded mt-1 inline-block badge-normal">LOW</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DASS-3 Clinical Assessment Card -->
+          <div class="clinical-card p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="heart-pulse" class="w-4 h-4 text-cyan-400"></i> Asesmen Klinis DASS-3
+              </h3>
+              <span class="text-[10px] text-slate-500">Sensors 2019</span>
+            </div>
+
+            <div class="space-y-3.5">
+              <!-- Depression -->
+              <div>
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="font-medium text-slate-300 flex items-center gap-1">
+                    Depresi (DEP)
+                    <button class="text-slate-500 hover:text-slate-300" title="Mengukur AU15 (sudut bibir turun), AU6 (pipi kendur), dan AU26"><i data-lucide="info" class="w-3.5 h-3.5"></i></button>
+                  </span>
+                  <div class="flex items-center gap-2">
+                    <span id="live-dep-level" class="text-[11px] font-bold px-1.5 py-0.5 rounded badge-normal">Normal</span>
+                    <span id="live-dep-score" class="font-mono font-bold text-slate-200">0%</span>
+                  </div>
+                </div>
+                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="live-dep-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Anxiety -->
+              <div>
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="font-medium text-slate-300 flex items-center gap-1">
+                    Kecemasan (ANX)
+                    <button class="text-slate-500 hover:text-slate-300" title="Mengukur AU2 (alis luar), AU45 (kedipan), AU5 (kelopak mata atas)"><i data-lucide="info" class="w-3.5 h-3.5"></i></button>
+                  </span>
+                  <div class="flex items-center gap-2">
+                    <span id="live-anx-level" class="text-[11px] font-bold px-1.5 py-0.5 rounded badge-mild">Mild</span>
+                    <span id="live-anx-score" class="font-mono font-bold text-slate-200">0%</span>
+                  </div>
+                </div>
+                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="live-anx-bar" class="h-full bg-cyan-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Stress -->
+              <div>
+                <div class="flex justify-between items-center text-xs mb-1">
+                  <span class="font-medium text-slate-300 flex items-center gap-1">
+                    Stres (STR)
+                    <button class="text-slate-500 hover:text-slate-300" title="Mengukur AU1 (dahi tengah), AU4 (alis berkerut), AU24 (penekan bibir)"><i data-lucide="info" class="w-3.5 h-3.5"></i></button>
+                  </span>
+                  <div class="flex items-center gap-2">
+                    <span id="live-str-level" class="text-[11px] font-bold px-1.5 py-0.5 rounded badge-normal">Normal</span>
+                    <span id="live-str-score" class="font-mono font-bold text-slate-200">0%</span>
+                  </div>
+                </div>
+                <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="live-str-bar" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Muscular Action Units -->
+          <div class="clinical-card p-4">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i> Action Units Otot Aktif
+            </h3>
+            <div id="live-active-aus" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+              <span class="text-xs text-slate-500 italic">Menunggu deteksi wajah...</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: SINGLE PHOTO DIAGNOSTIC -->
+    <!-- ============================================================== -->
+    <div id="tab-content-photo" class="tab-pane hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Upload & Options (Left 4 Cols) -->
+        <div class="lg:col-span-4 flex flex-col gap-4">
+          <div class="clinical-card p-5">
+            <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+              <i data-lucide="upload-cloud" class="w-5 h-5 text-emerald-400"></i> Unggah Foto Pasien
+            </h2>
+            <p class="text-xs text-slate-400 mb-4">
+              Pilih foto wajah subjek untuk analisis tingkat stres, kecemasan, depresi klinis, serta unit FACS.
+            </p>
+
+            <div id="drop-zone" class="border-2 border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-900/40" onclick="document.getElementById('photo-input').click()">
+              <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="handlePhotoSelect(event)" />
+              <i data-lucide="image-plus" class="w-10 h-10 mx-auto text-slate-500 mb-2"></i>
+              <p class="text-xs font-medium text-slate-200">Tarik & lepas foto di sini, atau <span class="text-emerald-400 underline">cari file</span></p>
+              <p class="text-[10px] text-slate-500 mt-1">Mendukung format JPG, PNG, WEBP</p>
+            </div>
+
+            <!-- Options -->
+            <div class="mt-4 pt-4 border-t border-slate-800 space-y-3">
+              <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer">
+                <input type="checkbox" id="photo-show-emotions" class="rounded border-slate-700 text-emerald-600 focus:ring-emerald-500 bg-slate-800" />
+                <span>Tampilkan Bar Emosi & Radar Dial</span>
+              </label>
+
+              <button id="btn-analyze-photo" onclick="uploadAndAnalyzePhoto()" disabled class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Analisis Wajah Pasien
+              </button>
+            </div>
+          </div>
+
+          <!-- Clinical Info Hint -->
+          <div class="clinical-card p-4 text-xs text-slate-400 space-y-2">
+            <div class="font-semibold text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i> Prinsip Asesmen Medis
+            </div>
+            <p>
+              Pada pasien lanjut usia atau penderita kanker, kerutan statis dahi (AU4) dan mata (AU6/7) adalah fitur alami penuaan. AI-FACE mengombinasikan Action Units dengan valence emosi agar tidak menimbulkan false positive.
+            </p>
+          </div>
+        </div>
+
+        <!-- Diagnostic Results (Right 8 Cols) -->
+        <div class="lg:col-span-8 flex flex-col gap-6">
+          <div id="photo-empty-state" class="clinical-card p-12 text-center text-slate-500">
+            <i data-lucide="scan-eye" class="w-16 h-16 mx-auto mb-3 text-slate-600"></i>
+            <h3 class="text-sm font-semibold text-slate-400 mb-1">Belum Ada Foto Terpilih</h3>
+            <p class="text-xs text-slate-500">Silakan unggah foto wajah pada panel kiri untuk melihat hasil asesmen klinis FACS.</p>
+          </div>
+
+          <div id="photo-result-container" class="hidden flex flex-col gap-6">
+            
+            <!-- Visual Inspection Comparison -->
+            <div class="clinical-card p-4">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i data-lucide="eye" class="w-4 h-4 text-emerald-400"></i> Visual Feedback HUD (SHORE & FACS)
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div class="text-[11px] text-slate-400 mb-1">Foto Asli</div>
+                  <img id="photo-original-preview" class="w-full aspect-square object-cover rounded-lg border border-slate-800" alt="Original" />
+                </div>
+                <div>
+                  <div class="text-[11px] text-slate-400 mb-1">Deteksi Anotasi HUD AI-FACE</div>
+                  <img id="photo-annotated-preview" class="w-full aspect-square object-cover rounded-lg border border-slate-800 shadow" alt="Annotated" />
+                </div>
+              </div>
+            </div>
+
+            <!-- DASS-3 Diagnosis Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- Depression -->
+              <div class="clinical-card p-4">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-slate-300">Depresi (DEP)</span>
+                  <span id="photo-dep-badge" class="text-xs font-bold px-2 py-0.5 rounded badge-normal">Normal</span>
+                </div>
+                <div id="photo-dep-score" class="text-2xl font-bold font-mono text-white mb-2">0%</div>
+                <p class="text-[11px] text-slate-400">Otot bibir bawah (AU15) & tonus pipi (AU6, AU26).</p>
+              </div>
+
+              <!-- Anxiety -->
+              <div class="clinical-card p-4">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-slate-300">Kecemasan (ANX)</span>
+                  <span id="photo-anx-badge" class="text-xs font-bold px-2 py-0.5 rounded badge-mild">Mild</span>
+                </div>
+                <div id="photo-anx-score" class="text-2xl font-bold font-mono text-white mb-2">21%</div>
+                <p class="text-[11px] text-slate-400">Alis luar (AU2), kelopak mata (AU5), & kedipan (AU45).</p>
+              </div>
+
+              <!-- Stress -->
+              <div class="clinical-card p-4">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-slate-300">Stres (STR)</span>
+                  <span id="photo-str-badge" class="text-xs font-bold px-2 py-0.5 rounded badge-normal">Normal</span>
+                </div>
+                <div id="photo-str-score" class="text-2xl font-bold font-mono text-white mb-2">0%</div>
+                <p class="text-[11px] text-slate-400">Dahi tengah (AU1), alis kerut (AU4), & bibir rapat (AU24).</p>
+              </div>
+            </div>
+
+            <!-- 31 FACS Action Units Detailed Table -->
+            <div class="clinical-card p-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <i data-lucide="table" class="w-4 h-4 text-cyan-400"></i> Rincian 31 FACS Action Units (Paul Ekman)
+                </h3>
+                <div class="flex items-center gap-2">
+                  <input type="text" id="au-search" placeholder="Cari AU..." oninput="filterAUTable()" class="bg-slate-900 text-xs px-2.5 py-1 rounded border border-slate-700 text-slate-200 focus:outline-none focus:border-emerald-500" />
+                </div>
+              </div>
+
+              <div class="overflow-x-auto max-h-72 overflow-y-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                  <thead class="bg-slate-900/80 sticky top-0 text-[11px] text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th class="py-2 px-3">Kode AU</th>
+                      <th class="py-2 px-3">Nama Gerakan Otot</th>
+                      <th class="py-2 px-3">Otot Anatomi (Musculus)</th>
+                      <th class="py-2 px-3 text-center">Level FACS</th>
+                      <th class="py-2 px-3">Aktivasi</th>
+                      <th class="py-2 px-3">Arti Klinis</th>
+                    </tr>
+                  </thead>
+                  <tbody id="au-table-body" class="divide-y divide-slate-800/60 font-mono">
+                    <!-- Populated dynamically by app.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: BATCH DATASET EVALUATION -->
+    <!-- ============================================================== -->
+    <div id="tab-content-batch" class="tab-pane hidden">
+      <div class="flex flex-col gap-6">
+        <div class="clinical-card p-5">
+          <h2 class="text-base font-bold text-white mb-1 flex items-center gap-2">
+            <i data-lucide="folder-check" class="w-5 h-5 text-emerald-400"></i> Pemrosesan Batch Dataset Foto
+          </h2>
+          <p class="text-xs text-slate-400 mb-4">
+            Unggah beberapa foto pasien sekaligus untuk dianalisis dan diekspor ke tabel format CSV (kompatibel Excel & SPSS).
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="file" id="batch-input" multiple accept="image/*" class="hidden" onchange="handleBatchSelect(event)" />
+            <button onclick="document.getElementById('batch-input').click()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 rounded-lg text-sm font-medium flex items-center gap-2 transition">
+              <i data-lucide="files" class="w-4 h-4"></i> Pilih Banyak Foto Pasien
+            </button>
+            <button id="btn-process-batch" onclick="processBatchPhotos()" disabled class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium rounded-lg text-sm flex items-center gap-2 transition">
+              <i data-lucide="play" class="w-4 h-4"></i> Mulai Pemrosesan Batch
+            </button>
+            <button id="btn-download-csv" onclick="downloadBatchCSV()" disabled class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium rounded-lg text-sm flex items-center gap-2 transition">
+              <i data-lucide="download" class="w-4 h-4"></i> Unduh Rekap CSV
+            </button>
+            <span id="batch-file-count" class="text-xs text-slate-400 ml-auto">0 foto terpilih</span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div id="batch-progress-container" class="mt-4 hidden">
+            <div class="flex justify-between text-xs text-slate-400 mb-1">
+              <span id="batch-progress-text">Memproses 0 / 0...</span>
+              <span id="batch-progress-percent">0%</span>
+            </div>
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div id="batch-progress-bar" class="h-full bg-emerald-500 transition-all duration-200" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Batch Results Table -->
+        <div class="clinical-card p-4">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Tabel Hasil Rekapitulasi Pasien</h3>
+          <div class="overflow-x-auto max-h-96 overflow-y-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900/80 sticky top-0 text-[11px] text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-2 px-3">Nama File</th>
+                  <th class="py-2 px-3">Wajah Terdeteksi</th>
+                  <th class="py-2 px-3">Tingkat Distres</th>
+                  <th class="py-2 px-3">Depresi (DEP)</th>
+                  <th class="py-2 px-3">Kecemasan (ANX)</th>
+                  <th class="py-2 px-3">Stres (STR)</th>
+                  <th class="py-2 px-3">Valence</th>
+                </tr>
+              </thead>
+              <tbody id="batch-table-body" class="divide-y divide-slate-800/60 font-mono">
+                <tr>
+                  <td colspan="7" class="py-6 text-center text-slate-500 italic">Belum ada data batch yang diproses.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: GLOSARIUM & PANDUAN KLINIS -->
+    <!-- ============================================================== -->
+    <div id="tab-content-glossary" class="tab-pane hidden">
+      <div class="flex flex-col gap-6 max-w-4xl mx-auto">
+        
+        <!-- Header Reference -->
+        <div class="clinical-card p-6">
+          <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+            <i data-lucide="book-open-check" class="w-6 h-6 text-emerald-400"></i> Panduan Ilmiah & Klasifikasi Klinis
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            AI-FACE dibangun di atas fondasi riset klinis psikiatri dan onkologi, mengonversi kontraksi otot wajah mikro (FACS) menjadi skor psikometri terstandarisasi DASS-3 (*Depression, Anxiety, Stress Scales*).
+          </p>
+        </div>
+
+        <!-- 5 Severity Levels -->
+        <div class="clinical-card p-6">
+          <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <i data-lucide="gauge" class="w-4 h-4 text-cyan-400"></i> 5 Interval Keparahan Klinis DASS-3
+          </h3>
+          <div class="space-y-3">
+            <div class="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 flex items-start justify-between gap-3">
+              <div>
+                <span class="font-bold text-xs text-emerald-400">NORMAL (Skor &lt; 15%)</span>
+                <p class="text-xs text-slate-300 mt-0.5">Kondisi emosional stabil, rileks, dan bebas dari indikasi distres atau depresi patologis.</p>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">0 - 0.15</span>
+            </div>
+
+            <div class="p-3 rounded-lg border border-cyan-500/30 bg-cyan-500/10 flex items-start justify-between gap-3">
+              <div>
+                <span class="font-bold text-xs text-cyan-400">MILD (Skor 15% - 30%)</span>
+                <p class="text-xs text-slate-300 mt-0.5">Ketegangan ringan wajar (misal: adaptasi menatap kamera, kewaspadaan visual normal di ruang pemeriksaan).</p>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">0.15 - 0.30</span>
+            </div>
+
+            <div class="p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 flex items-start justify-between gap-3">
+              <div>
+                <span class="font-bold text-xs text-amber-400">MODERATE (Skor 30% - 60%)</span>
+                <p class="text-xs text-slate-300 mt-0.5">Ketegangan emosional sedang. Teramati kontraksi otot berulang pada dahi (AU4) atau bibir (AU15/AU24).</p>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">0.30 - 0.60</span>
+            </div>
+
+            <div class="p-3 rounded-lg border border-orange-500/30 bg-orange-500/10 flex items-start justify-between gap-3">
+              <div>
+                <span class="font-bold text-xs text-orange-400">SEVERE (Skor 60% - 80%)</span>
+                <p class="text-xs text-slate-300 mt-0.5">Ketegangan berat berkelanjutan. Direkomendasikan evaluasi langsung oleh tenaga medis/psikolog klinis.</p>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/40">0.60 - 0.80</span>
+            </div>
+
+            <div class="p-3 rounded-lg border border-rose-500/30 bg-rose-500/10 flex items-start justify-between gap-3">
+              <div>
+                <span class="font-bold text-xs text-rose-400">EXTREMELY SEVERE (Skor &ge; 80%)</span>
+                <p class="text-xs text-slate-300 mt-0.5">Indikasi distres akut atau depresi berat (memicu clinical override otomatis pada kombinasi AU kunci).</p>
+              </div>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40">&ge; 0.80</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6 Discrete FACS Intensity Levels -->
+        <div class="clinical-card p-6">
+          <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <i data-lucide="sparkle" class="w-4 h-4 text-emerald-400"></i> 6 Skala Intensitas Diskrit FACS (Ekman &amp; Friesen)
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <span class="font-bold text-slate-300">Level 0 (Absence)</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Otot istirahat sempurna (netral).</p>
+            </div>
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <span class="font-bold text-cyan-400">Level A (Trace)</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Jejak kontraksi sangat halus.</p>
+            </div>
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <span class="font-bold text-cyan-300">Level B (Slight)</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Kontraksi ringan tampak jelas.</p>
+            </div>
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <span class="font-bold text-emerald-400">Level C (Marked)</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Kontraksi sedang / tegas.</p>
+            </div>
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <span class="font-bold text-amber-400">Level D (Severe)</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Kontraksi kuat dan nyata.</p>
+            </div>
+            <div class="p-2.5 rounded bg-slate-900 border border-slate-800">
+              <span class="font-bold text-rose-400">Level E (Maximum)</span>
+              <p class="text-[11px] text-slate-500 mt-0.5">Kontraksi otot maksimal.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-[#0a0e1a] py-4 text-center text-xs text-slate-500">
+    <p>AI-FACE Research Platform &copy; 2026 &bull; Berdasarkan protokol klinis Gavrilescu (2019) &amp; Binz et al. (2023)</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

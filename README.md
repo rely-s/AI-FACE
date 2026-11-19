@@ -41,9 +41,23 @@ Model resmi tersimpan di `models/face_landmarker.task` dengan checksum SHA-256:
 
 ---
 
-## 3. Cara Pemakaian CLI
+## 3. Cara Pemakaian
 
-### A. Mode Webcam (Live Stream & Pratinjau GUI)
+### A. Platform Web Interaktif (Dashboard Browser)
+```powershell
+# Jalankan server web lokal dan buka otomatis di browser (http://127.0.0.1:8000)
+ai-face --web
+
+# Pilihan port kustom
+ai-face --web --port 8080 --no-browser
+```
+Platform Web AI-FACE menyediakan antarmuka terpadu:
+- **Live Camera Monitor:** Streaming kamera browser dengan HUD real-time dan toggle ekspresi.
+- **Diagnostik Foto Pasien:** Unggah foto wajah $\to$ inspeksi visual HUD, skor DASS-3, dan tabel 31 FACS Action Units dengan pencarian & filter.
+- **Batch Dataset Evaluation:** Unggah banyak foto pasien sekaligus $\to$ rekapitulasi tabel dan tombol unduh CSV untuk Excel/SPSS.
+- **Glosarium Klinis:** Penjelasan interaktif mengenai otot anatomi, arti klinis, dan panduan 5 level keparahan DASS-3.
+
+### B. Mode Webcam Desktop (Live Stream & Pratinjau GUI)
 ```powershell
 # Jalankan sesi webcam default (Mode Klinis Murni: DASS-3 & FACS AUs)
 ai-face --camera-index 0
@@ -59,7 +73,7 @@ ai-face --camera-index 0 --duration 30.0 --fps 15.0 --output-dir ./output
   - **Hotkey Keyboard:** Tekan tombol **`'E'`** untuk beralih mode secara instan.
   - **Keluar/Selesai:** Tekan **`'q'`** atau **`ESC`** pada jendela preview, atau **`Ctrl+C`** di terminal.
 
-### B. Mode Foto Statis (Single Image & Batch Directory)
+### C. Mode Foto Statis (Single Image & Batch Directory)
 ```powershell
 # 1. Analisis satu foto pasien
 ai-face --image path/to/patient.jpg --output-dir output/patient_result
