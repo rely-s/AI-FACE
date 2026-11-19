@@ -187,16 +187,147 @@ def draw_dass_panel(
         )
 
 
+TOGGLE_BUTTON_RECT: tuple[int, int, int, int] = (15, 15, 215, 30)
+
+
+def draw_toggle_button(
+    img: np.ndarray,
+    rect: tuple[int, int, int, int] = TOGGLE_BUTTON_RECT,
+    active: bool = False,
+) -> None:
+    """Draw clickable interactive button for emotion analysis mode."""
+    x, y, w, h = rect
+    sub = img[y : y + h, x : x + w]
+    if sub.shape[0] > 0 and sub.shape[1] > 0:
+        dark_rect = np.zeros_like(sub)
+        cv2.addWeighted(dark_rect, 0.5, sub, 0.5, 0, sub)
+
+    if active:
+        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 240, 100), 2)
+        cv2.putText(
+            img,
+            "[ EKSPRESI: AKTIF (E) ]",
+            (x + 10, y + 20),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.40,
+            (0, 255, 140),
+            1,
+        )
+    else:
+        cv2.rectangle(img, (x, y), (x + w, y + h), (90, 130, 90), 1)
+        cv2.putText(
+            img,
+            "[ EKSPRESI: NONAKTIF (E) ]",
+            (x + 10, y + 20),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.38,
+            (180, 200, 180),
+            1,
+        )
+
+
+def _au_score_to_letter(score: float) -> str:
+    """Map continuous [0, 1] AU score to discrete FACS intensity level."""
+    if score >= 0.85:
+        return "E"
+    if score >= 0.70:
+        return "D"
+    if score >= 0.50:
+        return "C"
+    if score >= 0.30:
+        return "B"
+    if score >= 0.10:
+        return "A"
+    return "0"
+
+
+def draw_facs_action_units_panel(
+    img: np.ndarray,
+    top_left: tuple[int, int],
+    width: int,
+    facs_aus: dict[str, float],
+) -> None:
+    """Draw two-column clinical FACS Action Units breakdown panel."""
+    x, y = top_left
+    upper_aus = [
+        ("AU1", "Inner Brow"),
+        ("AU2", "Outer Brow"),
+        ("AU4", "Brow Lower"),
+        ("AU5", "Upper Lid"),
+        ("AU6", "Cheek Raise"),
+        ("AU7", "Lid Tight"),
+        ("AU45", "Blink"),
+    ]
+    lower_aus = [
+        ("AU9", "Nose Wrinkle"),
+        ("AU12", "Lip Corner"),
+        ("AU15", "Lip Depress"),
+        ("AU20", "Lip Stretch"),
+        ("AU24", "Lip Press"),
+        ("AU25", "Lips Part"),
+        ("AU26", "Jaw Drop"),
+    ]
+
+    spacing = 14
+    panel_h = max(len(upper_aus), len(lower_aus)) * spacing + 24
+    sub = img[y : y + panel_h, x : x + width]
+    if sub.shape[0] > 0 and sub.shape[1] > 0:
+        dark_rect = np.zeros_like(sub)
+        cv2.addWeighted(dark_rect, 0.75, sub, 0.25, 0, sub)
+        cv2.rectangle(img, (x, y), (x + width, y + panel_h), (0, 180, 80), 1)
+
+    # Title
+    cv2.putText(
+        img,
+        "FACS ACTION UNITS (MUSCULAR ACTIVITY LEVEL: 0-E)",
+        (x + 8, y + 13),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.34,
+        (0, 240, 200),
+        1,
+    )
+
+    col_w = width // 2 - 12
+    columns = [
+        (x + 8, upper_aus),
+        (x + width // 2 + 6, lower_aus),
+    ]
+
+    for col_x, au_list in columns:
+        for i, (au_id, au_name) in enumerate(au_list):
+            by = y + 27 + i * spacing
+            val = facs_aus.get(au_id, 0.0)
+            letter = _au_score_to_letter(val)
+            if letter in ("C", "D", "E"):
+                color = (0, 240, 100)
+            elif letter in ("A", "B"):
+                color = (0, 200, 220)
+            else:
+                color = (160, 160, 160)
+
+            label = f"{au_id} {au_name[:9]}: [{letter}]"
+            cv2.putText(img, label, (col_x, by - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.30, color, 1)
+
+            track_x = col_x + 120
+            track_w = col_w - 125
+            if track_w > 20:
+                cv2.rectangle(img, (track_x, by - 7), (track_x + track_w, by), (45, 45, 45), -1)
+                fill_w = int(track_w * min(1.0, max(0.0, val)))
+                cv2.rectangle(img, (track_x, by - 7), (track_x + fill_w, by), color, -1)
+
+
 def render_shore_style_overlay(
     frame_bgr: np.ndarray,
     detection_result: Any,
     emotions: FrameEmotionResult | None,
     dass: DASSResult | None = None,
+    facs_aus: dict[str, float] | None = None,
+    show_emotions: bool = False,
     subject_id: str = "Subject-01",
     uptime_s: float = 0.0,
     mirror: bool = False,
 ) -> np.ndarray:
-    """Render full real-time SHORE-style emotion recognition visual display."""
+    """Render full real-time visual display with emotion/clinical separation."""
     display = frame_bgr.copy()
     h, w = display.shape[:2]
 
@@ -216,11 +347,10 @@ def render_shore_style_overlay(
     if mirror:
         display = cv2.flip(display, 1)
 
-    if emotions is not None:
-        # 1. Left radar dial
-        dial_center = (75, 120)
-        draw_radar_dial(display, dial_center, radius=48, emotions=emotions)
+    # 1. Interactive Emotion Toggle Button (Top-Left)
+    draw_toggle_button(display, TOGGLE_BUTTON_RECT, active=show_emotions)
 
+    if emotions is not None:
         # 2. Top-center Subject Info Box
         cv2.rectangle(display, (w // 2 - 100, 10), (w // 2 + 100, 70), (20, 20, 20), -1)
         cv2.rectangle(display, (w // 2 - 100, 10), (w // 2 + 100, 70), (0, 200, 120), 1)
@@ -258,13 +388,24 @@ def render_shore_style_overlay(
             1,
         )
 
-        # 3. Bottom Emotion Progression Bar Panel
-        bar_w = min(320, w - 40)
-        draw_emotion_bars(display, (w // 2 - bar_w // 2, h - 120), bar_w, emotions)
-
-        # 4. Top-Right DASS Clinical Panel
+        # 3. Top-Right DASS Clinical Panel
         if dass is not None and w >= 400:
             dass_w = 180
             draw_dass_panel(display, (w - dass_w - 10, 10), dass_w, dass)
+
+        # 4. Mode-Dependent Panels
+        if show_emotions:
+            # Full Emotion Mode: Radar dial + Emotion progression bars
+            dial_center = (75, 120)
+            draw_radar_dial(display, dial_center, radius=48, emotions=emotions)
+            bar_w = min(320, w - 40)
+            draw_emotion_bars(display, (w // 2 - bar_w // 2, h - 120), bar_w, emotions)
+        else:
+            # Clinical Pure Mode: FACS Action Units details (AUs with 0-E intensity levels)
+            if facs_aus is not None:
+                panel_w = min(480, w - 40)
+                draw_facs_action_units_panel(
+                    display, (w // 2 - panel_w // 2, h - 130), panel_w, facs_aus
+                )
 
     return display

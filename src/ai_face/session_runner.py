@@ -23,7 +23,7 @@ from ai_face.models import EstimationStatus, SessionSummary, SlotRecord
 from ai_face.scheduler import SlotScheduler
 from ai_face.single_frame_classifier import evaluate_frame_emotions
 from ai_face.source import FrameSource
-from ai_face.visualizer import render_shore_style_overlay
+from ai_face.visualizer import TOGGLE_BUTTON_RECT, render_shore_style_overlay
 
 
 class SessionRunner:
@@ -51,8 +51,18 @@ class SessionRunner:
             session_id=self.session_id,
         )
 
+        self.show_emotions = config.show_emotions
         self._cancelled = False
         self._prev_sigint = None
+
+    def _on_mouse_click(self, event: int, x: int, y: int, flags: int, param: object) -> None:
+        """Handle mouse clicks on GUI preview window for interactive mode toggling."""
+        if event == cv2.EVENT_LBUTTONDOWN:
+            bx, by, bw, bh = TOGGLE_BUTTON_RECT
+            if bx <= x <= bx + bw and by <= y <= by + bh:
+                self.show_emotions = not self.show_emotions
+                state_str = "AKTIF" if self.show_emotions else "NONAKTIF"
+                print(f"\n[AI-FACE] Mode Ekspresi Wajah diubah ke: {state_str}")
 
     def _sigint_handler(self, sig, frame) -> None:
         print(
@@ -75,6 +85,10 @@ class SessionRunner:
         window_name = f"AI-FACE Preview: {self.session_id[:8]}"
 
         self.exporter.open()
+
+        if self.config.preview:
+            cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+            cv2.setMouseCallback(window_name, self._on_mouse_click)
 
         try:
             while not self._cancelled:
@@ -141,6 +155,7 @@ class SessionRunner:
                 if self.config.preview:
                     current_emotions = None
                     current_dass = None
+                    current_aus = None
                     if (
                         processed_slots
                         and processed_slots[-1].valid
@@ -155,14 +170,21 @@ class SessionRunner:
                         detection_result=last_result,
                         emotions=current_emotions,
                         dass=current_dass,
+                        facs_aus=current_aus,
+                        show_emotions=self.show_emotions,
                         subject_id=self.session_id[:8],
                         uptime_s=elapsed_s,
                         mirror=self.config.preview_mirror,
                     )
                     cv2.imshow(window_name, hud_frame)
                     key = cv2.waitKey(1) & 0xFF
+                    # 'e' or 'E' to toggle expression analysis
+                    if key in (ord("e"), ord("E")):
+                        self.show_emotions = not self.show_emotions
+                        state_str = "AKTIF" if self.show_emotions else "NONAKTIF"
+                        print(f"\n[AI-FACE] Mode Ekspresi Wajah diubah ke: {state_str}")
                     # 'q' or ESC (27) to cancel
-                    if key in (ord("q"), 27):
+                    elif key in (ord("q"), 27):
                         print("\n[AI-FACE] User terminated session from preview window.")
                         self._cancelled = True
                         break

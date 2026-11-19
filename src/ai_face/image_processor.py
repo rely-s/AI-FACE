@@ -68,6 +68,7 @@ class ImageDistressProcessor:
         image_path: str | Path,
         output_dir: str | Path | None = None,
         save_annotated: bool = True,
+        show_emotions: bool = False,
         subject_id: str | None = None,
     ) -> dict[str, Any]:
         """Process a local image file and optionally save annotated visual feedback."""
@@ -123,6 +124,8 @@ class ImageDistressProcessor:
                     detection_result=result,
                     emotions=emotions,
                     dass=dass,
+                    facs_aus=facs_aus,
+                    show_emotions=show_emotions,
                     subject_id=sub_id,
                 )
                 annotated_path = out_dir / f"annotated_{img_path.stem}.jpg"
@@ -136,6 +139,7 @@ class ImageDistressProcessor:
         directory_path: str | Path,
         output_dir: str | Path,
         save_annotated: bool = True,
+        show_emotions: bool = False,
     ) -> list[dict[str, Any]]:
         """Process all images in a folder and compile a dataset report."""
         dir_path = Path(directory_path)
@@ -156,6 +160,7 @@ class ImageDistressProcessor:
                 image_path=f,
                 output_dir=output_dir,
                 save_annotated=save_annotated,
+                show_emotions=show_emotions,
             )
             results.append(res)
             dist_txt = res.get("distress_level", "UNKNOWN")

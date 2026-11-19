@@ -29,6 +29,7 @@ class SessionConfig:
     model_path: Path = field(default_factory=lambda: Path(DEFAULT_MODEL_PATH))
     preview: bool = True
     preview_mirror: bool = True
+    show_emotions: bool = False
     quality: QualityThresholds = field(default_factory=QualityThresholds)
 
     @property

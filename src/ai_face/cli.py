@@ -180,6 +180,11 @@ Keybindings:
         metavar="PATH",
         help="Output path for trained photo model.",
     )
+    parser.add_argument(
+        "--show-emotions",
+        action="store_true",
+        help="Display emotion bars and radar dial (default: False, shows clinical FACS only).",
+    )
 
     return parser.parse_args(args)
 
@@ -238,6 +243,7 @@ def main(args: list[str] | None = None) -> int:
                     image_path=parsed.image,
                     output_dir=parsed.output_dir,
                     save_annotated=True,
+                    show_emotions=parsed.show_emotions,
                 )
                 print(f"[AI-FACE] Image: {res['image_name']}")
                 print(f"[AI-FACE] Face Detected: {res['face_detected']}")
@@ -263,6 +269,7 @@ def main(args: list[str] | None = None) -> int:
                     directory_path=parsed.image_dir,
                     output_dir=parsed.output_dir,
                     save_annotated=True,
+                    show_emotions=parsed.show_emotions,
                 )
             processor.close()
             return 0
@@ -281,6 +288,7 @@ def main(args: list[str] | None = None) -> int:
         model_path=parsed.model_path,
         preview=is_preview,
         preview_mirror=not parsed.no_mirror,
+        show_emotions=parsed.show_emotions,
     )
 
     try:
