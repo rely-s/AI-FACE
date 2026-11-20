@@ -89,14 +89,26 @@ Output pemrosesan foto menghasilkan:
 - `annotated_*.jpg`: Gambar wajah beranotasi HUD dengan visual feedback.
 - `batch_dass_summary.csv`: Rekapitulasi evaluasi klinis seluruh subjek dalam folder.
 
-### C. Melatih Model Classifier dari Folder Foto
+### D. Melatih Model Classifier dari Folder Foto
 ```powershell
 # Melatih model XGBoost langsung dari folder berstruktur kelas:
 # data/train/{normal, mild, moderate, severe, extremely_severe}/*.jpg
 ai-face --train-from-photos path/to/dataset_folder/ --photo-model-out models/custom_model.joblib
 ```
 
-### D. Mode File Video (Headless / Automated Test)
+### E. Pelatihan Model Eksperimen dengan Dataset StressID
+Menggunakan dataset **StressID** (*NeurIPS 2023 - Chaptoukaev et al.*) untuk melatih model deteksi stres wajah berbasis label biner penulis (*ground truth* dari `protocol.txt` / self-assessment) dengan representasi jendela temporal 30 detik:
+```powershell
+# Melatih dan menguji model pada subjek unseen (Leave-Subjects-Out / GroupKFold)
+ai-face --train-stressid stressID --stressid-model-type xgboost --stressid-splits 5
+```
+**Karakteristik Metodologi Evaluasi:**
+- **Hanya Video Wajah**: Mengekstrak sinyal *Facial Action Units* (AUs) dan *gaze vectors*.
+- **Representasi Jendela 30 Detik**: Setiap tugas berlabel dipecah menjadi jendela 30 detik dengan identitas tugas dipertahankan.
+- **Partisi Bebas Kebocoran (*Zero Data Leakage*)**: Seluruh jendela dari subjek/partisipan yang sama selalu ditempatkan pada partisi yang sama (`GroupKFold` berdasarkan ID partisipan) untuk menguji keandalan model pada orang yang belum pernah dilihat (*unseen persons*).
+- **Hasil Model**: Disimpan di `models/stressid_face_model.joblib` dengan laporan komprehensif di `output/stressid_evaluation_report.json`.
+
+### F. Mode File Video (Headless / Automated Test)
 ```powershell
 # Ekstraksi tanpa GUI dari file video
 ai-face --video path/to/sample.mp4 --headless --output-dir ./output

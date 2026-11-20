@@ -181,6 +181,48 @@ Keybindings:
         help="Output path for trained photo model.",
     )
     parser.add_argument(
+        "--train-stressid",
+        type=Path,
+        default=None,
+        metavar="PATH_OR_DIR",
+        help="Train an experimental face distress model from the StressID repository/dataset.",
+    )
+    parser.add_argument(
+        "--stressid-protocol",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="Path to StressID protocol.txt with author-defined binary labels.",
+    )
+    parser.add_argument(
+        "--stressid-model-type",
+        type=str,
+        default="xgboost",
+        choices=["xgboost", "random_forest", "logistic_regression"],
+        help="Classifier model architecture for StressID (default: 'xgboost').",
+    )
+    parser.add_argument(
+        "--stressid-splits",
+        type=int,
+        default=5,
+        metavar="N",
+        help="Number of Leave-Subjects-Out (GroupKFold) cross-validation folds (default: 5).",
+    )
+    parser.add_argument(
+        "--stressid-out",
+        type=Path,
+        default=Path("models/stressid_face_model.joblib"),
+        metavar="PATH",
+        help="Output path for trained StressID model bundle.",
+    )
+    parser.add_argument(
+        "--stressid-report-out",
+        type=Path,
+        default=Path("output/stressid_evaluation_report.json"),
+        metavar="PATH",
+        help="Output path for StressID Leave-Subjects-Out evaluation report.",
+    )
+    parser.add_argument(
         "--show-emotions",
         action="store_true",
         help="Display emotion bars and radar dial (default: False, shows clinical FACS only).",
@@ -225,6 +267,78 @@ def main(args: list[str] | None = None) -> int:
             return 0
         except Exception as e:
             print(f"[AI-FACE] Training failed: {e}", file=sys.stderr)
+            return 1
+
+    if parsed.train_stressid is not None:
+        from ai_face.training.train_stressid import train_and_save_stressid_model
+
+        try:
+            target = parsed.train_stressid
+            if target.is_dir():
+                feat_dir = target / "Feature Extraction" / "Features"
+                features_candidate = feat_dir / "video11tasks_aus_gaze_morestats.csv"
+                if not features_candidate.is_file():
+                    features_candidate = feat_dir / "video11tasks_aus_gaze_mean_std.csv"
+                protocol_candidate = target / "Feature Extraction" / "audio" / "protocol.txt"
+            else:
+                features_candidate = target
+                protocol_candidate = parsed.stressid_protocol
+
+            proto_path = parsed.stressid_protocol or (
+                protocol_candidate
+                if protocol_candidate and protocol_candidate.is_file()
+                else None
+            )
+
+            print(f"[AI-FACE] Loading StressID features from: {features_candidate}")
+            if proto_path:
+                print(f"[AI-FACE] Using verified author labels from: {proto_path}")
+
+            report = train_and_save_stressid_model(
+                features_csv=features_candidate,
+                protocol_txt=proto_path,
+                model_type=parsed.stressid_model_type,
+                n_splits=parsed.stressid_splits,
+                output_model_path=parsed.stressid_out,
+                output_report_path=parsed.stressid_report_out,
+            )
+
+            print("\n[AI-FACE] === StressID Unseen-Person Evaluation Report ===")
+            print(f"  Model Architecture : {report.model_name.upper()}")
+            print(
+                f"  Leave-Subjects-Out : {report.n_splits} folds across "
+                f"{report.total_subjects} subjects"
+            )
+            print(
+                f"  Total 30s Windows  : {report.total_windows} windows across "
+                f"{report.total_tasks} tasks"
+            )
+            print(f"  Class Distribution : {report.class_distribution}")
+            print(
+                f"  Mean Accuracy      : {report.mean_accuracy * 100:.2f}% ± "
+                f"{report.std_accuracy * 100:.2f}%"
+            )
+            print(
+                f"  Balanced Accuracy  : {report.mean_balanced_accuracy * 100:.2f}% ± "
+                f"{report.std_balanced_accuracy * 100:.2f}%"
+            )
+            print(f"  Macro F1-Score     : {report.mean_f1_macro:.4f} ± {report.std_f1_macro:.4f}")
+            print(
+                f"  Binary F1-Score    : {report.mean_f1_binary:.4f} ± "
+                f"{report.std_f1_binary:.4f}"
+            )
+            print(f"  Mean ROC-AUC       : {report.mean_roc_auc:.4f}")
+
+            if report.top_facial_features:
+                print("\n[AI-FACE] Top 5 Predictive Facial Features (Action Units / Gaze):")
+                for item in report.top_facial_features[:5]:
+                    print(f"    #{item['rank']} {item['feature']:28s} : {item['importance']:.4f}")
+
+            print(f"\n[AI-FACE] Model bundle saved to: {parsed.stressid_out}")
+            print(f"[AI-FACE] Full report saved to : {parsed.stressid_report_out}")
+            return 0
+        except Exception as e:
+            print(f"[AI-FACE] StressID training failed: {e}", file=sys.stderr)
             return 1
 
     if parsed.web:

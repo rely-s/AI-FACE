@@ -51,6 +51,9 @@ hasil_sesi/
 models/*.task
 models/
 
+# External Datasets / Repositories
+stressID/
+
 # OS files
 .DS_Store
 Thumbs.db
