@@ -1,26 +1,42 @@
 /* =========================================================================
    AI-FACE Clinical Platform - Institutional Medical Design System
-   Eliminates generic AI slop, neon glows, and fuzzy glassmorphism.
-   Inspired by clinical diagnostic workstations (Epic, Siemens Healthineers).
+   Color Palette:
+     - Bold Blue:  #1E466B (Authoritative medical primary)
+     - Light Blue: #67BAF4 (High-contrast clinical reticle & telemetric accents)
+     - Soft White: #FAFAFA (High-legibility typography)
+     - Jet Black:  #0D0D0D (Deep optical ground canvas)
    ========================================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg-clinical-base: #070b14;
-  --bg-clinical-surface: #0c1424;
-  --bg-clinical-card: #101a2e;
-  --bg-clinical-card-hover: #14213d;
-  --bg-clinical-subtle: #182847;
-  --border-clinical-dim: #1a273f;
-  --border-clinical-subtle: #243556;
-  --border-clinical-active: #0ea5e9;
-  --text-clinical-primary: #f1f5f9;
-  --text-clinical-secondary: #94a3b8;
-  --text-clinical-muted: #64748b;
-  --accent-teal: #0d9488;
-  --accent-sky: #0284c7;
-  --accent-emerald: #10b981;
+  /* The 4-Color Signature Palette */
+  --color-jet-black: #0D0D0D;
+  --color-bold-blue: #1E466B;
+  --color-light-blue: #67BAF4;
+  --color-soft-white: #FAFAFA;
+
+  /* Surfaces & Spatial Architecture */
+  --bg-clinical-base: #0D0D0D;
+  --bg-clinical-surface: #121722;
+  --bg-clinical-card: #151D2A;
+  --bg-clinical-card-hover: #192435;
+  --bg-clinical-subtle: #1D2B3F;
+
+  /* Structural 1px Borders & Dividers */
+  --border-clinical-dim: rgba(30, 70, 107, 0.40);
+  --border-clinical-subtle: #1E466B;
+  --border-clinical-active: #67BAF4;
+
+  /* Typography & Information Density */
+  --text-clinical-primary: #FAFAFA;
+  --text-clinical-secondary: #9DB4C9;
+  --text-clinical-muted: #647C96;
+
+  /* Accents */
+  --accent-primary: #1E466B;
+  --accent-light: #67BAF4;
+  --accent-hover: #265885;
 }
 
 body {
@@ -37,7 +53,7 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Institutional Medical Cards (Crisp 1px borders, zero fuzzy neon glow) */
+/* Institutional Medical Cards */
 .clinical-card {
   background-color: var(--bg-clinical-surface);
   border: 1px solid var(--border-clinical-dim);
@@ -54,44 +70,44 @@ body {
   border: 1px solid var(--border-clinical-subtle);
 }
 
-/* Clinical Triage Badges (High Contrast, WCAG AA Compliant) */
+/* Clinical Triage Badges */
 .badge-normal {
-  background-color: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.28);
+  background-color: rgba(30, 70, 107, 0.35);
+  color: #67BAF4;
+  border: 1px solid rgba(103, 186, 244, 0.45);
 }
 
 .badge-mild {
-  background-color: rgba(14, 165, 233, 0.12);
-  color: #38bdf8;
-  border: 1px solid rgba(14, 165, 233, 0.28);
+  background-color: rgba(103, 186, 244, 0.15);
+  color: #67BAF4;
+  border: 1px solid rgba(103, 186, 244, 0.50);
 }
 
 .badge-moderate {
-  background-color: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.28);
+  background-color: rgba(245, 158, 11, 0.14);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.40);
 }
 
 .badge-severe {
-  background-color: rgba(249, 115, 22, 0.14);
-  color: #fb923c;
-  border: 1px solid rgba(249, 115, 22, 0.32);
+  background-color: rgba(249, 115, 22, 0.16);
+  color: #FB923C;
+  border: 1px solid rgba(249, 115, 22, 0.45);
 }
 
 .badge-extremely-severe {
-  background-color: rgba(239, 68, 68, 0.16);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.40);
+  background-color: rgba(239, 68, 68, 0.20);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.55);
   font-weight: 700;
 }
 
 /* Medical Viewfinder Overlays */
 .viewfinder-reticle {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  border-color: #38bdf8;
+  width: 22px;
+  height: 22px;
+  border-color: var(--color-light-blue);
   pointer-events: none;
   z-index: 20;
 }
@@ -99,37 +115,37 @@ body {
 .viewfinder-reticle-tl {
   top: 12px;
   left: 12px;
-  border-top: 2px solid #38bdf8;
-  border-left: 2px solid #38bdf8;
+  border-top: 2px solid var(--color-light-blue);
+  border-left: 2px solid var(--color-light-blue);
 }
 
 .viewfinder-reticle-tr {
   top: 12px;
   right: 12px;
-  border-top: 2px solid #38bdf8;
-  border-right: 2px solid #38bdf8;
+  border-top: 2px solid var(--color-light-blue);
+  border-right: 2px solid var(--color-light-blue);
 }
 
 .viewfinder-reticle-bl {
   bottom: 12px;
   left: 12px;
-  border-bottom: 2px solid #38bdf8;
-  border-left: 2px solid #38bdf8;
+  border-bottom: 2px solid var(--color-light-blue);
+  border-left: 2px solid var(--color-light-blue);
 }
 
 .viewfinder-reticle-br {
   bottom: 12px;
   right: 12px;
-  border-bottom: 2px solid #38bdf8;
-  border-right: 2px solid #38bdf8;
+  border-bottom: 2px solid var(--color-light-blue);
+  border-right: 2px solid var(--color-light-blue);
 }
 
-/* Face Detection Target Box (Clean SVG/CSS, zero OpenCV bitmap burning) */
+/* Face Detection Target Box */
 .face-target-box {
   position: absolute;
   pointer-events: none;
-  border: 1.5px solid rgba(56, 189, 248, 0.85);
-  background: rgba(14, 165, 233, 0.05);
+  border: 1.5px solid rgba(103, 186, 244, 0.85);
+  background: rgba(103, 186, 244, 0.06);
   border-radius: 6px;
   transition: all 0.08s ease-out;
   z-index: 15;
@@ -141,28 +157,29 @@ body {
   position: absolute;
   width: 8px;
   height: 8px;
-  border-color: #38bdf8;
+  border-color: var(--color-light-blue);
 }
 
 .face-target-box::before {
   top: -1px;
   left: -1px;
-  border-top: 2px solid #38bdf8;
-  border-left: 2px solid #38bdf8;
+  border-top: 2px solid var(--color-light-blue);
+  border-left: 2px solid var(--color-light-blue);
 }
 
 .face-target-box::after {
   bottom: -1px;
   right: -1px;
-  border-bottom: 2px solid #38bdf8;
-  border-right: 2px solid #38bdf8;
+  border-bottom: 2px solid var(--color-light-blue);
+  border-right: 2px solid var(--color-light-blue);
 }
 
-/* Clinical Telemetry Progress Bar with Reference Ticks */
+/* Clinical Telemetry Progress Bar */
 .clinical-progress-track {
   position: relative;
   height: 8px;
-  background-color: #162238;
+  background-color: #151D2A;
+  border: 1px solid rgba(30, 70, 107, 0.5);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -170,44 +187,70 @@ body {
 .clinical-progress-fill {
   height: 100%;
   border-radius: 9999px;
+  background-color: var(--color-light-blue);
   transition: width 0.25s ease-out;
+}
+
+/* Primary Action Buttons */
+.btn-primary {
+  background-color: var(--color-bold-blue);
+  color: var(--color-soft-white);
+  border: 1px solid rgba(103, 186, 244, 0.45);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+  border-color: var(--color-light-blue);
+}
+
+.btn-secondary {
+  background-color: #0D0D0D;
+  color: var(--text-clinical-primary);
+  border: 1px solid var(--border-clinical-subtle);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-clinical-surface);
+  border-color: var(--color-light-blue);
 }
 
 /* FACS Action Unit Discrete Intensity Pills */
 .au-pill-0 {
-  background-color: #121d33;
-  color: #64748b;
-  border: 1px solid #1a273f;
+  background-color: #0D0D0D;
+  color: #647C96;
+  border: 1px solid rgba(30, 70, 107, 0.4);
 }
 
 .au-pill-a {
-  background-color: rgba(14, 165, 233, 0.12);
-  color: #38bdf8;
-  border: 1px solid rgba(14, 165, 233, 0.3);
+  background-color: rgba(30, 70, 107, 0.35);
+  color: #67BAF4;
+  border: 1px solid rgba(103, 186, 244, 0.35);
 }
 
 .au-pill-b {
-  background-color: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background-color: rgba(103, 186, 244, 0.15);
+  color: #67BAF4;
+  border: 1px solid rgba(103, 186, 244, 0.50);
 }
 
 .au-pill-c {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background-color: rgba(245, 158, 11, 0.18);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.45);
 }
 
 .au-pill-d {
-  background-color: rgba(249, 115, 22, 0.15);
-  color: #fb923c;
-  border: 1px solid rgba(249, 115, 22, 0.35);
+  background-color: rgba(249, 115, 22, 0.18);
+  color: #FB923C;
+  border: 1px solid rgba(249, 115, 22, 0.45);
 }
 
 .au-pill-e {
-  background-color: rgba(239, 68, 68, 0.18);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.45);
+  background-color: rgba(239, 68, 68, 0.22);
+  color: #F87171;
+  border: 1px solid rgba(239, 68, 68, 0.55);
   font-weight: 700;
 }
 
@@ -215,13 +258,15 @@ body {
 .nav-tab {
   cursor: pointer;
   user-select: none;
+  transition: all 0.15s ease;
 }
 
 .nav-tab.active {
-  background-color: var(--accent-teal);
-  color: #ffffff;
+  background-color: var(--color-bold-blue);
+  color: var(--color-soft-white);
+  border: 1px solid rgba(103, 186, 244, 0.6);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Table Scrollbar & Sticky Headers */
@@ -231,14 +276,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #090e1a;
+  background: var(--color-jet-black);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #243556;
+  background: var(--color-bold-blue);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334873;
+  background: #2D659B;
 }
