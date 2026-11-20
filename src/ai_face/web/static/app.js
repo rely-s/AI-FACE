@@ -1,8 +1,9 @@
 /**
- * AI-FACE Clinical Web Platform - Interactive ES6 Application
+ * AI-FACE Clinical Platform - Institutional Diagnostic Workstation ES6 Application
+ * Precision healthcare UI without AI slop, neon artifacts, or frame tearing.
  */
 
-// Global State
+// Global Application State
 let clinicalInfo = null;
 let currentSelectedFile = null;
 let batchFiles = [];
@@ -11,10 +12,14 @@ let liveStream = null;
 let liveInterval = null;
 let liveShowEmotions = false;
 let liveStartTime = null;
+let isAnalyzingFrame = false;
+let overlayMode = "clean"; // "clean" (SVG Reticle) or "classic" (OpenCV SHORE Burn-in)
 
 // Initialize on Load
 document.addEventListener("DOMContentLoaded", async () => {
-  lucide.createIcons();
+  if (window.lucide) {
+    lucide.createIcons();
+  }
   await loadClinicalInfo();
 });
 
@@ -22,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 function switchTab(tabName) {
   document.querySelectorAll(".tab-pane").forEach(el => el.classList.add("hidden"));
   document.querySelectorAll(".nav-tab").forEach(el => {
-    el.classList.remove("active", "bg-emerald-600", "text-white");
+    el.classList.remove("active");
     el.classList.add("text-slate-300");
   });
 
@@ -30,29 +35,33 @@ function switchTab(tabName) {
   const activeBtn = document.getElementById(`tab-btn-${tabName}`);
   if (activeContent) activeContent.classList.remove("hidden");
   if (activeBtn) {
-    activeBtn.classList.add("active", "bg-emerald-600", "text-white");
+    activeBtn.classList.add("active");
     activeBtn.classList.remove("text-slate-300");
   }
 
-  // If leaving live camera tab, stop camera to release resources
+  // Safe resource cleanup when navigating away from Live Camera
   if (tabName !== "live" && liveStream) {
     stopCamera();
   }
 
-  lucide.createIcons();
+  if (window.lucide) {
+    lucide.createIcons();
+  }
 }
 
-// Load metadata dictionary
+// Load Metadata Dictionary
 async function loadClinicalInfo() {
   try {
     const res = await fetch("/api/v1/clinical/info");
-    clinicalInfo = await res.json();
+    if (res.ok) {
+      clinicalInfo = await res.json();
+    }
   } catch (err) {
     console.error("Failed to load clinical info metadata:", err);
   }
 }
 
-// Helper: Badge classes
+// Helper: Clinical Triage Badge Classes
 function getBadgeClass(level) {
   const l = (level || "").toLowerCase();
   if (l.includes("normal") || l === "low") return "badge-normal";
@@ -63,6 +72,7 @@ function getBadgeClass(level) {
   return "badge-normal";
 }
 
+// Helper: FACS Action Unit Discrete Intensity Level
 function getAUIntensityLetter(score) {
   if (score >= 0.85) return "E";
   if (score >= 0.70) return "D";
@@ -72,82 +82,58 @@ function getAUIntensityLetter(score) {
   return "0";
 }
 
+function getAUPillClass(letter) {
+  switch (letter) {
+    case "A": return "au-pill-a";
+    case "B": return "au-pill-b";
+    case "C": return "au-pill-c";
+    case "D": return "au-pill-d";
+    case "E": return "au-pill-e";
+    default: return "au-pill-0";
+  }
+}
+
 // =========================================================================
 // TAB 1: LIVE WEBCAM MONITORING
 // =========================================================================
 
-let isAnalyzingFrame = false;
-
-async function startCamera() {
-  const video = document.getElementById("webcam-video");
-  const placeholder = document.getElementById("camera-placeholder");
-  const btnStart = document.getElementById("btn-start-camera");
-  const btnStop = document.getElementById("btn-stop-camera");
+function toggleOverlayDisplayMode() {
+  overlayMode = (overlayMode === "clean") ? "classic" : "clean";
+  const label = document.getElementById("live-overlay-mode-label");
   const overlay = document.getElementById("live-annotated-overlay");
+  const faceBox = document.getElementById("live-face-box");
 
-  try {
-    liveStream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 640 }, height: { ideal: 480 } },
-      audio: false
-    });
-    video.srcObject = liveStream;
-    await video.play();
-
-    placeholder.classList.add("hidden");
-    if (overlay) overlay.classList.remove("hidden");
-
-    btnStart.classList.add("hidden");
-    btnStop.classList.remove("hidden");
-
-    liveStartTime = Date.now();
-    const subjId = "SUBJ-" + Math.random().toString(36).substring(2, 6).toUpperCase();
-    document.getElementById("live-subject-id").textContent = subjId;
-
-    isAnalyzingFrame = false;
-
-    // Start frame loop at ~10-15 Hz (every 100ms)
-    liveInterval = setInterval(captureAndSendLiveFrame, 100);
-  } catch (err) {
-    alert("Tidak dapat mengakses kamera webcam: " + err.message);
+  if (overlayMode === "clean") {
+    if (label) label.textContent = "Retikel Medis (Bersih)";
+    if (overlay) overlay.classList.add("hidden");
+  } else {
+    if (label) label.textContent = "Burn-in Klasik (SHORE)";
+    if (faceBox) faceBox.classList.add("hidden");
   }
-}
-
-function stopCamera() {
-  if (liveInterval) clearInterval(liveInterval);
-  if (liveStream) {
-    liveStream.getTracks().forEach(track => track.stop());
-    liveStream = null;
-  }
-  const video = document.getElementById("webcam-video");
-  if (video) video.srcObject = null;
-  document.getElementById("camera-placeholder").classList.remove("hidden");
-  const overlay = document.getElementById("live-annotated-overlay");
-  if (overlay) {
-    overlay.src = "";
-    overlay.classList.add("hidden");
-  }
-
-  isAnalyzingFrame = false;
-
-  document.getElementById("btn-start-camera").classList.remove("hidden");
-  document.getElementById("btn-stop-camera").classList.add("hidden");
 }
 
 function toggleLiveEmotions() {
   liveShowEmotions = !liveShowEmotions;
   const btn = document.getElementById("live-emotion-toggle");
+  if (!btn) return;
+
   if (liveShowEmotions) {
-    btn.innerHTML = `<i data-lucide="toggle-right" class="w-4 h-4 text-emerald-400"></i> Mode Ekspresi Lengkap (ON)`;
-    btn.className = "text-xs px-3 py-1.5 rounded-lg font-medium border flex items-center gap-1.5 transition border-emerald-500 bg-emerald-950/40 text-emerald-300";
+    btn.innerHTML = `<i data-lucide="toggle-right" class="w-3.5 h-3.5 text-teal-400"></i>
+                     <span>Mode Lengkap (+Emosi)</span>
+                     <kbd class="px-1 py-0.2 bg-[#162238] rounded text-[9px] text-teal-300">E</kbd>`;
+    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-mono border flex items-center gap-1.5 transition border-teal-500/80 bg-teal-950/40 text-teal-300";
   } else {
-    btn.innerHTML = `<i data-lucide="toggle-left" class="w-4 h-4"></i> Mode Klinis Murni (Ekspresi OFF)`;
-    btn.className = "text-xs px-3 py-1.5 rounded-lg font-medium border flex items-center gap-1.5 transition border-slate-700 bg-slate-800 text-slate-300 hover:border-emerald-500";
+    btn.innerHTML = `<i data-lucide="toggle-left" class="w-3.5 h-3.5"></i>
+                     <span>Mode Klinis Murni (OFF)</span>
+                     <kbd class="px-1 py-0.2 bg-[#162238] rounded text-[9px] text-slate-400">E</kbd>`;
+    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-mono border flex items-center gap-1.5 transition border-[#243556] bg-[#070b14] text-slate-300 hover:border-teal-500";
   }
-  lucide.createIcons();
+  if (window.lucide) lucide.createIcons();
 }
 
 function handleVideoBoxClick(event) {
-  // Toggle emotion calculation when clicking video box
+  // Prevent click bubbling from control buttons inside video container
+  if (event.target.closest("button") || event.target.closest("a")) return;
   toggleLiveEmotions();
 }
 
@@ -161,14 +147,96 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
+async function startCamera() {
+  const video = document.getElementById("webcam-video");
+  const placeholder = document.getElementById("camera-placeholder");
+  const btnStart = document.getElementById("btn-start-camera");
+  const btnStop = document.getElementById("btn-stop-camera");
+  const statusDot = document.getElementById("live-status-dot");
+  const targetStatus = document.getElementById("live-target-status");
+
+  try {
+    liveStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: 640 },
+        height: { ideal: 480 },
+        facingMode: "user"
+      },
+      audio: false
+    });
+    video.srcObject = liveStream;
+    await video.play();
+
+    placeholder.classList.add("hidden");
+    btnStart.classList.add("hidden");
+    btnStop.classList.remove("hidden");
+
+    if (statusDot) {
+      statusDot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+    }
+    if (targetStatus) {
+      targetStatus.textContent = "| AKTIF";
+    }
+
+    liveStartTime = Date.now();
+    const subjId = "SUBJ-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+    const subjIdEl = document.getElementById("live-subject-id");
+    if (subjIdEl) subjIdEl.textContent = subjId;
+
+    isAnalyzingFrame = false;
+
+    // Stream telemetry frames at ~10-15 Hz (100ms cycle)
+    liveInterval = setInterval(captureAndSendLiveFrame, 100);
+  } catch (err) {
+    alert("Tidak dapat mengakses sensor kamera: " + err.message);
+  }
+}
+
+function stopCamera() {
+  if (liveInterval) clearInterval(liveInterval);
+  if (liveStream) {
+    liveStream.getTracks().forEach(track => track.stop());
+    liveStream = null;
+  }
+
+  const video = document.getElementById("webcam-video");
+  if (video) video.srcObject = null;
+
+  const placeholder = document.getElementById("camera-placeholder");
+  if (placeholder) placeholder.classList.remove("hidden");
+
+  const overlay = document.getElementById("live-annotated-overlay");
+  if (overlay) {
+    overlay.src = "";
+    overlay.classList.add("hidden");
+  }
+
+  const faceBox = document.getElementById("live-face-box");
+  if (faceBox) faceBox.classList.add("hidden");
+
+  const statusDot = document.getElementById("live-status-dot");
+  if (statusDot) statusDot.className = "w-2 h-2 rounded-full bg-slate-500";
+
+  const targetStatus = document.getElementById("live-target-status");
+  if (targetStatus) targetStatus.textContent = "| TERHENTI";
+
+  isAnalyzingFrame = false;
+
+  const btnStart = document.getElementById("btn-start-camera");
+  const btnStop = document.getElementById("btn-stop-camera");
+  if (btnStart) btnStart.classList.remove("hidden");
+  if (btnStop) btnStop.classList.add("hidden");
+}
+
 async function captureAndSendLiveFrame() {
-  if (isAnalyzingFrame) return; // Prevent network piling
+  if (isAnalyzingFrame) return; // Prevent network backlog piling
 
   const video = document.getElementById("webcam-video");
   const canvas = document.getElementById("capture-canvas");
   if (!video || video.readyState < 2 || !video.videoWidth) return;
 
   isAnalyzingFrame = true;
+  const startTime = Date.now();
 
   canvas.width = video.videoWidth || 640;
   canvas.height = video.videoHeight || 480;
@@ -191,79 +259,135 @@ async function captureAndSendLiveFrame() {
         method: "POST",
         body: formData,
       });
-      if (!res.ok) return;
-      const data = await res.json();
-      updateLiveDashboard(data);
+      if (res.ok) {
+        const data = await res.json();
+        const latency = Date.now() - startTime;
+        updateLiveDashboard(data, latency);
+      }
     } catch (err) {
-      // frame dropped, ignore silently
+      // Frame drop silently handled
     } finally {
       isAnalyzingFrame = false;
     }
-  }, "image/jpeg", 0.75);
+  }, "image/jpeg", 0.70);
 }
 
-function updateLiveDashboard(data) {
-  // Update HUD overlay image
-  if (data.annotated_image_base64) {
-    const overlay = document.getElementById("live-annotated-overlay");
-    if (overlay) {
+function updateLiveDashboard(data, latencyMs = 0) {
+  // 1. Update Viewfinder Reticle / Overlay
+  const faceBox = document.getElementById("live-face-box");
+  const targetStatus = document.getElementById("live-target-status");
+  const overlay = document.getElementById("live-annotated-overlay");
+
+  if (overlayMode === "clean") {
+    if (overlay) overlay.classList.add("hidden");
+
+    if (data.face_bbox && faceBox) {
+      // Render smooth CSS face tracking bounding box
+      const bb = data.face_bbox;
+      faceBox.style.left = `${Math.max(0, bb.x * 100)}%`;
+      faceBox.style.top = `${Math.max(0, bb.y * 100)}%`;
+      faceBox.style.width = `${Math.min(100, bb.width * 100)}%`;
+      faceBox.style.height = `${Math.min(100, bb.height * 100)}%`;
+      faceBox.classList.remove("hidden");
+      if (targetStatus) targetStatus.textContent = "| TRACKING";
+    } else {
+      if (faceBox) faceBox.classList.add("hidden");
+      if (targetStatus) targetStatus.textContent = "| MENCARI WAJAH";
+    }
+  } else {
+    // Classic SHORE burn-in overlay mode
+    if (faceBox) faceBox.classList.add("hidden");
+    if (data.annotated_image_base64 && overlay) {
       overlay.src = data.annotated_image_base64;
       overlay.classList.remove("hidden");
     }
+    if (targetStatus) {
+      targetStatus.textContent = data.face_detected ? "| TERDETEKSI" : "| MENCARI WAJAH";
+    }
   }
 
-  // Update uptime
+  // 2. Latency & Uptime Telemetry
+  const latencyEl = document.getElementById("live-latency-indicator");
+  if (latencyEl && latencyMs > 0) {
+    latencyEl.textContent = `Latency: ${latencyMs} ms`;
+  }
+
   if (liveStartTime) {
     const elapsed = ((Date.now() - liveStartTime) / 1000).toFixed(1);
-    document.getElementById("live-uptime").textContent = elapsed + "s";
+    const uptimeEl = document.getElementById("live-uptime");
+    if (uptimeEl) uptimeEl.textContent = `${elapsed}s`;
   }
 
-  // Update distress level badge
+  // 3. Distress Level Triage Badge
   const distBadge = document.getElementById("live-distress-badge");
-  const distLvl = data.distress_level || "NO_FACE";
-  distBadge.textContent = distLvl;
-  distBadge.className = `text-xs font-bold px-2 py-0.5 rounded mt-1 inline-block ${getBadgeClass(distLvl)}`;
+  if (distBadge) {
+    const distLvl = data.distress_level || "NO_FACE";
+    distBadge.textContent = distLvl;
+    distBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded mt-1 inline-block ${getBadgeClass(distLvl)}`;
+  }
 
-  // Update DASS-3
+  // 4. Tri-Axial DASS-3 Clinical Scales
   if (data.dass_clinical_assessment) {
     const dass = data.dass_clinical_assessment;
-    // Depression
-    document.getElementById("live-dep-score").textContent = Math.round(dass.depression.score * 100) + "%";
-    const depLvl = document.getElementById("live-dep-level");
-    depLvl.textContent = dass.depression.level;
-    depLvl.className = `text-[11px] font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.depression.level)}`;
-    document.getElementById("live-dep-bar").style.width = Math.min(100, Math.round(dass.depression.score * 100)) + "%";
 
-    // Anxiety
-    document.getElementById("live-anx-score").textContent = Math.round(dass.anxiety.score * 100) + "%";
-    const anxLvl = document.getElementById("live-anx-level");
-    anxLvl.textContent = dass.anxiety.level;
-    anxLvl.className = `text-[11px] font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}`;
-    document.getElementById("live-anx-bar").style.width = Math.min(100, Math.round(dass.anxiety.score * 100)) + "%";
+    // Depression (DEP)
+    const depScore = Math.round((dass.depression.score || 0) * 100);
+    const depScoreEl = document.getElementById("live-dep-score");
+    const depLvlEl = document.getElementById("live-dep-level");
+    const depBarEl = document.getElementById("live-dep-bar");
+    if (depScoreEl) depScoreEl.textContent = `${depScore}%`;
+    if (depLvlEl) {
+      depLvlEl.textContent = dass.depression.level;
+      depLvlEl.className = `text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.depression.level)}`;
+    }
+    if (depBarEl) depBarEl.style.width = `${Math.min(100, depScore)}%`;
 
-    // Stress
-    document.getElementById("live-str-score").textContent = Math.round(dass.stress.score * 100) + "%";
-    const strLvl = document.getElementById("live-str-level");
-    strLvl.textContent = dass.stress.level;
-    strLvl.className = `text-[11px] font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.stress.level)}`;
-    document.getElementById("live-str-bar").style.width = Math.min(100, Math.round(dass.stress.score * 100)) + "%";
+    // Anxiety (ANX)
+    const anxScore = Math.round((dass.anxiety.score || 0) * 100);
+    const anxScoreEl = document.getElementById("live-anx-score");
+    const anxLvlEl = document.getElementById("live-anx-level");
+    const anxBarEl = document.getElementById("live-anx-bar");
+    if (anxScoreEl) anxScoreEl.textContent = `${anxScore}%`;
+    if (anxLvlEl) {
+      anxLvlEl.textContent = dass.anxiety.level;
+      anxLvlEl.className = `text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}`;
+    }
+    if (anxBarEl) anxBarEl.style.width = `${Math.min(100, anxScore)}%`;
+
+    // Stress (STR)
+    const strScore = Math.round((dass.stress.score || 0) * 100);
+    const strScoreEl = document.getElementById("live-str-score");
+    const strLvlEl = document.getElementById("live-str-level");
+    const strBarEl = document.getElementById("live-str-bar");
+    if (strScoreEl) strScoreEl.textContent = `${strScore}%`;
+    if (strLvlEl) {
+      strLvlEl.textContent = dass.stress.level;
+      strLvlEl.className = `text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.stress.level)}`;
+    }
+    if (strBarEl) strBarEl.style.width = `${Math.min(100, strScore)}%`;
   }
 
-  // Update Active Action Units
+  // 5. Active Muscular Action Units
   const aus = data.facs_action_units || {};
   const activeContainer = document.getElementById("live-active-aus");
-  const activeList = Object.entries(aus).filter(([k, v]) => v >= 0.1);
+  if (activeContainer) {
+    const activeList = Object.entries(aus).filter(([_, v]) => v >= 0.1);
 
-  if (activeList.length === 0) {
-    activeContainer.innerHTML = `<span class="text-xs text-slate-500 italic">Otot wajah santai / netral (Semua Level 0)</span>`;
-  } else {
-    activeContainer.innerHTML = activeList.map(([au, val]) => {
-      const letter = getAUIntensityLetter(val);
-      const meta = (clinicalInfo?.facs_metadata || {})[au] || {};
-      return `<span class="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200" title="${meta.name || ''} - ${meta.clinical_meaning || ''}">
-        <span class="text-cyan-400 font-bold">${au}</span> [${letter}]
-      </span>`;
-    }).join("");
+    if (activeList.length === 0) {
+      activeContainer.innerHTML = `<span class="text-xs text-slate-500 italic">Otot wajah santai / tonus netral (Semua Level 0)</span>`;
+    } else {
+      activeContainer.innerHTML = activeList.map(([au, val]) => {
+        const letter = getAUIntensityLetter(val);
+        const pillClass = getAUPillClass(letter);
+        const meta = (clinicalInfo?.facs_metadata || {})[au] || {};
+        const titleText = `${au}: ${meta.name || ''} (${meta.muscle || ''}) - ${meta.clinical_meaning || ''}`;
+        return `
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded border border-[#1a273f] bg-[#070b14] text-slate-200 cursor-help" title="${titleText}">
+            <span class="text-teal-400 font-semibold">${au}</span>
+            <span class="px-1 py-0.2 rounded text-[10px] font-bold ${pillClass}">${letter}</span>
+          </span>`;
+      }).join("");
+    }
   }
 }
 
@@ -277,28 +401,33 @@ function handlePhotoSelect(event) {
   currentSelectedFile = file;
 
   const btnAnalyze = document.getElementById("btn-analyze-photo");
-  btnAnalyze.disabled = false;
+  if (btnAnalyze) btnAnalyze.disabled = false;
 
-  // Show dropzone preview
   const dropZone = document.getElementById("drop-zone");
-  dropZone.innerHTML = `
-    <i data-lucide="check-circle-2" class="w-8 h-8 mx-auto text-emerald-400 mb-1"></i>
-    <p class="text-xs font-semibold text-white truncate max-w-xs mx-auto">${file.name}</p>
-    <p class="text-[10px] text-slate-400 mt-0.5">${(file.size / 1024).toFixed(1)} KB</p>
-    <button type="button" class="mt-2 text-[11px] text-emerald-400 hover:underline">Ganti Foto</button>
-  `;
-  lucide.createIcons();
+  if (dropZone) {
+    dropZone.innerHTML = `
+      <div class="w-10 h-10 rounded-full bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mx-auto mb-2">
+        <i data-lucide="check" class="w-5 h-5"></i>
+      </div>
+      <p class="text-xs font-semibold text-slate-100 truncate max-w-xs mx-auto font-mono">${file.name}</p>
+      <p class="text-[10px] text-slate-400 font-mono mt-0.5">${(file.size / 1024).toFixed(1)} KB</p>
+      <button type="button" class="mt-2 text-[11px] font-mono text-teal-400 hover:underline">Ganti Berkas</button>
+    `;
+    if (window.lucide) lucide.createIcons();
+  }
 }
 
 async function uploadAndAnalyzePhoto() {
   if (!currentSelectedFile) return;
 
   const btn = document.getElementById("btn-analyze-photo");
-  btn.disabled = true;
-  btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Menganalisis...`;
-  lucide.createIcons();
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Menganalisis...`;
+    if (window.lucide) lucide.createIcons();
+  }
 
-  const showEmotions = document.getElementById("photo-show-emotions").checked;
+  const showEmotions = document.getElementById("photo-show-emotions")?.checked || false;
   const formData = new FormData();
   formData.append("file", currentSelectedFile);
   formData.append("show_emotions", showEmotions ? "true" : "false");
@@ -308,82 +437,106 @@ async function uploadAndAnalyzePhoto() {
       method: "POST",
       body: formData,
     });
-    if (!res.ok) throw new Error("Gagal menganalisis foto: " + (await res.text()));
+    if (!res.ok) throw new Error("Gagal mengeksekusi analisis: " + (await res.text()));
     const data = await res.json();
     renderPhotoResults(data);
   } catch (err) {
     alert(err.message);
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i> Analisis Wajah Pasien`;
-    lucide.createIcons();
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Eksekusi Analisis Klinis`;
+      if (window.lucide) lucide.createIcons();
+    }
   }
 }
 
 function renderPhotoResults(data) {
-  document.getElementById("photo-empty-state").classList.add("hidden");
+  const emptyState = document.getElementById("photo-empty-state");
   const container = document.getElementById("photo-result-container");
-  container.classList.remove("hidden");
+  if (emptyState) emptyState.classList.add("hidden");
+  if (container) container.classList.remove("hidden");
 
   // Previews
   const origPreview = document.getElementById("photo-original-preview");
   const annotPreview = document.getElementById("photo-annotated-preview");
-  origPreview.src = URL.createObjectURL(currentSelectedFile);
-  annotPreview.src = data.annotated_image_base64 || origPreview.src;
-
-  // DASS Cards
-  if (data.dass_clinical_assessment) {
-    const dass = data.dass_clinical_assessment;
-    // Depression
-    document.getElementById("photo-dep-score").textContent = Math.round(dass.depression.score * 100) + "%";
-    const depB = document.getElementById("photo-dep-badge");
-    depB.textContent = dass.depression.level;
-    depB.className = `text-xs font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.depression.level)}`;
-
-    // Anxiety
-    document.getElementById("photo-anx-score").textContent = Math.round(dass.anxiety.score * 100) + "%";
-    const anxB = document.getElementById("photo-anx-badge");
-    anxB.textContent = dass.anxiety.level;
-    anxB.className = `text-xs font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}`;
-
-    // Stress
-    document.getElementById("photo-str-score").textContent = Math.round(dass.stress.score * 100) + "%";
-    const strB = document.getElementById("photo-str-badge");
-    strB.textContent = dass.stress.level;
-    strB.className = `text-xs font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.stress.level)}`;
+  if (origPreview && currentSelectedFile) {
+    origPreview.src = URL.createObjectURL(currentSelectedFile);
+  }
+  if (annotPreview) {
+    annotatedSrc = data.annotated_image_base64 || (origPreview ? origPreview.src : "");
+    annotPreview.src = annotatedSrc;
   }
 
-  // Populate 31 FACS Table
+  // DASS-3 Diagnosis Cards
+  if (data.dass_clinical_assessment) {
+    const dass = data.dass_clinical_assessment;
+
+    // Depression
+    const depScore = Math.round((dass.depression.score || 0) * 100);
+    const depScoreEl = document.getElementById("photo-dep-score");
+    const depBadge = document.getElementById("photo-dep-badge");
+    if (depScoreEl) depScoreEl.textContent = `${depScore}%`;
+    if (depBadge) {
+      depBadge.textContent = dass.depression.level;
+      depBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.depression.level)}`;
+    }
+
+    // Anxiety
+    const anxScore = Math.round((dass.anxiety.score || 0) * 100);
+    const anxScoreEl = document.getElementById("photo-anx-score");
+    const anxBadge = document.getElementById("photo-anx-badge");
+    if (anxScoreEl) anxScoreEl.textContent = `${anxScore}%`;
+    if (anxBadge) {
+      anxBadge.textContent = dass.anxiety.level;
+      anxBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}`;
+    }
+
+    // Stress
+    const strScore = Math.round((dass.stress.score || 0) * 100);
+    const strScoreEl = document.getElementById("photo-str-score");
+    const strBadge = document.getElementById("photo-str-badge");
+    if (strScoreEl) strScoreEl.textContent = `${strScore}%`;
+    if (strBadge) {
+      strBadge.textContent = dass.stress.level;
+      strBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.stress.level)}`;
+    }
+  }
+
+  // Populate 31 FACS Action Units Table
   populateAUTable(data.facs_action_units || {});
 }
 
 function populateAUTable(facsAUs) {
   const tbody = document.getElementById("au-table-body");
+  if (!tbody) return;
+
   const metadata = clinicalInfo?.facs_metadata || {};
 
   const rows = Object.entries(facsAUs).map(([au, val]) => {
     const meta = metadata[au] || { name: "Action Unit", muscle: "-", region: "-", clinical_meaning: "-" };
     const letter = getAUIntensityLetter(val);
+    const pillClass = getAUPillClass(letter);
     const pct = Math.round(val * 100);
-    const activeColor = letter !== "0" ? "text-cyan-400 font-bold" : "text-slate-500";
+    const isHighlight = letter !== "0";
 
     return `
-      <tr class="hover:bg-slate-800/40 transition">
-        <td class="py-2.5 px-3 font-bold ${activeColor}">${au}</td>
-        <td class="py-2.5 px-3 text-slate-200">${meta.name}</td>
-        <td class="py-2.5 px-3 text-slate-400 italic">${meta.muscle}</td>
-        <td class="py-2.5 px-3 text-center">
-          <span class="px-2 py-0.5 rounded ${letter !== '0' ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-500'}">${letter}</span>
+      <tr class="hover:bg-[#101a2e]/60 transition ${isHighlight ? 'bg-teal-500/[0.03]' : ''}">
+        <td class="py-2 px-3 font-mono font-bold ${isHighlight ? 'text-teal-400' : 'text-slate-400'}">${au}</td>
+        <td class="py-2 px-3 text-slate-200 font-sans">${meta.name}</td>
+        <td class="py-2 px-3 text-slate-400 italic text-[11px]">${meta.muscle}</td>
+        <td class="py-2 px-3 text-center">
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${pillClass}">${letter}</span>
         </td>
-        <td class="py-2.5 px-3">
+        <td class="py-2 px-3">
           <div class="flex items-center gap-2">
-            <div class="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-              <div class="h-full bg-cyan-500" style="width: ${pct}%"></div>
+            <div class="clinical-progress-track w-16">
+              <div class="clinical-progress-fill bg-teal-500" style="width: ${pct}%"></div>
             </div>
-            <span class="text-[11px] text-slate-400 font-mono">${pct}%</span>
+            <span class="text-[11px] text-slate-400 font-mono tabular-nums">${pct}%</span>
           </div>
         </td>
-        <td class="py-2.5 px-3 text-slate-400 max-w-xs text-[11px]">${meta.clinical_meaning}</td>
+        <td class="py-2 px-3 text-slate-300 max-w-xs text-[11px] font-sans leading-relaxed">${meta.clinical_meaning}</td>
       </tr>
     `;
   });
@@ -392,7 +545,7 @@ function populateAUTable(facsAUs) {
 }
 
 function filterAUTable() {
-  const query = (document.getElementById("au-search").value || "").toLowerCase();
+  const query = (document.getElementById("au-search")?.value || "").toLowerCase();
   const rows = document.querySelectorAll("#au-table-body tr");
   rows.forEach(r => {
     const text = r.textContent.toLowerCase();
@@ -409,8 +562,8 @@ function handleBatchSelect(event) {
   const countEl = document.getElementById("batch-file-count");
   const btnProcess = document.getElementById("btn-process-batch");
 
-  countEl.textContent = `${batchFiles.length} foto terpilih`;
-  btnProcess.disabled = batchFiles.length === 0;
+  if (countEl) countEl.textContent = `${batchFiles.length} berkas terpilih`;
+  if (btnProcess) btnProcess.disabled = batchFiles.length === 0;
 }
 
 async function processBatchPhotos() {
@@ -424,11 +577,11 @@ async function processBatchPhotos() {
   const progPct = document.getElementById("batch-progress-percent");
   const tbody = document.getElementById("batch-table-body");
 
-  btnProcess.disabled = true;
-  btnDownload.disabled = true;
-  progContainer.classList.remove("hidden");
+  if (btnProcess) btnProcess.disabled = true;
+  if (btnDownload) btnDownload.disabled = true;
+  if (progContainer) progContainer.classList.remove("hidden");
   batchResults = [];
-  tbody.innerHTML = "";
+  if (tbody) tbody.innerHTML = "";
 
   for (let i = 0; i < batchFiles.length; i++) {
     const file = batchFiles[i];
@@ -444,48 +597,52 @@ async function processBatchPhotos() {
         appendBatchRow(item);
       }
     } catch (e) {
-      console.error("Batch file error:", file.name, e);
+      console.error("Batch file processing error:", file.name, e);
     }
 
     const pct = Math.round(((i + 1) / batchFiles.length) * 100);
-    progBar.style.width = pct + "%";
-    progPct.textContent = pct + "%";
-    progText.textContent = `Memproses ${i + 1} / ${batchFiles.length}...`;
+    if (progBar) progBar.style.width = pct + "%";
+    if (progPct) progPct.textContent = pct + "%";
+    if (progText) progText.textContent = `Memproses ${i + 1} / ${batchFiles.length}...`;
   }
 
-  btnProcess.disabled = false;
-  btnDownload.disabled = batchResults.length === 0;
-  progText.textContent = `Selesai! Berhasil memproses ${batchResults.length} foto.`;
+  if (btnProcess) btnProcess.disabled = false;
+  if (btnDownload) btnDownload.disabled = batchResults.length === 0;
+  if (progText) progText.textContent = `Selesai! Berhasil memproses ${batchResults.length} berkas citra.`;
 }
 
 function appendBatchRow(item) {
   const tbody = document.getElementById("batch-table-body");
+  if (!tbody) return;
+
   const dass = item.dass_clinical_assessment || { depression: {}, anxiety: {}, stress: {} };
   const emo = item.emotions || {};
 
   const tr = document.createElement("tr");
-  tr.className = "hover:bg-slate-800/40 transition";
+  tr.className = "hover:bg-[#101a2e]/60 transition";
   tr.innerHTML = `
-    <td class="py-2.5 px-3 font-semibold text-slate-200 truncate max-w-[140px]">${item.image_name}</td>
-    <td class="py-2.5 px-3 text-center">
-      <span class="px-2 py-0.5 rounded text-[11px] ${item.face_detected ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">${item.face_detected ? 'Ya' : 'Tidak'}</span>
+    <td class="py-2 px-3 font-semibold text-slate-200 truncate max-w-[140px] font-mono text-[11px]">${item.image_name}</td>
+    <td class="py-2 px-3 text-center">
+      <span class="px-2 py-0.5 rounded text-[10px] font-mono ${item.face_detected ? 'bg-teal-500/10 text-teal-400 border border-teal-500/25' : 'bg-rose-500/10 text-rose-400 border border-rose-500/25'}">
+        ${item.face_detected ? 'TERDETEKSI' : 'NIHIL'}
+      </span>
     </td>
-    <td class="py-2.5 px-3">
-      <span class="px-2 py-0.5 rounded text-[11px] ${getBadgeClass(item.distress_level)}">${item.distress_level}</span>
+    <td class="py-2 px-3">
+      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${getBadgeClass(item.distress_level)}">${item.distress_level}</span>
     </td>
-    <td class="py-2.5 px-3">
-      <span class="px-2 py-0.5 rounded text-[11px] ${getBadgeClass(dass.depression.level)}">${dass.depression.level || '-'}</span>
+    <td class="py-2 px-3 font-mono text-[11px]">
+      <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.depression.level)}">${dass.depression.level || '-'}</span>
       <span class="text-slate-500 text-[10px] ml-1">(${Math.round((dass.depression.score || 0) * 100)}%)</span>
     </td>
-    <td class="py-2.5 px-3">
-      <span class="px-2 py-0.5 rounded text-[11px] ${getBadgeClass(dass.anxiety.level)}">${dass.anxiety.level || '-'}</span>
+    <td class="py-2 px-3 font-mono text-[11px]">
+      <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}">${dass.anxiety.level || '-'}</span>
       <span class="text-slate-500 text-[10px] ml-1">(${Math.round((dass.anxiety.score || 0) * 100)}%)</span>
     </td>
-    <td class="py-2.5 px-3">
-      <span class="px-2 py-0.5 rounded text-[11px] ${getBadgeClass(dass.stress.level)}">${dass.stress.level || '-'}</span>
+    <td class="py-2 px-3 font-mono text-[11px]">
+      <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.stress.level)}">${dass.stress.level || '-'}</span>
       <span class="text-slate-500 text-[10px] ml-1">(${Math.round((dass.stress.score || 0) * 100)}%)</span>
     </td>
-    <td class="py-2.5 px-3 font-mono text-[11px] text-slate-400">${emo.valence !== undefined ? emo.valence.toFixed(2) : '-'}</td>
+    <td class="py-2 px-3 font-mono text-[11px] text-slate-400 tabular-nums">${emo.valence !== undefined ? emo.valence.toFixed(2) : '-'}</td>
   `;
   tbody.appendChild(tr);
 }
@@ -533,7 +690,7 @@ function downloadBatchCSV() {
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `batch_dass_summary_${new Date().toISOString().slice(0, 10)}.csv`);
+  link.setAttribute("download", `aiface_cohort_summary_${new Date().toISOString().slice(0, 10)}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

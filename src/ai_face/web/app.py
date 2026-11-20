@@ -297,6 +297,21 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
             subject_id=resolved_subject_id,
         )
 
+        # Extract normalized face bounding box for lightweight web HUD overlay
+        face_bbox = None
+        if result and result.face_landmarks and len(result.face_landmarks) > 0:
+            face = result.face_landmarks[0]
+            xs = [float(p.x) for p in face]
+            ys = [float(p.y) for p in face]
+            min_x, max_x = max(0.0, min(xs)), min(1.0, max(xs))
+            min_y, max_y = max(0.0, min(ys)), min(1.0, max(ys))
+            face_bbox = {
+                "x": round(min_x, 4),
+                "y": round(min_y, 4),
+                "width": round(max_x - min_x, 4),
+                "height": round(max_y - min_y, 4),
+            }
+
         annotated_bgr = render_shore_style_overlay(
             frame_bgr=img,
             detection_result=result,
@@ -314,6 +329,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
         return {
             "image_name": file.filename,
             "face_detected": emotions is not None,
+            "face_bbox": face_bbox,
             "distress_level": emotions.distress_level if emotions else "NO_FACE",
             "distress_score": emotions.distress_score if emotions else None,
             "dass_clinical_assessment": {
