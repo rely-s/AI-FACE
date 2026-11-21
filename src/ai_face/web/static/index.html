@@ -84,13 +84,13 @@
               <span id="control-strip-status" class="control-strip-val">Siap Memulai</span>
             </div>
             <div class="control-strip-actions">
-              <button id="btn-start-camera" class="pill-action-btn start" onclick="startCamera()">
+              <button id="btn-start-camera" class="pill-action-btn start" onclick="startCamera()" title="Mulai stream kamera (Hotkey: Spasi)">
                 <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"></path></svg>
-                Mulai Kamera
+                Mulai Kamera <kbd class="kbd-hint" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: #fff;">Space</kbd>
               </button>
-              <button id="btn-stop-camera" class="pill-action-btn stop" style="display: none;" onclick="stopCamera()">
+              <button id="btn-stop-camera" class="pill-action-btn stop" style="display: none;" onclick="stopCamera()" title="Hentikan stream kamera (Hotkey: Spasi)">
                 <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"></rect></svg>
-                Hentikan Sesi
+                Hentikan Sesi <kbd class="kbd-hint" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: #fff;">Space</kbd>
               </button>
             </div>
           </div>
@@ -101,9 +101,9 @@
             
             <!-- Toggle 1: Mirror Mode -->
             <div class="card-row-wrapper">
-              <button id="live-mirror-toggle" class="row-btn first" role="switch" aria-checked="true" onclick="toggleCameraMirror()" title="Beralih antara mode cermin (mirrored) atau orientasi sensor asli">
+              <button id="live-mirror-toggle" class="row-btn first" role="switch" aria-checked="true" onclick="toggleCameraMirror()" title="Beralih antara mode cermin (mirrored) atau orientasi sensor asli (Hotkey: M)">
                 <span class="row-btn-text">
-                  <span class="row-btn-label">Mirror</span>
+                  <span class="row-btn-label">Mirror <kbd class="kbd-hint">M</kbd></span>
                   <span id="live-mirror-label" class="row-btn-note">Balik tampilan seperti cermin</span>
                 </span>
                 <span class="switch-track on">
@@ -114,9 +114,9 @@
 
             <!-- Toggle 2: Burn-in klasik (SHORE) -->
             <div class="card-row-wrapper">
-              <button id="live-overlay-toggle" class="row-btn" role="switch" aria-checked="false" onclick="toggleOverlayDisplayMode()" title="Beralih antara retikel bersih atau overlay burn-in lama">
+              <button id="live-overlay-toggle" class="row-btn" role="switch" aria-checked="false" onclick="toggleOverlayDisplayMode()" title="Beralih antara retikel bersih atau overlay burn-in lama (Hotkey: C)">
                 <span class="row-btn-text">
-                  <span class="row-btn-label">Burn-in klasik (SHORE)</span>
+                  <span class="row-btn-label">Burn-in klasik (SHORE) <kbd class="kbd-hint">C</kbd></span>
                   <span id="live-overlay-mode-label" class="row-btn-note">Tampilkan overlay deteksi lama</span>
                 </span>
                 <span class="switch-track">
@@ -127,10 +127,10 @@
 
             <!-- Toggle 3: Mode lengkap (+Emosi) -->
             <div class="card-row-wrapper">
-              <button id="live-emotion-toggle" class="row-btn" role="switch" aria-checked="false" onclick="toggleLiveEmotions()" title="Tekan 'E' untuk beralih mode kalkulasi">
+              <button id="live-emotion-toggle" class="row-btn" role="switch" aria-checked="false" onclick="toggleLiveEmotions()" title="Tekan 'E' untuk beralih mode kalkulasi emosi">
                 <span class="row-btn-text">
-                  <span class="row-btn-label">Mode lengkap</span>
-                  <span class="row-btn-note">Sertakan pembacaan emosi (tombol E)</span>
+                  <span class="row-btn-label">Mode lengkap <kbd class="kbd-hint">E</kbd></span>
+                  <span class="row-btn-note">Sertakan pembacaan emosi &amp; radar</span>
                 </span>
                 <span class="switch-track">
                   <span class="switch-thumb"></span>
@@ -309,12 +309,18 @@
             <div class="inset-card" style="padding: 16px;">
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
                 <div>
-                  <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase;">Citra Asli</div>
-                  <img id="photo-original-preview" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;" alt="Original" />
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Citra Asli</span>
+                    <span style="font-size: 11px; color: var(--accent);">Klik untuk zoom</span>
+                  </div>
+                  <img id="photo-original-preview" class="zoomable-img" onclick="openLightbox(this.src, 'Citra Asli Pasien')" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;" alt="Original" />
                 </div>
                 <div>
-                  <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; text-transform: uppercase;">Deteksi Anotasi FACS</div>
-                  <img id="photo-annotated-preview" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;" alt="Annotated" />
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 13px; font-weight: 600; color: var(--text-primary); text-transform: uppercase;">Deteksi Anotasi FACS</span>
+                    <span style="font-size: 11px; color: var(--accent);">Klik untuk zoom</span>
+                  </div>
+                  <img id="photo-annotated-preview" class="zoomable-img" onclick="openLightbox(this.src, 'Deteksi FACS &amp; HUD')" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;" alt="Annotated" />
                 </div>
               </div>
             </div>
@@ -516,7 +522,17 @@
     <p style="margin: 0;">AI-FACE Clinical Workstation · Protocol by Gavrilescu &amp; Vizireanu (Sensors 2019) &amp; Binz et al. (Bonn 2023)</p>
   </footer>
 
+  <!-- Image Zoom Lightbox Modal -->
+  <div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox()">
+    <div style="color: #FFFFFF; font-size: 14px; font-weight: 600; margin-bottom: 12px;" id="lightbox-title">Citra Pasien</div>
+    <img id="lightbox-img" src="" alt="Zoom Preview" onclick="event.stopPropagation()" />
+    <div style="color: #AEAEB2; font-size: 12px; margin-top: 12px;">Klik di luar gambar atau tekan ESC untuk menutup</div>
+  </div>
+
+  <!-- Dynamic Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
   <!-- Application Script -->
-  <script src="/static/app.js?v=4.1"></script>
+  <script src="/static/app.js?v=4.2"></script>
 </body>
 </html>

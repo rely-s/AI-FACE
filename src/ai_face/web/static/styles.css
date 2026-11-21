@@ -783,21 +783,240 @@ button:active {
 }
 
 /* =========================================================================
+   INTERACTIVE TOAST NOTIFICATIONS (IOS DYNAMIC CAPSULE)
+   ========================================================================= */
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 8px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.toast-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(28, 28, 30, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  animation: toast-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
+}
+
+.toast-pill.out {
+  animation: toast-out 0.20s ease-in forwards;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.96); }
+}
+
+/* Keyboard hint badges */
+.kbd-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: #E5E5EA;
+  border: 1px solid #D1D1D6;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.10);
+  line-height: 1;
+  user-select: none;
+}
+
+.row-btn:hover .kbd-hint {
+  border-color: #B0B0B8;
+  color: var(--text-primary);
+}
+
+/* Interactive AU list row hover & inspection */
+.au-row.interactive {
+  cursor: pointer;
+  transition: background 0.12s ease;
+  border-radius: 8px;
+  padding-right: 6px;
+}
+
+.au-row.interactive:hover {
+  background: rgba(10, 100, 224, 0.05);
+}
+
+.au-row.interactive:active {
+  background: rgba(10, 100, 224, 0.10);
+}
+
+/* Modal Dialog Backdrop & Card */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10001;
+  animation: modal-fade-in 0.15s ease;
+}
+
+.modal-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  max-width: 460px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.24);
+  position: relative;
+  animation: modal-scale-up 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-close-btn {
+  background: rgba(118, 118, 128, 0.12);
+  border: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(118, 118, 128, 0.20);
+  color: var(--text-primary);
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-scale-up {
+  from { opacity: 0; transform: scale(0.93); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Rich Thumbnail Preview inside Dropzone */
+.dropzone-thumb-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid var(--border-hairline);
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.dropzone-thumb-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #1C1C1E;
+  flex: none;
+}
+
+.pill-mini-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #E5E5EA;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.pill-mini-btn:hover {
+  background: #D1D1D6;
+}
+
+/* Image zoom cursor */
+.zoomable-img {
+  cursor: zoom-in;
+  transition: transform 0.15s ease;
+}
+
+.zoomable-img:hover {
+  transform: scale(1.01);
+}
+
+/* Lightbox full image modal */
+.lightbox-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 10002;
+  cursor: zoom-out;
+}
+
+.lightbox-modal img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+/* =========================================================================
    COMPREHENSIVE RESPONSIVE ADAPTATIONS
    ========================================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .live-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .photo-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .app-header {
-    padding: 14px 16px 6px;
+    padding: 14px 18px 8px;
   }
   .main-container {
-    padding: 8px 16px 24px;
+    padding: 8px 18px 24px;
   }
   .aside-column {
     max-width: 100%;
@@ -807,20 +1026,38 @@ button:active {
 @media (max-width: 768px) {
   .app-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 12px;
-    padding: 12px 16px 4px;
+    padding: 12px 16px 6px;
   }
   .segmented-control {
     width: 100%;
     overflow-x: auto;
     flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .segmented-control::-webkit-scrollbar {
+    display: none;
   }
   .seg-btn {
     white-space: nowrap;
     flex: 1 0 auto;
     text-align: center;
+    min-height: 36px;
+  }
+  .video-control-strip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .control-strip-actions {
+    justify-content: stretch;
+  }
+  .control-strip-actions .pill-action-btn {
+    flex: 1;
+    justify-content: center;
+    min-height: 40px;
   }
 }
 
@@ -829,8 +1066,7 @@ button:active {
     padding: 6px 12px 20px;
   }
   .video-viewport {
-    aspect-ratio: 4 / 3;
-    max-height: 260px;
+    max-height: 300px;
     border-radius: 14px;
   }
   .app-title {
@@ -839,5 +1075,8 @@ button:active {
   }
   .app-subtitle {
     font-size: 12px;
+  }
+  .card-row-wrapper {
+    padding-left: 12px;
   }
 }

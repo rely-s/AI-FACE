@@ -131,8 +131,28 @@ function updateDassItem(scoreEl, levelEl, barEl, rawScore) {
 }
 
 // =========================================================================
-// TAB 1: LIVE WEBCAM MONITORING
+// TAB 1: LIVE WEBCAM MONITORING & TOAST SYSTEM
 // =========================================================================
+
+function showToast(message, icon = "ℹ️") {
+  let container = document.getElementById("toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className = "toast-pill";
+  toast.innerHTML = `<span style="font-size: 14px;">${icon}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add("out");
+    setTimeout(() => {
+      if (toast.parentNode) toast.remove();
+    }, 250);
+  }, 2200);
+}
 
 function toggleCameraMirror() {
   isCameraMirrored = !isCameraMirrored;
@@ -199,15 +219,46 @@ function handleVideoBoxClick(event) {
   // Prevent click bubbling from control buttons inside video container
   if (event.target.closest("button") || event.target.closest("a")) return;
   toggleLiveEmotions();
+  showToast(`Mode Emosi: ${liveShowEmotions ? 'Aktif' : 'Nonaktif'} (E)`, '⚡');
 }
 
-// Global hotkey: 'E' or 'e' to toggle emotion calculation
+// Global hotkeys for precision navigation
 window.addEventListener("keydown", (e) => {
+  if (document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+    if (e.key === "Escape") document.activeElement.blur();
+    return;
+  }
+
+  if (e.key === "Escape") {
+    closeLightbox();
+    closeAUInspector();
+    return;
+  }
+
   if (e.key === "e" || e.key === "E") {
-    if (document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
-      return;
-    }
     toggleLiveEmotions();
+    showToast(`Mode Emosi: ${liveShowEmotions ? 'Aktif' : 'Nonaktif'} (E)`, '⚡');
+  } else if (e.key === "m" || e.key === "M") {
+    toggleCameraMirror();
+    showToast(`Mode Cermin: ${isCameraMirrored ? 'Aktif' : 'Nonaktif'} (M)`, '🪞');
+  } else if (e.key === "c" || e.key === "C") {
+    toggleOverlayDisplayMode();
+    showToast(`Overlay: ${overlayMode === 'clean' ? 'Retikel Bersih' : 'Klasik SHORE'} (C)`, '🎯');
+  } else if (e.key === " " || e.code === "Space") {
+    e.preventDefault();
+    if (liveStream) {
+      stopCamera();
+    } else {
+      startCamera();
+    }
+  } else if (e.key === "1") {
+    switchTab("live");
+  } else if (e.key === "2") {
+    switchTab("photo");
+  } else if (e.key === "3") {
+    switchTab("batch");
+  } else if (e.key === "4") {
+    switchTab("glossary");
   }
 });
 
@@ -272,6 +323,7 @@ async function startCamera() {
 
     // Stream telemetry frames at ~10-15 Hz (100ms cycle)
     liveInterval = setInterval(captureAndSendLiveFrame, 100);
+    showToast("Kamera aktif · 15 Hz stream", "🟢");
   } catch (err) {
     alert("Tidak dapat mengakses sensor kamera: " + err.message);
   }
@@ -283,6 +335,8 @@ function stopCamera() {
     liveStream.getTracks().forEach(track => track.stop());
     liveStream = null;
   }
+
+  showToast("Kamera dinonaktifkan", "⏹️");
 
   const video = document.getElementById("webcam-video");
   if (video) video.srcObject = null;
@@ -486,7 +540,7 @@ function updateLiveDashboard(data, latencyMs = 0) {
 
         return `
           <div class="card-row-wrapper">
-            <div class="au-row ${idx === 0 ? 'first' : ''}">
+            <div class="au-row interactive ${idx === 0 ? 'first' : ''}" onclick="openAUInspector('${au}', ${val})" title="Klik untuk telaah klinis ${au}">
               <span class="au-name-col">
                 <span class="au-name">${name}</span>
                 <span class="au-code num">${au}</span>
@@ -521,12 +575,19 @@ function setPhotoFile(file) {
 
   const dropContent = document.getElementById("drop-zone-content");
   if (dropContent) {
+    const objectUrl = URL.createObjectURL(file);
     dropContent.innerHTML = `
-      <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">${file.name}</div>
-      <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${(file.size / 1024).toFixed(1)} KB</div>
-      <button type="button" class="apple-btn secondary" style="margin-top: 12px; min-height: 32px; font-size: 13px;" onclick="event.stopPropagation(); document.getElementById('photo-input').click();">Ganti Berkas</button>
+      <div class="dropzone-thumb-wrapper">
+        <img src="${objectUrl}" alt="Thumbnail" class="dropzone-thumb-img" />
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${file.name}</div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">${(file.size / 1024).toFixed(1)} KB · Siap dianalisis</div>
+        </div>
+        <button type="button" class="pill-mini-btn" onclick="event.stopPropagation(); document.getElementById('photo-input').click();">Ganti</button>
+      </div>
     `;
   }
+  showToast(`Foto terpilih: ${file.name}`, "📁");
 }
 
 async function uploadAndAnalyzePhoto() {
@@ -551,6 +612,7 @@ async function uploadAndAnalyzePhoto() {
     if (!res.ok) throw new Error("Gagal mengeksekusi analisis: " + (await res.text()));
     const data = await res.json();
     renderPhotoResults(data);
+    showToast("Analisis klinis foto selesai", "✅");
   } catch (err) {
     alert(err.message);
   } finally {
@@ -631,9 +693,9 @@ function populateAUTable(facsAUs) {
     const isHighlight = letter !== "0";
 
     return `
-      <tr style="${isHighlight ? 'background: rgba(10, 100, 224, 0.05); font-weight: 500;' : ''}">
+      <tr onclick="openAUInspector('${au}', ${val})" style="cursor: pointer; ${isHighlight ? 'background: rgba(10, 100, 224, 0.05); font-weight: 500;' : ''}" title="Klik untuk telaah klinis ${au}">
         <td class="num" style="font-weight: 700; color: ${isHighlight ? 'var(--accent)' : 'var(--text-secondary)'};">${au}</td>
-        <td style="color: var(--text-primary);">${meta.name}</td>
+        <td style="color: var(--text-primary); font-weight: 500;">${meta.name}</td>
         <td style="color: var(--text-secondary); font-style: italic;">${meta.muscle}</td>
         <td class="num" style="text-align: center; font-weight: 600; color: ${isHighlight ? 'var(--accent)' : 'var(--text-secondary)'};">${letter}</td>
         <td class="num">${pct}%</td>
@@ -791,4 +853,86 @@ function downloadBatchCSV() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  showToast("File rekap CSV berhasil diunduh", "📥");
+}
+
+// =========================================================================
+// INTERACTIVE CLINICAL INSPECTOR & LIGHTBOX MODAL
+// =========================================================================
+
+function openAUInspector(auCode, val = null) {
+  const meta = (clinicalInfo?.facs_metadata || {})[auCode] || {};
+  const letter = val !== null ? getAUIntensityLetter(val) : "-";
+  const name = meta.name || auCode;
+  const muscle = meta.muscle || "Musculus facialis";
+  const region = meta.region || "Wajah";
+  const clinicalMeaning = meta.clinical_meaning || "Aktivitas motorik ekspresi wajah.";
+
+  let modal = document.getElementById("au-inspector-modal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "au-inspector-modal";
+    modal.className = "modal-backdrop";
+    modal.onclick = (e) => {
+      if (e.target === modal) closeAUInspector();
+    };
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+        <div>
+          <span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: rgba(10, 100, 224, 0.12); color: var(--accent); font-weight: 700; font-size: 12px; margin-bottom: 4px;">${auCode}</span>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--text-primary);">${name}</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeAUInspector()" aria-label="Tutup">
+          <svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; line-height: 18px;">
+        <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #F8F8FA; border-radius: 10px;">
+          <span style="color: var(--text-secondary);">Wilayah Anatomi</span>
+          <span style="font-weight: 600; color: var(--text-primary);">${region}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #F8F8FA; border-radius: 10px;">
+          <span style="color: var(--text-secondary);">Musculus Anatomi</span>
+          <span style="font-weight: 600; color: var(--text-primary); font-style: italic;">${muscle}</span>
+        </div>
+        ${val !== null ? `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #F8F8FA; border-radius: 10px;">
+          <span style="color: var(--text-secondary);">Intensitas Terdeteksi</span>
+          <span style="font-weight: 700; color: var(--accent);">${letter} (${Math.round(val * 100)}%)</span>
+        </div>` : ''}
+        <div style="padding: 10px 12px; background: #F2F2F7; border-radius: 10px;">
+          <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px;">Signifikansi Klinis &amp; DASS-3</div>
+          <div style="color: var(--text-primary);">${clinicalMeaning}</div>
+        </div>
+      </div>
+      <button class="apple-btn" style="width: 100%; margin-top: 18px;" onclick="closeAUInspector()">Tutup Telaah</button>
+    </div>
+  `;
+  modal.style.display = "flex";
+}
+
+function closeAUInspector() {
+  const modal = document.getElementById("au-inspector-modal");
+  if (modal) modal.style.display = "none";
+}
+
+function openLightbox(imgSrc, title = "Citra Pasien") {
+  if (!imgSrc) return;
+  const modal = document.getElementById("lightbox-modal");
+  const img = document.getElementById("lightbox-img");
+  const titleEl = document.getElementById("lightbox-title");
+  if (modal && img) {
+    img.src = imgSrc;
+    if (titleEl) titleEl.textContent = title;
+    modal.style.display = "flex";
+  }
+}
+
+function closeLightbox() {
+  const modal = document.getElementById("lightbox-modal");
+  if (modal) modal.style.display = "none";
 }
