@@ -1,309 +1,702 @@
 /* =========================================================================
-   AI-FACE Clinical Platform - Institutional Medical Design System
-   Typography:
-     - Primary Interface: IBM Plex Sans (Grotesque precision, open apertures, non-AI-slop)
-     - Telemetry Monospace: IBM Plex Mono (Tabular numerals, scientific data fidelity)
-   Dominant Palette:
-     - ALICE BLUE / WHITE: #ECF4F7 / #FFFFFF (Dominant, clean clinical white surfaces)
-     - SPACE CADET:        #192853 (High-contrast typography, structure & cards)
-     - GARGOYLE GAS:       #FFE14F (High-visibility focal accents, buttons & reticles)
+   AI-FACE Web Workstation - Apple Human Interface Guidelines (HIG) System
+   Clean Inset-Grouped Aesthetic
+   - Page background: #F2F2F7 (Apple System Gray 6 / Grouped Background)
+   - Cards & Tables:  #FFFFFF Inset Cards (border-radius: 20px, hairline dividers: #E5E5EA)
+   - Typography:      -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif
+   - Accent:          #0A64E0 (Apple System Blue)
+   - Switches:        #34C759 (Apple System Green) / #E9E9EB (Inactive)
    ========================================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-
 :root {
-  /* The 3-Color Signature Palette (White-Dominant Theme) */
-  --color-alice-blue: #ECF4F7;
-  --color-pure-white: #FFFFFF;
-  --color-space-cadet: #192853;
-  --color-gargoyle-gas: #FFE14F;
+  --bg-page: #F2F2F7;
+  --bg-card: #FFFFFF;
+  --bg-video: #1C1C1E;
+  --accent: #0A64E0;
+  --accent-hover: #0852B8;
+  --color-green: #34C759;
+  --color-green-text: #1F7A3A;
+  --color-orange: #FF9F0A;
+  --color-orange-text: #9A5B00;
+  --color-dark-orange: #FF6A1A;
+  --color-dark-orange-text: #B14100;
+  --color-red: #FF3B30;
+  --color-red-text: #C4251C;
+  --color-extreme: #C4001A;
+  --color-extreme-text: #A50015;
+  --text-primary: #000000;
+  --text-secondary: #6C6C70;
+  --text-tertiary: #8E8E93;
+  --border-hairline: #E5E5EA;
+  --border-track: #E9E9EB;
+  --border-track-dark: #D1D1D6;
+}
 
-  /* Surfaces & Spatial Architecture */
-  --bg-clinical-base: #ECF4F7;
-  --bg-clinical-surface: #FFFFFF;
-  --bg-clinical-card: #FFFFFF;
-  --bg-clinical-card-hover: #F8FBFC;
-  --bg-clinical-subtle: #E2EDF2;
-
-  /* Structural 1px Borders & Dividers */
-  --border-clinical-dim: rgba(25, 40, 83, 0.12);
-  --border-clinical-subtle: rgba(25, 40, 83, 0.22);
-  --border-clinical-active: #192853;
-
-  /* Typography & Information Density */
-  --text-clinical-primary: #192853;
-  --text-clinical-secondary: #4A5F82;
-  --text-clinical-muted: #7287A5;
-
-  /* Accents */
-  --accent-primary: #FFE14F;
-  --accent-navy: #192853;
-  --accent-light: #ECF4F7;
+* {
+  box-sizing: border-box;
 }
 
 body {
-  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-clinical-base);
-  color: var(--text-clinical-primary);
-  letter-spacing: -0.015em;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  letter-spacing: -0.02em;
-}
-
-/* Tabular Monospace for Numerical Telemetry & Data Columns */
-.font-mono,
-.telemetry-mono {
-  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.num {
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
 }
 
-/* Institutional Medical Cards (Clean White with Elevation) */
-.clinical-card {
-  background-color: var(--bg-clinical-surface);
-  border: 1px solid var(--border-clinical-dim);
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(25, 40, 83, 0.04), 0 4px 12px rgba(25, 40, 83, 0.02);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+button {
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Webcam Video Feed Mirroring */
+button:focus-visible {
+  outline: 3px solid #7FB0FF;
+  outline-offset: 2px;
+}
+
+button:active {
+  opacity: 0.85;
+}
+
+/* =========================================================================
+   HEADER & SEGMENTED CONTROLS
+   ========================================================================= */
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 32px;
+  padding: 32px 40px 8px;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 34px;
+  line-height: 41px;
+  font-weight: 700;
+  letter-spacing: 0.37px;
+  color: var(--text-primary);
+}
+
+.app-subtitle {
+  margin: 2px 0 0;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+.segmented-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px;
+  background: rgba(118, 118, 128, 0.12);
+  border-radius: 11px;
+}
+
+.seg-btn {
+  min-height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.seg-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.seg-btn.active {
+  background: #FFFFFF;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+  font-weight: 600;
+}
+
+/* =========================================================================
+   LAYOUT & INSET CARDS
+   ========================================================================= */
+
+.main-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 16px 40px 40px;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.tab-pane {
+  width: 100%;
+}
+
+.video-column {
+  flex: 999 1 600px;
+  min-width: 0;
+}
+
+.aside-column {
+  flex: 1 1 360px;
+  max-width: 460px;
+  min-width: 0;
+}
+
+.section-title {
+  margin: 24px 0 8px 16px;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.08px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.section-title.first {
+  margin-top: 0;
+}
+
+.section-footer {
+  margin: 8px 16px 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.inset-card {
+  background: var(--bg-card);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.card-row-wrapper {
+  padding-left: 16px;
+}
+
+/* =========================================================================
+   VIDEO VIEWPORT
+   ========================================================================= */
+
+.video-viewport {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  min-height: 380px;
+  background: var(--bg-video);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
 .camera-mirror {
   transform: scaleX(-1);
   -webkit-transform: scaleX(-1);
 }
 
-.clinical-card:hover {
-  border-color: var(--border-clinical-subtle);
-  box-shadow: 0 4px 16px rgba(25, 40, 83, 0.06);
-}
-
-.clinical-card-highlight {
-  background-color: #F8FBFC;
-  border: 1px solid var(--border-clinical-subtle);
-}
-
-/* Clinical Triage Badges */
-.badge-normal {
-  background-color: #FEF9C3;
-  color: #854D0E;
-  border: 1px solid #FDE047;
-}
-
-.badge-mild {
-  background-color: #EFF6FF;
-  color: #1D4ED8;
-  border: 1px solid #BFDBFE;
-}
-
-.badge-moderate {
-  background-color: #FEF3C7;
-  color: #B45309;
-  border: 1px solid #FCD34D;
-}
-
-.badge-severe {
-  background-color: #FFEDD5;
-  color: #C2410C;
-  border: 1px solid #FDBA74;
-}
-
-.badge-extremely-severe {
-  background-color: #FEE2E2;
-  color: #B91C1C;
-  border: 1px solid #FCA5A5;
-  font-weight: 700;
-}
-
-/* Medical Viewfinder Overlays */
-.viewfinder-reticle {
+.hud-pill {
   position: absolute;
-  width: 22px;
-  height: 22px;
-  border-color: var(--color-gargoyle-gas);
+  top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 25;
   pointer-events: none;
-  z-index: 20;
 }
 
-.viewfinder-reticle-tl {
-  top: 12px;
-  left: 12px;
-  border-top: 2px solid var(--color-gargoyle-gas);
-  border-left: 2px solid var(--color-gargoyle-gas);
+.hud-pill.top-left {
+  left: 16px;
 }
 
-.viewfinder-reticle-tr {
-  top: 12px;
-  right: 12px;
-  border-top: 2px solid var(--color-gargoyle-gas);
-  border-right: 2px solid var(--color-gargoyle-gas);
+.hud-pill.top-right {
+  right: 16px;
 }
 
-.viewfinder-reticle-bl {
-  bottom: 12px;
-  left: 12px;
-  border-bottom: 2px solid var(--color-gargoyle-gas);
-  border-left: 2px solid var(--color-gargoyle-gas);
+.hud-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  transition: background 0.2s ease;
 }
 
-.viewfinder-reticle-br {
-  bottom: 12px;
-  right: 12px;
-  border-bottom: 2px solid var(--color-gargoyle-gas);
-  border-right: 2px solid var(--color-gargoyle-gas);
+.hud-dot.active {
+  background: var(--color-green);
+  box-shadow: 0 0 8px rgba(52, 199, 89, 0.6);
+  animation: pulse-dot 1.5s infinite;
 }
 
-/* Face Detection Target Box */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(0.9); }
+}
+
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 56px 32px 104px;
+  z-index: 10;
+  background: var(--bg-video);
+}
+
+.placeholder-title {
+  font-size: 20px;
+  line-height: 25px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.placeholder-desc {
+  max-width: 340px;
+  font-size: 15px;
+  line-height: 20px;
+  color: #AEAEB2;
+}
+
+.video-action-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  display: flex;
+  justify-content: center;
+  z-index: 30;
+}
+
+.pill-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+
+.pill-action-btn:hover {
+  filter: brightness(1.08);
+}
+
+.pill-action-btn:active {
+  filter: brightness(0.92);
+  transform: scale(0.98);
+}
+
+.pill-action-btn.start {
+  background: var(--accent);
+}
+
+.pill-action-btn.stop {
+  background: var(--color-red);
+}
+
+/* Face target tracking box */
 .face-target-box {
   position: absolute;
   pointer-events: none;
-  border: 1.5px solid #FFE14F;
-  background: rgba(255, 225, 79, 0.12);
-  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   transition: all 0.08s ease-out;
   z-index: 15;
 }
 
-.face-target-box::before,
-.face-target-box::after {
-  content: "";
+/* =========================================================================
+   APPLE TOGGLE SWITCHES (PENGATURAN)
+   ========================================================================= */
+
+.row-btn {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  padding: 8px 16px 8px 0;
+  border: 0;
+  border-top: 1px solid var(--border-hairline);
+  background: transparent;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.row-btn.first {
+  border-top: 0;
+}
+
+.row-btn:active {
+  background: #E5E5EA;
+}
+
+.row-btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.row-btn-label {
+  font-size: 17px;
+  line-height: 22px;
+  color: var(--text-primary);
+}
+
+.row-btn-note {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.switch-track {
+  position: relative;
+  flex: none;
+  width: 51px;
+  height: 31px;
+  border-radius: 16px;
+  background: var(--border-track);
+  transition: background 0.2s ease;
+}
+
+.switch-track.on {
+  background: var(--color-green);
+}
+
+.switch-thumb {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  border-color: #FFE14F;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
+  transition: left 0.2s cubic-bezier(0.2, 0.85, 0.32, 1.2);
 }
 
-.face-target-box::before {
-  top: -1px;
-  left: -1px;
-  border-top: 2px solid #FFE14F;
-  border-left: 2px solid #FFE14F;
+.switch-track.on .switch-thumb {
+  left: 22px;
 }
 
-.face-target-box::after {
-  bottom: -1px;
-  right: -1px;
-  border-bottom: 2px solid #FFE14F;
-  border-right: 2px solid #FFE14F;
+/* =========================================================================
+   SUBJEK ROWS
+   ========================================================================= */
+
+.subject-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding-right: 16px;
+  border-top: 1px solid var(--border-hairline);
 }
 
-/* Clinical Telemetry Progress Bar */
-.clinical-progress-track {
+.subject-row.first {
+  border-top: 0;
+}
+
+.subject-label {
+  font-size: 17px;
+  line-height: 22px;
+  color: var(--text-primary);
+}
+
+.subject-value {
+  font-size: 17px;
+  line-height: 22px;
+  color: var(--text-secondary);
+}
+
+/* =========================================================================
+   DASS-3 ROWS & 5-ZONE PROGRESS TRACK
+   ========================================================================= */
+
+.dass-row {
+  padding: 14px 16px 16px 0;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.dass-row.first {
+  border-top: 0;
+}
+
+.dass-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dass-name {
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dass-score {
+  font-size: 17px;
+  line-height: 22px;
+  color: var(--text-secondary);
+}
+
+.dass-sub {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 0 10px;
+}
+
+.dass-aus {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.dass-level {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--color-green-text);
+  transition: color 0.2s ease;
+}
+
+.dass-track {
   position: relative;
   height: 8px;
-  background-color: #E2EDF2;
-  border-radius: 9999px;
-  overflow: hidden;
 }
 
-.clinical-progress-fill {
-  height: 100%;
-  border-radius: 9999px;
-  background-color: var(--color-space-cadet);
-  transition: width 0.25s ease-out;
+.dass-track-bg {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
 }
 
-/* Primary Action Buttons */
-.btn-primary {
-  background-color: var(--color-gargoyle-gas);
-  color: var(--color-space-cadet);
-  border: 1px solid rgba(25, 40, 83, 0.25);
+.dass-track-bg div {
+  background: var(--border-hairline);
+  border-radius: 4px;
+}
+
+.dass-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 8px;
+  background: var(--color-green);
+  border-radius: 4px;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
+}
+
+/* =========================================================================
+   ACTIVE ACTION UNITS (5-DOT METERS)
+   ========================================================================= */
+
+.au-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding-right: 16px;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.au-row.first {
+  border-top: 0;
+}
+
+.au-name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.au-name {
+  font-size: 17px;
+  line-height: 22px;
+  color: var(--text-primary);
+}
+
+.au-code {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.au-meter-col {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.au-dots {
+  display: flex;
+  gap: 3px;
+}
+
+.au-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-track-dark);
+  transition: background 0.2s ease;
+}
+
+.au-dot.active {
+  background: var(--accent);
+}
+
+.au-letter {
+  width: 14px;
+  font-size: 15px;
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(25, 40, 83, 0.10);
-  transition: background-color 0.15s ease, filter 0.15s ease;
+  color: var(--text-secondary);
+  text-align: right;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background-color: #FFE873;
-  filter: brightness(1.03);
+.au-empty-state {
+  padding: 18px 16px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  text-align: center;
 }
 
-.btn-secondary {
-  background-color: #FFFFFF;
-  color: var(--color-space-cadet);
-  border: 1px solid rgba(25, 40, 83, 0.20);
-  box-shadow: 0 1px 2px rgba(25, 40, 83, 0.04);
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
+/* =========================================================================
+   TAB 2 & 3: PHOTO DIAGNOSTIC & BATCH DATASET
+   ========================================================================= */
 
-.btn-secondary:hover:not(:disabled) {
-  background-color: #F8FBFC;
-  border-color: var(--color-space-cadet);
-}
-
-/* FACS Action Unit Discrete Intensity Pills */
-.au-pill-0 {
-  background-color: #F1F5F7;
-  color: #7287A5;
-  border: 1px solid #D8E3E7;
-}
-
-.au-pill-a {
-  background-color: #FEF9C3;
-  color: #854D0E;
-  border: 1px solid #FDE047;
-}
-
-.au-pill-b {
-  background-color: #FEF08A;
-  color: #713F12;
-  border: 1px solid #EAB308;
-}
-
-.au-pill-c {
-  background-color: #FED7AA;
-  color: #9A3412;
-  border: 1px solid #F97316;
-}
-
-.au-pill-d {
-  background-color: #FFEDD5;
-  color: #C2410C;
-  border: 1px solid #FB923C;
-}
-
-.au-pill-e {
-  background-color: #FEE2E2;
-  color: #B91C1C;
-  border: 1px solid #FCA5A5;
-  font-weight: 700;
-}
-
-/* Interactive Navigation Tabs */
-.nav-tab {
+.dropzone-apple {
+  border: 2px dashed rgba(60, 60, 67, 0.25);
+  border-radius: 18px;
+  background: #F8F8FA;
+  padding: 36px 20px;
+  text-align: center;
   cursor: pointer;
-  user-select: none;
-  transition: all 0.15s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.nav-tab.active {
-  background-color: var(--color-space-cadet);
-  color: var(--color-gargoyle-gas);
-  border: 1px solid var(--color-space-cadet);
+.dropzone-apple:hover {
+  border-color: var(--accent);
+  background: #F2F2F7;
+}
+
+.apple-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 15px;
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(25, 40, 83, 0.2);
+  color: #FFFFFF;
+  background: var(--accent);
+  transition: filter 0.15s ease, transform 0.1s ease;
 }
 
-/* Table Scrollbar & Sticky Headers */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+.apple-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-clinical-base);
+.apple-btn:active:not(:disabled) {
+  filter: brightness(0.92);
+  transform: scale(0.98);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #BACCD9;
-  border-radius: 3px;
+.apple-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #8FAEC2;
+.apple-btn.secondary {
+  background: #E5E5EA;
+  color: var(--text-primary);
+}
+
+.apple-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+.apple-table th {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-hairline);
+  background: #FAFAFC;
+}
+
+.apple-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-hairline);
+  color: var(--text-primary);
+}
+
+.apple-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.apple-table tr:hover td {
+  background: #F8F8FA;
+}
+
+/* =========================================================================
+   RESPONSIVE ADAPTATIONS
+   ========================================================================= */
+
+@media (max-width: 900px) {
+  .app-header {
+    padding: 20px 20px 8px;
+  }
+  .main-container {
+    padding: 12px 20px 32px;
+  }
+  .video-column,
+  .aside-column {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
 }

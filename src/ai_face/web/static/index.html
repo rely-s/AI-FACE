@@ -3,311 +3,242 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI-FACE | Clinical Oncology & Pediatric Workstation</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Custom Institutional Medical Stylesheet (White-Dominant Theme) -->
-  <link rel="stylesheet" href="/static/styles.css?v=3.6" />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            gargoyle: '#FFE14F',
-            spacecadet: '#192853',
-            aliceblue: '#ECF4F7',
-            clinical: {
-              base: '#ECF4F7',
-              surface: '#FFFFFF',
-              card: '#FFFFFF',
-              border: 'rgba(25, 40, 83, 0.12)',
-              muted: '#7287A5'
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <title>AI-FACE Live Camera | Clinical Workstation</title>
+  <!-- Apple System & Inter Typography -->
+  <link rel="stylesheet" href="/static/styles.css?v=4.0" />
 </head>
-<body class="bg-[#ECF4F7] text-[#192853] min-h-screen font-sans flex flex-col antialiased selection:bg-[#FFE14F] selection:text-[#192853]">
+<body>
 
   <!-- ============================================================== -->
-  <!-- INSTITUTIONAL CLINICAL HEADER NAVBAR -->
+  <!-- APPLE SYSTEM HEADER & SEGMENTED NAVIGATION -->
   <!-- ============================================================== -->
-  <header class="border-b border-[#192853]/12 bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-4">
-      
-      <!-- Logo & Title -->
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-[#FFE14F] border border-[#192853]/20 flex items-center justify-center text-[#192853] shadow-sm">
-          <i data-lucide="scan-face" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-base font-bold tracking-tight text-[#192853]">AI-FACE</span>
-            <span class="text-[10px] uppercase px-2 py-0.5 rounded bg-[#FFE14F]/25 text-[#192853] border border-[#FFE14F] tracking-wide font-semibold">
-              Clinical Workstation
-            </span>
-          </div>
-          <p class="text-[11px] text-[#4A5F82]">Facial Action Coding System &amp; DASS-3 Psychological Assessment</p>
-        </div>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <nav class="flex items-center bg-[#ECF4F7] p-1 rounded-xl border border-[#192853]/15 text-xs shadow-inner">
-        <button id="tab-btn-live" class="nav-tab active px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition font-medium" onclick="switchTab('live')">
-          <i data-lucide="video" class="w-3.5 h-3.5"></i> Live Camera
-        </button>
-        <button id="tab-btn-photo" class="nav-tab px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition text-[#4A5F82] hover:text-[#192853]" onclick="switchTab('photo')">
-          <i data-lucide="image" class="w-3.5 h-3.5"></i> Diagnostik Foto
-        </button>
-        <button id="tab-btn-batch" class="nav-tab px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition text-[#4A5F82] hover:text-[#192853]" onclick="switchTab('batch')">
-          <i data-lucide="folder-kanban" class="w-3.5 h-3.5"></i> Batch Dataset
-        </button>
-        <button id="tab-btn-glossary" class="nav-tab px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition text-[#4A5F82] hover:text-[#192853]" onclick="switchTab('glossary')">
-          <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Panduan Klinis
-        </button>
-      </nav>
-
-      <!-- Hardware & Model Telemetry Badge -->
-      <div class="hidden md:flex items-center gap-2 text-[11px] text-[#4A5F82]">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-[#192853]/15 shadow-sm">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#192853] animate-pulse"></span>
-          <span class="font-semibold text-[#192853]">Float16 Landmarker</span>
-        </span>
-        <span class="px-2 py-1 rounded-md bg-white border border-[#192853]/15 text-[#4A5F82] shadow-sm">
-          <span class="font-mono tabular-nums font-semibold text-[#192853]">31</span> FACS AUs
-        </span>
-      </div>
-
+  <header class="app-header">
+    <div>
+      <h1 class="app-title">AI-FACE</h1>
+      <p class="app-subtitle">Facial Action Coding System · asesmen DASS-3 · Float16 landmark · 31 AU</p>
     </div>
+    <nav class="segmented-control" aria-label="Mode">
+      <button id="tab-btn-live" class="seg-btn active" onclick="switchTab('live')" aria-current="page">Live Camera</button>
+      <button id="tab-btn-photo" class="seg-btn" onclick="switchTab('photo')" aria-current="false">Diagnostik Foto</button>
+      <button id="tab-btn-batch" class="seg-btn" onclick="switchTab('batch')" aria-current="false">Batch Dataset</button>
+      <button id="tab-btn-glossary" class="seg-btn" onclick="switchTab('glossary')" aria-current="false">Panduan Klinis</button>
+    </nav>
   </header>
 
   <!-- ============================================================== -->
   <!-- MAIN WORKSPACE -->
   <!-- ============================================================== -->
-  <main class="max-w-7xl mx-auto px-4 py-5 flex-1 w-full">
+  <main class="main-container">
 
     <!-- ============================================================== -->
     <!-- TAB 1: LIVE WEBCAM MONITORING -->
     <!-- ============================================================== -->
     <div id="tab-content-live" class="tab-pane">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; width: 100%;">
         
-        <!-- Video Stream Box (Left 7 Cols) -->
-        <div class="lg:col-span-7 flex flex-col gap-4">
-          <div class="clinical-card p-4 relative flex flex-col">
-            
-            <!-- Viewfinder Toolbar -->
-            <div class="w-full flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <i data-lucide="camera" class="w-4 h-4 text-[#192853]"></i>
-                <span class="text-xs font-semibold text-[#192853] uppercase tracking-wider">Viewfinder Real-Time</span>
-              </div>
-              
-              <div class="flex items-center gap-2">
-                <!-- Camera Mirror Toggle Switch -->
-                <button id="live-mirror-toggle" onclick="toggleCameraMirror()" class="text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853] bg-[#192853] text-[#FFE14F] shadow-sm" title="Beralih antara mode cermin (mirrored) atau orientasi sensor asli">
-                  <i data-lucide="flip-horizontal" class="w-3.5 h-3.5"></i>
-                  <span id="live-mirror-label">Mirror: ON</span>
-                </button>
-
-                <!-- Overlay Mode Switch (Clean Medical vs Burn-In) -->
-                <button id="live-overlay-toggle" onclick="toggleOverlayDisplayMode()" class="text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853]/20 bg-white text-[#4A5F82] hover:border-[#192853] hover:text-[#192853] shadow-sm" title="Beralih antara retikel medis bersih atau burn-in HUD klasik">
-                  <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-[#192853]"></i>
-                  <span id="live-overlay-mode-label">Retikel Medis (Bersih)</span>
-                </button>
-
-                <!-- Emotion Analysis Mode Switch -->
-                <button id="live-emotion-toggle" onclick="toggleLiveEmotions()" class="text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853]/20 bg-white text-[#4A5F82] hover:border-[#192853] hover:text-[#192853] shadow-sm" title="Tekan 'E' untuk beralih mode kalkulasi">
-                  <i data-lucide="toggle-left" class="w-3.5 h-3.5"></i>
-                  <span>Mode Klinis Murni (OFF)</span>
-                  <kbd class="px-1 py-0.2 bg-[#ECF4F7] rounded text-[9px] font-mono text-[#192853] border border-[#192853]/20">E</kbd>
-                </button>
-              </div>
-            </div>
-
-            <!-- Precision Camera Frame (Crisp Frame with Dark Video Core) -->
-            <div id="live-video-box" onclick="handleVideoBoxClick(event)" class="relative w-full aspect-[4/3] bg-[#0A1124] rounded-lg overflow-hidden border border-[#192853]/25 mx-auto select-none group shadow-inner" title="Klik layar atau tekan 'E' untuk beralih mode ekspresi">
-              
-              <!-- Medical Reticle Corner Brackets (Gargoyle Gas) -->
-              <div class="viewfinder-reticle viewfinder-reticle-tl"></div>
-              <div class="viewfinder-reticle viewfinder-reticle-tr"></div>
-              <div class="viewfinder-reticle viewfinder-reticle-bl"></div>
-              <div class="viewfinder-reticle viewfinder-reticle-br"></div>
-
-              <!-- Real-time Status Overlay Badge (Top Left) -->
-              <div class="absolute top-3.5 left-3.5 flex items-center gap-2 bg-white/95 border border-[#192853]/20 rounded-md px-2.5 py-1 text-[11px] z-20 pointer-events-none shadow-sm backdrop-blur-sm">
-                <span id="live-status-dot" class="w-2 h-2 rounded-full bg-[#FFE14F]"></span>
-                <span class="text-[#192853] font-bold tracking-wider text-[10px] uppercase">LIVE FEED</span>
-                <span id="live-target-status" class="text-[#4A5F82] font-medium font-mono text-[10px]">| SIAP</span>
-              </div>
-
-              <!-- Raw High-Framerate Video Stream (Clean 30/60 FPS, Mirrored by default) -->
-              <video id="webcam-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover camera-mirror"></video>
-
-              <!-- Offscreen Processing Canvas -->
-              <canvas id="capture-canvas" class="hidden"></canvas>
-
-              <!-- Dynamic SVG/CSS Face Target Reticle (Gargoyle Gas) -->
-              <div id="live-face-box" class="face-target-box hidden"></div>
-
-              <!-- Legacy OpenCV HUD Overlay (Used only if Classic mode is explicitly toggled, rendered upright with server-side mirror) -->
-              <img id="live-annotated-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none hidden z-10" alt="HUD Stream" />
-
-              <!-- Idle Camera Placeholder -->
-              <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-[#7287A5] bg-[#F4F8FA] z-20">
-                <div class="w-12 h-12 rounded-xl bg-white border border-[#192853]/15 flex items-center justify-center text-[#192853] mb-3 shadow-sm">
-                  <i data-lucide="video-off" class="w-6 h-6"></i>
-                </div>
-                <p class="text-sm font-bold text-[#192853] tracking-tight">Sensor Kamera Belum Aktif</p>
-                <p class="text-xs text-[#4A5F82] mt-1 max-w-sm">
-                  Aktifkan video stream untuk memulai pembacaan Action Units FACS dan kalkulasi skor distres.
-                </p>
-              </div>
-            </div>
-
-            <!-- Viewfinder Controls & Telemetry Footbar -->
-            <div class="w-full flex items-center justify-between mt-3 text-xs">
-              <div class="flex items-center gap-2">
-                <button id="btn-start-camera" onclick="startCamera()" class="px-4 py-2 btn-primary rounded-md flex items-center gap-2 shadow transition font-medium text-xs">
-                  <i data-lucide="play" class="w-3.5 h-3.5"></i> Mulai Kamera
-                </button>
-                <button id="btn-stop-camera" onclick="stopCamera()" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-md font-medium flex items-center gap-1.5 transition text-xs shadow-sm">
-                  <i data-lucide="square" class="w-3.5 h-3.5"></i> Hentikan Sesi
-                </button>
-              </div>
-
-              <div class="flex items-center gap-3 font-mono tabular-nums text-[11px] text-[#4A5F82]">
-                <span id="live-latency-indicator" class="text-[#4A5F82]">Latency: -- ms</span>
-                <span class="text-[#CBD5E1]">|</span>
-                <span id="live-fps-indicator" class="text-[#4A5F82]">Target: 15 Hz</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Real-Time Metrics & DASS-3 (Right 5 Cols) -->
-        <div class="lg:col-span-5 flex flex-col gap-4">
+        <!-- Camera Column (Left) -->
+        <section class="video-column" aria-label="Kamera">
           
-          <!-- Subject & Vital Status Card -->
-          <div class="clinical-card p-4">
-            <h3 class="text-[11px] font-bold text-[#192853] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-              <i data-lucide="activity" class="w-3.5 h-3.5 text-[#192853]"></i> Status Monitoring Subjek
-            </h3>
-            <div class="grid grid-cols-3 gap-2 text-center">
-              <div class="bg-[#F4F8FA] p-2.5 rounded-lg border border-[#192853]/10">
-                <div class="text-[10px] font-semibold text-[#4A5F82] tracking-wider uppercase">Subjek ID</div>
-                <div id="live-subject-id" class="font-mono tabular-nums text-xs font-bold text-[#192853] mt-1">N/A</div>
-              </div>
-              <div class="bg-[#F4F8FA] p-2.5 rounded-lg border border-[#192853]/10">
-                <div class="text-[10px] font-semibold text-[#4A5F82] tracking-wider uppercase">Durasi</div>
-                <div id="live-uptime" class="font-mono tabular-nums text-xs font-bold text-[#192853] mt-1">0.0s</div>
-              </div>
-              <div class="bg-[#F4F8FA] p-2.5 rounded-lg border border-[#192853]/10">
-                <div class="text-[10px] font-semibold text-[#4A5F82] tracking-wider uppercase">Tingkat Distres</div>
-                <div id="live-distress-badge" class="text-[10px] font-bold px-2 py-0.5 rounded mt-1 inline-block badge-normal">
-                  LOW
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- DASS-3 Tri-Axial Clinical Assessment Card -->
-          <div class="clinical-card p-4">
-            <div class="flex items-center justify-between mb-3">
-              <h3 class="text-[11px] font-bold text-[#192853] uppercase tracking-wider flex items-center gap-1.5">
-                <i data-lucide="heart-pulse" class="w-3.5 h-3.5 text-[#192853]"></i> Asesmen Klinis DASS-3
-              </h3>
-              <span class="text-[10px] font-medium text-[#7287A5]">Gavrilescu 2019</span>
-            </div>
-
-            <div class="space-y-3">
-              <!-- Depression (DEP) -->
-              <div>
-                <div class="flex justify-between items-center text-xs mb-1">
-                  <span class="font-medium text-[#192853] flex items-center gap-1">
-                    Depresi (DEP)
-                    <span class="text-[10px] text-[#7287A5] font-mono">AU15, AU6, AU26</span>
-                  </span>
-                  <div class="flex items-center gap-2">
-                    <span id="live-dep-level" class="text-[10px] font-bold px-1.5 py-0.5 rounded badge-normal">Normal</span>
-                    <span id="live-dep-score" class="font-mono text-xs font-bold text-[#192853] tabular-nums">0%</span>
-                  </div>
-                </div>
-                <div class="clinical-progress-track">
-                  <div id="live-dep-bar" class="clinical-progress-fill" style="width: 0%"></div>
-                </div>
-              </div>
-
-              <!-- Anxiety (ANX) -->
-              <div>
-                <div class="flex justify-between items-center text-xs mb-1">
-                  <span class="font-medium text-[#192853] flex items-center gap-1">
-                    Kecemasan (ANX)
-                    <span class="text-[10px] text-[#7287A5] font-mono">AU2, AU5, AU45</span>
-                  </span>
-                  <div class="flex items-center gap-2">
-                    <span id="live-anx-level" class="text-[10px] font-bold px-1.5 py-0.5 rounded badge-mild">Mild</span>
-                    <span id="live-anx-score" class="font-mono text-xs font-bold text-[#192853] tabular-nums">0%</span>
-                  </div>
-                </div>
-                <div class="clinical-progress-track">
-                  <div id="live-anx-bar" class="clinical-progress-fill bg-[#3B82F6]" style="width: 0%"></div>
-                </div>
-              </div>
-
-              <!-- Stress (STR) -->
-              <div>
-                <div class="flex justify-between items-center text-xs mb-1">
-                  <span class="font-medium text-[#192853] flex items-center gap-1">
-                    Stres (STR)
-                    <span class="text-[10px] text-[#7287A5] font-mono">AU1, AU4, AU24</span>
-                  </span>
-                  <div class="flex items-center gap-2">
-                    <span id="live-str-level" class="text-[10px] font-bold px-1.5 py-0.5 rounded badge-normal">Normal</span>
-                    <span id="live-str-score" class="font-mono text-xs font-bold text-[#192853] tabular-nums">0%</span>
-                  </div>
-                </div>
-                <div class="clinical-progress-track">
-                  <div id="live-str-bar" class="clinical-progress-fill bg-[#F59E0B]" style="width: 0%"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Clinical Scale Reference Ticks -->
-            <div class="mt-3 pt-2 border-t border-[#192853]/10 flex justify-between text-[9px] font-mono tabular-nums text-[#7287A5]">
-              <span>0% Normal</span>
-              <span>15% Mild</span>
-              <span>30% Mod</span>
-              <span>60% Sev</span>
-              <span>80%+ Extreme</span>
-            </div>
-          </div>
-
-          <!-- Active FACS Muscular Action Units -->
-          <div class="clinical-card p-4">
-            <div class="flex items-center justify-between mb-2.5">
-              <h3 class="text-[11px] font-bold text-[#192853] uppercase tracking-wider flex items-center gap-1.5">
-                <i data-lucide="layers" class="w-3.5 h-3.5 text-[#192853]"></i> Unit Otot Aktif (FACS)
-              </h3>
-              <span class="text-[10px] font-medium text-[#7287A5]">Intensitas &ge; Level A</span>
-            </div>
+          <!-- Viewport Box (16:10, #1C1C1E, 24px radius) -->
+          <div id="live-video-box" class="video-viewport" onclick="handleVideoBoxClick(event)" title="Klik layar atau tekan 'E' untuk beralih mode ekspresi">
             
-            <div id="live-active-aus" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
-              <span class="text-xs text-[#7287A5] italic">Menunggu deteksi wajah pasien...</span>
+            <!-- Top Left Floating HUD Pill Badge -->
+            <div class="hud-pill top-left">
+              <span id="live-status-dot" class="hud-dot"></span>
+              <span id="live-status-text">Standby</span>
+              <span id="live-target-status" class="num" style="color: rgba(255,255,255,0.7); font-size: 11px;">| SIAP</span>
             </div>
+
+            <!-- Top Right Floating Telemetry Badge -->
+            <div class="hud-pill top-right num">
+              <span id="live-latency-indicator">-- ms</span> · <span id="live-fps-indicator">15 Hz</span>
+            </div>
+
+            <!-- Idle Camera Placeholder (Dashed Ellipse) -->
+            <div id="camera-placeholder" class="camera-placeholder">
+              <svg width="104" height="136" viewBox="0 0 104 136" aria-hidden="true">
+                <ellipse cx="52" cy="68" rx="46" ry="62" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-dasharray="3 8" stroke-linecap="round"></ellipse>
+              </svg>
+              <div class="placeholder-title">Kamera belum aktif</div>
+              <div class="placeholder-desc">Mulai video stream untuk membaca Action Units FACS dan menghitung skor distres.</div>
+            </div>
+
+            <!-- Raw Video Stream (Mirrored by default, Upright Overlay Text) -->
+            <video id="webcam-video" autoplay playsinline muted class="camera-mirror" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"></video>
+
+            <!-- Offscreen Processing Canvas -->
+            <canvas id="capture-canvas" style="display: none;"></canvas>
+
+            <!-- Dynamic CSS Face Tracking Box -->
+            <div id="live-face-box" class="face-target-box" style="display: none;"></div>
+
+            <!-- Legacy OpenCV HUD Overlay (Upright text, rendered when classic mode enabled) -->
+            <img id="live-annotated-overlay" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; display: none;" alt="HUD Stream" />
+
+            <!-- Bottom Floating Action Bar -->
+            <div class="video-action-bar">
+              <button id="btn-start-camera" class="pill-action-btn start" onclick="startCamera()">
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"></path></svg>
+                Mulai Kamera
+              </button>
+              <button id="btn-stop-camera" class="pill-action-btn stop" style="display: none;" onclick="stopCamera()">
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"></rect></svg>
+                Hentikan Sesi
+              </button>
+            </div>
+
           </div>
+
+          <!-- Section: Pengaturan (Apple Inset Grouped Switch Rows) -->
+          <div class="section-title">Pengaturan</div>
+          <div class="inset-card">
             
-            <div id="live-active-aus" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
-              <span class="text-xs text-[#7287A5] italic">Menunggu deteksi wajah pasien...</span>
+            <!-- Toggle 1: Mirror Mode -->
+            <div class="card-row-wrapper">
+              <button id="live-mirror-toggle" class="row-btn first" role="switch" aria-checked="true" onclick="toggleCameraMirror()" title="Beralih antara mode cermin (mirrored) atau orientasi sensor asli">
+                <span class="row-btn-text">
+                  <span class="row-btn-label">Mirror</span>
+                  <span id="live-mirror-label" class="row-btn-note">Balik tampilan seperti cermin</span>
+                </span>
+                <span class="switch-track on">
+                  <span class="switch-thumb"></span>
+                </span>
+              </button>
+            </div>
+
+            <!-- Toggle 2: Burn-in klasik (SHORE) -->
+            <div class="card-row-wrapper">
+              <button id="live-overlay-toggle" class="row-btn" role="switch" aria-checked="false" onclick="toggleOverlayDisplayMode()" title="Beralih antara retikel bersih atau overlay burn-in lama">
+                <span class="row-btn-text">
+                  <span class="row-btn-label">Burn-in klasik (SHORE)</span>
+                  <span id="live-overlay-mode-label" class="row-btn-note">Tampilkan overlay deteksi lama</span>
+                </span>
+                <span class="switch-track">
+                  <span class="switch-thumb"></span>
+                </span>
+              </button>
+            </div>
+
+            <!-- Toggle 3: Mode lengkap (+Emosi) -->
+            <div class="card-row-wrapper">
+              <button id="live-emotion-toggle" class="row-btn" role="switch" aria-checked="false" onclick="toggleLiveEmotions()" title="Tekan 'E' untuk beralih mode kalkulasi">
+                <span class="row-btn-text">
+                  <span class="row-btn-label">Mode lengkap</span>
+                  <span class="row-btn-note">Sertakan pembacaan emosi (tombol E)</span>
+                </span>
+                <span class="switch-track">
+                  <span class="switch-thumb"></span>
+                </span>
+              </button>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- Telemetry & Assessment Column (Right Aside) -->
+        <aside class="aside-column" aria-label="Pembacaan">
+
+          <!-- Section: Subjek -->
+          <div class="section-title first">Subjek</div>
+          <div class="inset-card">
+            <div class="card-row-wrapper">
+              <div class="subject-row first">
+                <span class="subject-label">ID subjek</span>
+                <span id="live-subject-id" class="subject-value num">SUBJ-Z5NN</span>
+              </div>
+            </div>
+            <div class="card-row-wrapper">
+              <div class="subject-row">
+                <span class="subject-label">Durasi</span>
+                <span id="live-uptime" class="subject-value num">0.0 s</span>
+              </div>
+            </div>
+            <div class="card-row-wrapper">
+              <div class="subject-row">
+                <span class="subject-label">Tingkat distres</span>
+                <span id="live-distress-badge" class="subject-value num" style="font-weight: 600; color: #1F7A3A;">Low</span>
+              </div>
             </div>
           </div>
 
-        </div>
+          <!-- Section: Asesmen DASS-3 -->
+          <div class="section-title">Asesmen DASS-3</div>
+          <div class="inset-card">
+            
+            <!-- Depression Scale -->
+            <div class="card-row-wrapper">
+              <div class="dass-row first">
+                <div class="dass-header">
+                  <span class="dass-name">Depresi</span>
+                  <span id="live-dep-score" class="dass-score num">0%</span>
+                </div>
+                <div class="dass-sub">
+                  <span class="dass-aus">AU15 · AU6 · AU26</span>
+                  <span id="live-dep-level" class="dass-level">Normal</span>
+                </div>
+                <div class="dass-track" role="img" aria-label="Depresi">
+                  <div class="dass-track-bg">
+                    <div></div><div></div><div></div><div></div><div></div>
+                  </div>
+                  <div id="live-dep-bar" class="dass-bar" style="width: 0%; min-width: 0px; background: #34C759;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Anxiety Scale -->
+            <div class="card-row-wrapper">
+              <div class="dass-row">
+                <div class="dass-header">
+                  <span class="dass-name">Kecemasan</span>
+                  <span id="live-anx-score" class="dass-score num">0%</span>
+                </div>
+                <div class="dass-sub">
+                  <span class="dass-aus">AU2 · AU5 · AU45</span>
+                  <span id="live-anx-level" class="dass-level">Normal</span>
+                </div>
+                <div class="dass-track" role="img" aria-label="Kecemasan">
+                  <div class="dass-track-bg">
+                    <div></div><div></div><div></div><div></div><div></div>
+                  </div>
+                  <div id="live-anx-bar" class="dass-bar" style="width: 0%; min-width: 0px; background: #34C759;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stress Scale -->
+            <div class="card-row-wrapper">
+              <div class="dass-row">
+                <div class="dass-header">
+                  <span class="dass-name">Stres</span>
+                  <span id="live-str-score" class="dass-score num">0%</span>
+                </div>
+                <div class="dass-sub">
+                  <span class="dass-aus">AU1 · AU4 · AU24</span>
+                  <span id="live-str-level" class="dass-level">Normal</span>
+                </div>
+                <div class="dass-track" role="img" aria-label="Stres">
+                  <div class="dass-track-bg">
+                    <div></div><div></div><div></div><div></div><div></div>
+                  </div>
+                  <div id="live-str-bar" class="dass-bar" style="width: 0%; min-width: 0px; background: #34C759;"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="section-footer">Zona skor: Normal 0–15 · Mild 15–30 · Moderate 30–60 · Severe 60–80 · Extreme 80+. Dasar: Gavrilescu 2019.</div>
+
+          <!-- Section: Unit otot aktif -->
+          <div class="section-title">Unit otot aktif</div>
+          <div class="inset-card">
+            <div id="live-active-aus">
+              <div class="au-empty-state">Menunggu deteksi wajah pasien…</div>
+            </div>
+          </div>
+          <div class="section-footer">Intensitas FACS A–E, ditampilkan mulai level A. Menunggu deteksi wajah pasien…</div>
+
+        </aside>
 
       </div>
     </div>
@@ -316,135 +247,121 @@
     <!-- ============================================================== -->
     <!-- TAB 2: SINGLE PHOTO DIAGNOSTIC -->
     <!-- ============================================================== -->
-    <div id="tab-content-photo" class="tab-pane hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-
-        <!-- Upload & Diagnostic Options (Left 4 Cols) -->
-        <div class="lg:col-span-4 flex flex-col gap-4">
-          <div class="clinical-card p-5">
-            <h2 class="text-sm font-bold text-[#192853] mb-1.5 flex items-center gap-2">
-              <i data-lucide="upload-cloud" class="w-4 h-4 text-[#192853]"></i> Intake Citra Pasien
-            </h2>
-            <p class="text-xs text-[#4A5F82] mb-4 leading-relaxed">
+    <div id="tab-content-photo" class="tab-pane" style="display: none;">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; width: 100%;">
+        
+        <!-- Left: Upload Box & Options -->
+        <div style="flex: 1 1 380px; max-width: 440px;">
+          <div class="section-title first">Unggah Citra Pasien</div>
+          <div class="inset-card" style="padding: 24px;">
+            <p style="margin: 0 0 16px; font-size: 14px; line-height: 20px; color: var(--text-secondary);">
               Unggah foto wajah beresolusi jelas untuk evaluasi DASS-3 dan dekomposisi 31 Facial Action Units.
             </p>
 
-            <div id="drop-zone" class="border-2 border-dashed border-[#192853]/25 hover:border-[#192853] rounded-xl p-6 text-center cursor-pointer transition bg-[#F4F8FA]" onclick="document.getElementById('photo-input').click()">
-              <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="handlePhotoSelect(event)" />
-              <i data-lucide="image-plus" class="w-9 h-9 mx-auto text-[#7287A5] mb-2"></i>
-              <p class="text-xs font-semibold text-[#192853]">Tarik &amp; lepas file, atau <span class="text-[#192853] underline font-bold">pilih dari disk</span></p>
-              <p class="text-[10px] text-[#7287A5] mt-1">JPG, PNG, WEBP (Maksimal 15 MB)</p>
+            <div id="drop-zone" class="dropzone-apple" onclick="document.getElementById('photo-input').click()">
+              <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhotoSelect(event)" />
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">Tarik &amp; lepas file, atau pilih dari disk</div>
+              <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">JPG, PNG, WEBP (Maksimal 15 MB)</div>
             </div>
 
-            <!-- Inspection Options -->
-            <div class="mt-4 pt-4 border-t border-[#192853]/10 space-y-3">
-              <label class="flex items-center gap-2.5 text-xs text-[#4A5F82] cursor-pointer">
-                <input type="checkbox" id="photo-show-emotions" class="rounded border-[#192853]/25 text-[#192853] focus:ring-[#FFE14F] bg-white" />
+            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-hairline); display: flex; flex-direction: column; gap: 14px;">
+              <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-primary); cursor: pointer;">
+                <input type="checkbox" id="photo-show-emotions" style="width: 18px; height: 18px; accent-color: var(--accent);" />
                 <span>Sertakan Radar Dial &amp; Metrik Emosi</span>
               </label>
 
-              <button id="btn-analyze-photo" onclick="uploadAndAnalyzePhoto()" disabled class="w-full py-2.5 btn-primary disabled:opacity-40 disabled:cursor-not-allowed font-semibold rounded-md text-xs transition flex items-center justify-center gap-2 shadow-sm">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Eksekusi Analisis Klinis
+              <button id="btn-analyze-photo" onclick="uploadAndAnalyzePhoto()" disabled class="apple-btn" style="width: 100%;">
+                Eksekusi Analisis Klinis
               </button>
             </div>
           </div>
-
-          <!-- Medical Note Card -->
-          <div class="clinical-card p-4 text-xs text-[#4A5F82] space-y-2">
-            <div class="font-semibold text-[#192853] flex items-center gap-1.5 text-[11px]">
-              <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-500"></i> Catatan Klinis Onkologi &amp; Geriatri
-            </div>
-            <p class="leading-relaxed text-[11px]">
-              Pada subjek dengan kerutan statis dahi (AU4) atau kelopak mata (AU6/7), sistem memadukan aktivasi FACS dengan metrik valence afinial untuk meminimalkan bias positif palsu.
-            </p>
-          </div>
         </div>
 
-        <!-- Diagnostic Findings & Inspection (Right 8 Cols) -->
-        <div class="lg:col-span-8 flex flex-col gap-5">
-          <div id="photo-empty-state" class="clinical-card p-12 text-center text-[#7287A5]">
-            <i data-lucide="scan-eye" class="w-12 h-12 mx-auto mb-2 text-[#7287A5]"></i>
-            <h3 class="text-xs font-bold text-[#192853] mb-1 uppercase tracking-wider">Belum Ada Citra Terpilih</h3>
-            <p class="text-xs text-[#4A5F82] max-w-sm mx-auto">Pilih atau unggah berkas foto pada panel sebelah kiri untuk menampilkan telaah klinis.</p>
+        <!-- Right: Diagnostic Findings -->
+        <div style="flex: 999 1 600px; min-width: 0;">
+          <div id="photo-empty-state" class="inset-card" style="padding: 60px 24px; text-align: center; color: var(--text-secondary);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 12px; display: block;">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <div style="font-size: 17px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Belum Ada Citra Terpilih</div>
+            <div style="font-size: 14px; color: var(--text-secondary); max-width: 360px; margin: 0 auto;">Pilih atau unggah berkas foto pada panel sebelah kiri untuk menampilkan telaah klinis.</div>
           </div>
 
-          <div id="photo-result-container" class="hidden flex flex-col gap-5">
+          <div id="photo-result-container" style="display: none; display: flex; flex-direction: column; gap: 20px;">
             
-            <!-- Side-by-side Comparative Visual Inspection -->
-            <div class="clinical-card p-4">
-              <h3 class="text-[11px] font-bold text-[#192853] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <i data-lucide="eye" class="w-3.5 h-3.5 text-[#192853]"></i> Perbandingan Visual (Citra Asli vs Overlay HUD)
-              </h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="flex flex-col">
-                  <span class="text-[10px] font-semibold text-[#4A5F82] mb-1 uppercase tracking-wider">Citra Asli</span>
-                  <img id="photo-original-preview" class="w-full max-h-[340px] object-contain rounded-lg border border-[#192853]/15 bg-[#0B1226]" alt="Original" />
+            <!-- Side-by-side Visual Inspection -->
+            <div class="section-title first">Perbandingan Visual (Citra Asli vs Overlay HUD)</div>
+            <div class="inset-card" style="padding: 16px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase;">Citra Asli</div>
+                  <img id="photo-original-preview" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;" alt="Original" />
                 </div>
-                <div class="flex flex-col">
-                  <span class="text-[10px] text-[#192853] font-bold mb-1 uppercase tracking-wider">Deteksi Anotasi FACS</span>
-                  <img id="photo-annotated-preview" class="w-full max-h-[340px] object-contain rounded-lg border border-[#192853]/15 bg-[#0B1226]" alt="Annotated" />
+                <div>
+                  <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; text-transform: uppercase;">Deteksi Anotasi FACS</div>
+                  <img id="photo-annotated-preview" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;" alt="Annotated" />
                 </div>
               </div>
             </div>
 
-            <!-- DASS-3 Diagnosis Triage Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <!-- Depression -->
-              <div class="clinical-card p-3.5">
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs font-semibold text-[#192853]">Depresi (DEP)</span>
-                  <span id="photo-dep-badge" class="text-[10px] font-bold px-2 py-0.5 rounded badge-normal">Normal</span>
+            <!-- DASS-3 Diagnosis Cards -->
+            <div class="section-title">Hasil Skrining DASS-3</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+              <div class="inset-card" style="padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span style="font-size: 15px; font-weight: 600;">Depresi</span>
+                  <span id="photo-dep-badge" class="num" style="font-size: 13px; font-weight: 600; color: #1F7A3A;">Normal</span>
                 </div>
-                <div id="photo-dep-score" class="text-xl font-bold font-mono text-[#192853] mb-1 tabular-nums">0%</div>
-                <p class="text-[10px] text-[#4A5F82]">Penanda AU15, tonus AU6 &amp; relaksasi AU26.</p>
+                <div id="photo-dep-score" class="num" style="font-size: 28px; font-weight: 700; margin: 6px 0;">0%</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU15, tonus AU6 &amp; relaksasi AU26.</div>
               </div>
 
-              <!-- Anxiety -->
-              <div class="clinical-card p-3.5">
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs font-semibold text-[#192853]">Kecemasan (ANX)</span>
-                  <span id="photo-anx-badge" class="text-[10px] font-bold px-2 py-0.5 rounded badge-mild">Mild</span>
+              <div class="inset-card" style="padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span style="font-size: 15px; font-weight: 600;">Kecemasan</span>
+                  <span id="photo-anx-badge" class="num" style="font-size: 13px; font-weight: 600; color: #9A5B00;">Mild</span>
                 </div>
-                <div id="photo-anx-score" class="text-xl font-bold font-mono text-[#192853] mb-1 tabular-nums">0%</div>
-                <p class="text-[10px] text-[#4A5F82]">Penanda AU2, elevasi AU5 &amp; kedip AU45.</p>
+                <div id="photo-anx-score" class="num" style="font-size: 28px; font-weight: 700; margin: 6px 0;">0%</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU2, elevasi AU5 &amp; kedip AU45.</div>
               </div>
 
-              <!-- Stress -->
-              <div class="clinical-card p-3.5">
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-xs font-semibold text-[#192853]">Stres (STR)</span>
-                  <span id="photo-str-badge" class="text-[10px] font-bold px-2 py-0.5 rounded badge-normal">Normal</span>
+              <div class="inset-card" style="padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span style="font-size: 15px; font-weight: 600;">Stres</span>
+                  <span id="photo-str-badge" class="num" style="font-size: 13px; font-weight: 600; color: #1F7A3A;">Normal</span>
                 </div>
-                <div id="photo-str-score" class="text-xl font-bold font-mono text-[#192853] mb-1 tabular-nums">0%</div>
-                <p class="text-[10px] text-[#4A5F82]">Penanda AU1, kerutan AU4 &amp; presor AU24.</p>
+                <div id="photo-str-score" class="num" style="font-size: 28px; font-weight: 700; margin: 6px 0;">0%</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU1, kerutan AU4 &amp; presor AU24.</div>
               </div>
             </div>
 
             <!-- 31 FACS Action Units Detailed Table -->
-            <div class="clinical-card p-4">
-              <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                <h3 class="text-[11px] font-bold text-[#192853] uppercase tracking-wider flex items-center gap-1.5">
-                  <i data-lucide="table" class="w-3.5 h-3.5 text-[#192853]"></i> Rincian 31 Facial Action Units (Paul Ekman)
-                </h3>
-                <div class="flex items-center gap-2">
-                  <input type="text" id="au-search" placeholder="Cari kode AU / anatomi..." oninput="filterAUTable()" class="bg-[#F4F8FA] text-xs px-2.5 py-1 rounded-md border border-[#192853]/20 text-[#192853] focus:outline-none focus:border-[#192853]" />
-                </div>
+            <div class="section-title">Rincian 31 Facial Action Units (Ekman)</div>
+            <div class="inset-card" style="padding: 16px;">
+              <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
+                <input type="text" id="au-search" placeholder="Cari kode AU / otot..." oninput="filterAUTable()" style="padding: 6px 14px; border: 1px solid var(--border-hairline); border-radius: 8px; font-size: 13px; outline: none; background: #F8F8FA; width: 220px;" />
               </div>
-
-              <div class="overflow-x-auto max-h-72 overflow-y-auto">
-                <table class="w-full text-left text-xs text-[#192853]">
-                  <thead class="bg-[#ECF4F7] sticky top-0 text-[10px] text-[#192853] border-b border-[#192853]/15 uppercase font-bold tracking-wider">
+              <div style="overflow-x: auto; max-height: 380px;">
+                <table class="apple-table">
+                  <thead>
                     <tr>
-                      <th class="py-2.5 px-3">Kode AU</th>
-                      <th class="py-2.5 px-3">Gerakan Otot</th>
-                      <th class="py-2.5 px-3">Musculus Anatomi</th>
-                      <th class="py-2.5 px-3 text-center">Level</th>
-                      <th class="py-2.5 px-3">Aktivasi</th>
-                      <th class="py-2.5 px-3">Signifikansi Klinis</th>
+                      <th>Kode AU</th>
+                      <th>Gerakan Otot</th>
+                      <th>Musculus Anatomi</th>
+                      <th style="text-align: center;">Level</th>
+                      <th>Aktivasi</th>
+                      <th>Signifikansi Klinis</th>
                     </tr>
                   </thead>
-                  <tbody id="au-table-body" class="divide-y divide-[#192853]/10">
-                    <!-- Populated dynamically by app.js -->
+                  <tbody id="au-table-body">
+                    <!-- Populated dynamically -->
                   </tbody>
                 </table>
               </div>
@@ -458,68 +375,60 @@
 
 
     <!-- ============================================================== -->
-    <!-- TAB 3: BATCH DATASET EVALUATION -->
+    <!-- TAB 3: BATCH DATASET PROCESSING -->
     <!-- ============================================================== -->
-    <div id="tab-content-batch" class="tab-pane hidden">
-      <div class="flex flex-col gap-5">
-        <div class="clinical-card p-5">
-          <h2 class="text-sm font-bold text-[#192853] mb-1 flex items-center gap-2">
-            <i data-lucide="folder-check" class="w-4 h-4 text-[#192853]"></i> Kohort Batch Citra Pasien
-          </h2>
-          <p class="text-xs text-[#4A5F82] mb-4 leading-relaxed">
+    <div id="tab-content-batch" class="tab-pane" style="display: none;">
+      <div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
+        
+        <div class="section-title first">Kohort Batch Citra Pasien</div>
+        <div class="inset-card" style="padding: 24px;">
+          <p style="margin: 0 0 16px; font-size: 14px; line-height: 20px; color: var(--text-secondary);">
             Unggah kumpulan berkas foto untuk pemrosesan serentak, rekapitulasi DASS-3, dan ekspor instan format CSV (kompatibel SPSS &amp; Python Pandas).
           </p>
 
-          <div class="flex flex-wrap items-center gap-3">
-            <input type="file" id="batch-input" multiple accept="image/*" class="hidden" onchange="handleBatchSelect(event)" />
-            <button onclick="document.getElementById('batch-input').click()" class="px-3.5 py-1.5 btn-secondary rounded-md text-xs font-medium flex items-center gap-1.5 transition">
-              <i data-lucide="files" class="w-3.5 h-3.5"></i> Pilih Berkas Foto
-            </button>
-            <button id="btn-process-batch" onclick="processBatchPhotos()" disabled class="px-3.5 py-1.5 btn-primary disabled:opacity-40 disabled:cursor-not-allowed font-medium text-xs rounded-md flex items-center gap-1.5 transition">
-              <i data-lucide="play" class="w-3.5 h-3.5"></i> Jalankan Batch
-            </button>
-            <button id="btn-download-csv" onclick="downloadBatchCSV()" disabled class="px-3.5 py-1.5 bg-white hover:bg-[#F4F8FA] border border-[#192853]/20 text-[#192853] hover:border-[#192853] disabled:opacity-40 disabled:cursor-not-allowed font-medium text-xs rounded-md flex items-center gap-1.5 transition shadow-sm">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh Rekap CSV
-            </button>
-            <span id="batch-file-count" class="text-xs text-[#4A5F82] ml-auto">0 berkas terpilih</span>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+            <input type="file" id="batch-input" multiple accept="image/*" style="display: none;" onchange="handleBatchSelect(event)" />
+            <button onclick="document.getElementById('batch-input').click()" class="apple-btn secondary">Pilih Berkas Foto</button>
+            <button id="btn-process-batch" onclick="processBatchPhotos()" disabled class="apple-btn">Jalankan Batch</button>
+            <button id="btn-download-csv" onclick="downloadBatchCSV()" disabled class="apple-btn secondary">Unduh Rekap CSV</button>
+            <span id="batch-file-count" class="num" style="font-size: 14px; color: var(--text-secondary); margin-left: auto;">0 berkas terpilih</span>
           </div>
 
           <!-- Progress Bar -->
-          <div id="batch-progress-container" class="mt-4 hidden">
-            <div class="flex justify-between text-xs text-[#4A5F82] mb-1">
+          <div id="batch-progress-container" style="display: none; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-hairline);">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
               <span id="batch-progress-text">Memproses 0 / 0...</span>
-              <span id="batch-progress-percent" class="font-mono tabular-nums font-bold">0%</span>
+              <span id="batch-progress-percent" class="num" style="font-weight: 600; color: var(--text-primary);">0%</span>
             </div>
-            <div class="clinical-progress-track">
-              <div id="batch-progress-bar" class="clinical-progress-fill" style="width: 0%"></div>
+            <div style="height: 8px; background: var(--border-hairline); border-radius: 999px; overflow: hidden;">
+              <div id="batch-progress-bar" style="height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.2s;"></div>
             </div>
           </div>
         </div>
 
         <!-- Cohort Table Results -->
-        <div class="clinical-card p-4">
-          <h3 class="text-[11px] font-bold text-[#192853] uppercase tracking-wider mb-3">Tabel Rekapitulasi Kohort</h3>
-          <div class="overflow-x-auto max-h-96 overflow-y-auto">
-            <table class="w-full text-left text-xs text-[#192853]">
-              <thead class="bg-[#ECF4F7] sticky top-0 text-[10px] text-[#192853] border-b border-[#192853]/15 uppercase font-bold tracking-wider">
-                <tr>
-                  <th class="py-2.5 px-3">Nama Berkas</th>
-                  <th class="py-2.5 px-3">Status Wajah</th>
-                  <th class="py-2.5 px-3">Tingkat Distres</th>
-                  <th class="py-2.5 px-3">Depresi (DEP)</th>
-                  <th class="py-2.5 px-3">Kecemasan (ANX)</th>
-                  <th class="py-2.5 px-3">Stres (STR)</th>
-                  <th class="py-2.5 px-3">Valence</th>
-                </tr>
-              </thead>
-              <tbody id="batch-table-body" class="divide-y divide-[#192853]/10">
-                <tr>
-                  <td colspan="7" class="py-6 text-center text-[#7287A5] italic font-sans">Belum ada data batch yang diproses.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="section-title">Tabel Rekapitulasi Kohort</div>
+        <div class="inset-card" style="padding: 16px; overflow-x: auto; max-height: 480px;">
+          <table class="apple-table">
+            <thead>
+              <tr>
+                <th>Nama Berkas</th>
+                <th style="text-align: center;">Status Wajah</th>
+                <th>Tingkat Distres</th>
+                <th>Depresi (DEP)</th>
+                <th>Kecemasan (ANX)</th>
+                <th>Stres (STR)</th>
+                <th>Valence</th>
+              </tr>
+            </thead>
+            <tbody id="batch-table-body">
+              <tr>
+                <td colspan="7" style="padding: 32px 14px; text-align: center; color: var(--text-secondary);">Belum ada data batch yang diproses.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+
       </div>
     </div>
 
@@ -527,96 +436,62 @@
     <!-- ============================================================== -->
     <!-- TAB 4: GLOSARIUM & PANDUAN KLINIS -->
     <!-- ============================================================== -->
-    <div id="tab-content-glossary" class="tab-pane hidden">
-      <div class="flex flex-col gap-5 max-w-4xl mx-auto">
+    <div id="tab-content-glossary" class="tab-pane" style="display: none;">
+      <div style="display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin: 0 auto; width: 100%;">
         
-        <!-- Header Reference -->
-        <div class="clinical-card p-6">
-          <h2 class="text-base font-bold text-[#192853] mb-2 flex items-center gap-2">
-            <i data-lucide="book-open-check" class="w-5 h-5 text-[#192853]"></i> Panduan Ilmiah &amp; Klasifikasi Klinis
-          </h2>
-          <p class="text-xs text-[#4A5F82] leading-relaxed">
+        <div class="section-title first">Panduan Ilmiah &amp; Klasifikasi Klinis</div>
+        <div class="inset-card" style="padding: 24px;">
+          <h2 style="margin: 0 0 10px; font-size: 20px; font-weight: 700; color: var(--text-primary);">AI-FACE Precision Workstation</h2>
+          <p style="margin: 0; font-size: 15px; line-height: 22px; color: var(--text-secondary);">
             AI-FACE memadukan pengenalan morfometri 478 landmark MediaPipe dengan sistem Facial Action Coding System (FACS) terstandarisasi untuk mengestimasi dimensi DASS-3 (Depresi, Kecemasan, dan Stres) secara objektif tanpa bias subjektif kuesioner.
           </p>
         </div>
 
-        <!-- 5 Clinical Severity Thresholds -->
-        <div class="clinical-card p-6">
-          <h3 class="text-xs font-bold text-[#192853] mb-3 flex items-center gap-2 uppercase tracking-wider">
-            <i data-lucide="gauge" class="w-4 h-4 text-[#192853]"></i> Standar 5 Tingkat Keparahan DASS-3
-          </h3>
-          <div class="space-y-2.5">
-            <div class="p-3 rounded-lg border border-[#FDE047] bg-[#FEF9C3] flex items-start justify-between gap-3">
+        <div class="section-title">Standar 5 Tingkat Keparahan DASS-3 (Gavrilescu 2019)</div>
+        <div class="inset-card">
+          <div class="card-row-wrapper">
+            <div class="subject-row first">
               <div>
-                <span class="font-bold text-xs text-[#854D0E]">NORMAL (&lt; 15%)</span>
-                <p class="text-xs text-[#4A5F82] mt-0.5">Status afektif stabil, bebas dari indikasi distres atau depresi patologis.</p>
+                <span style="font-weight: 600; color: #1F7A3A;">NORMAL (&lt; 15%)</span>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Status afektif stabil, bebas dari indikasi distres atau depresi patologis.</div>
               </div>
-              <span class="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded bg-white text-[#854D0E] border border-[#FDE047] font-bold">0.00 - 0.15</span>
-            </div>
-
-            <div class="p-3 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] flex items-start justify-between gap-3">
-              <div>
-                <span class="font-bold text-xs text-[#1D4ED8]">MILD (15% - 30%)</span>
-                <p class="text-xs text-[#4A5F82] mt-0.5">Ketegangan fisiologis ringan wajar (reaksi adaptasi visual di ruang pemeriksaan).</p>
-              </div>
-              <span class="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded bg-white text-[#1D4ED8] border border-[#BFDBFE] font-bold">0.15 - 0.30</span>
-            </div>
-
-            <div class="p-3 rounded-lg border border-[#FCD34D] bg-[#FEF3C7] flex items-start justify-between gap-3">
-              <div>
-                <span class="font-bold text-xs text-[#B45309]">MODERATE (30% - 60%)</span>
-                <p class="text-xs text-[#4A5F82] mt-0.5">Ketegangan emosional sedang. Kontraksi otot berulang pada dahi (AU4) atau bibir (AU15/AU24).</p>
-              </div>
-              <span class="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded bg-white text-[#B45309] border border-[#FCD34D] font-bold">0.30 - 0.60</span>
-            </div>
-
-            <div class="p-3 rounded-lg border border-[#FDBA74] bg-[#FFEDD5] flex items-start justify-between gap-3">
-              <div>
-                <span class="font-bold text-xs text-[#C2410C]">SEVERE (60% - 80%)</span>
-                <p class="text-xs text-[#4A5F82] mt-0.5">Ketegangan berat berkelanjutan. Perlu evaluasi medis atau observasi langsung.</p>
-              </div>
-              <span class="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded bg-white text-[#C2410C] border border-[#FDBA74] font-bold">0.60 - 0.80</span>
-            </div>
-
-            <div class="p-3 rounded-lg border border-[#FCA5A5] bg-[#FEE2E2] flex items-start justify-between gap-3">
-              <div>
-                <span class="font-bold text-xs text-[#B91C1C]">EXTREMELY SEVERE (&ge; 80%)</span>
-                <p class="text-xs text-[#4A5F82] mt-0.5">Indikasi distres akut atau depresi berat (memicu override otomatis pada kombinasi AU kunci).</p>
-              </div>
-              <span class="text-[11px] font-mono tabular-nums px-2 py-0.5 rounded bg-white text-[#B91C1C] border border-[#FCA5A5] font-bold">&ge; 0.80</span>
+              <span class="num" style="font-size: 14px; font-weight: 600; color: #1F7A3A;">0.00 – 0.15</span>
             </div>
           </div>
-        </div>
-
-        <!-- 6 Discrete FACS Intensity Levels -->
-        <div class="clinical-card p-6">
-          <h3 class="text-xs font-bold text-[#192853] mb-3 flex items-center gap-2 uppercase tracking-wider">
-            <i data-lucide="sparkle" class="w-4 h-4 text-[#192853]"></i> Skala 6 Derajat Intensitas FACS (Ekman &amp; Friesen)
-          </h3>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-            <div class="p-2.5 rounded-lg bg-[#F4F8FA] border border-[#192853]/10">
-              <span class="font-bold text-[#7287A5]"><span class="font-mono tabular-nums">Level 0</span> (Absence)</span>
-              <p class="text-[10px] text-[#7287A5] mt-0.5">Otot istirahat sempurna (tonus netral).</p>
+          <div class="card-row-wrapper">
+            <div class="subject-row">
+              <div>
+                <span style="font-weight: 600; color: #9A5B00;">MILD (15% – 30%)</span>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan fisiologis ringan wajar (reaksi adaptasi visual di ruang periksa).</div>
+              </div>
+              <span class="num" style="font-size: 14px; font-weight: 600; color: #9A5B00;">0.15 – 0.30</span>
             </div>
-            <div class="p-2.5 rounded-lg bg-[#FEF9C3] border border-[#FDE047]">
-              <span class="font-bold text-[#854D0E]"><span class="font-mono tabular-nums">Level A</span> (Trace)</span>
-              <p class="text-[10px] text-[#4A5F82] mt-0.5">Jejak kontraksi mikro sangat halus.</p>
+          </div>
+          <div class="card-row-wrapper">
+            <div class="subject-row">
+              <div>
+                <span style="font-weight: 600; color: #B14100;">MODERATE (30% – 60%)</span>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan emosional sedang. Kontraksi otot berulang pada dahi (AU4) atau bibir (AU15/AU24).</div>
+              </div>
+              <span class="num" style="font-size: 14px; font-weight: 600; color: #B14100;">0.30 – 0.60</span>
             </div>
-            <div class="p-2.5 rounded-lg bg-[#FEF08A] border border-[#EAB308]">
-              <span class="font-bold text-[#713F12]"><span class="font-mono tabular-nums">Level B</span> (Slight)</span>
-              <p class="text-[10px] text-[#4A5F82] mt-0.5">Kontraksi ringan tampak jelas.</p>
+          </div>
+          <div class="card-row-wrapper">
+            <div class="subject-row">
+              <div>
+                <span style="font-weight: 600; color: #C4251C;">SEVERE (60% – 80%)</span>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan berat berkelanjutan. Perlu evaluasi medis atau observasi terarah.</div>
+              </div>
+              <span class="num" style="font-size: 14px; font-weight: 600; color: #C4251C;">0.60 – 0.80</span>
             </div>
-            <div class="p-2.5 rounded-lg bg-[#FED7AA] border border-[#F97316]">
-              <span class="font-bold text-[#9A3412]"><span class="font-mono tabular-nums">Level C</span> (Marked)</span>
-              <p class="text-[10px] text-[#4A5F82] mt-0.5">Kontraksi sedang / deformasi tegas.</p>
-            </div>
-            <div class="p-2.5 rounded-lg bg-[#FFEDD5] border border-[#FB923C]">
-              <span class="font-bold text-[#C2410C]"><span class="font-mono tabular-nums">Level D</span> (Severe)</span>
-              <p class="text-[10px] text-[#4A5F82] mt-0.5">Kontraksi kuat dan nyata.</p>
-            </div>
-            <div class="p-2.5 rounded-lg bg-[#FEE2E2] border border-[#FCA5A5]">
-              <span class="font-bold text-[#B91C1C]"><span class="font-mono tabular-nums">Level E</span> (Maximum)</span>
-              <p class="text-[10px] text-[#4A5F82] mt-0.5">Kontraksi maksimal / ekspresi puncak.</p>
+          </div>
+          <div class="card-row-wrapper">
+            <div class="subject-row">
+              <div>
+                <span style="font-weight: 600; color: #A50015;">EXTREMELY SEVERE (&ge; 80%)</span>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Indikasi distres akut atau depresi berat (memicu override otomatis pada kombinasi AU kunci).</div>
+              </div>
+              <span class="num" style="font-size: 14px; font-weight: 600; color: #A50015;">&ge; 0.80</span>
             </div>
           </div>
         </div>
@@ -629,11 +504,11 @@
   <!-- ============================================================== -->
   <!-- FOOTER -->
   <!-- ============================================================== -->
-  <footer class="border-t border-[#192853]/10 bg-white py-3.5 text-center text-xs text-[#7287A5]">
-    <p>AI-FACE Clinical Workstation &bull; Protocol by Gavrilescu &amp; Vizireanu (Sensors 2019) &amp; Binz et al. (Bonn 2023)</p>
+  <footer style="margin-top: auto; padding: 24px 40px; text-align: center; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--border-hairline); background: #FFFFFF;">
+    <p style="margin: 0;">AI-FACE Clinical Workstation · Protocol by Gavrilescu &amp; Vizireanu (Sensors 2019) &amp; Binz et al. (Bonn 2023)</p>
   </footer>
 
   <!-- Application Script -->
-  <script src="/static/app.js?v=3.6"></script>
+  <script src="/static/app.js?v=4.0"></script>
 </body>
 </html>
