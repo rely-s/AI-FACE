@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,7 @@
   <!-- Apple System & Inter Typography -->
   <link rel="stylesheet" href="/static/styles.css?v=4.2" />
 </head>
+
 <body>
 
   <!-- ============================================================== -->
@@ -18,10 +20,14 @@
       <p class="app-subtitle">Facial Action Coding System · asesmen DASS-3 · Float16 landmark · 31 AU</p>
     </div>
     <nav class="segmented-control" aria-label="Mode">
-      <button id="tab-btn-live" class="seg-btn active" onclick="switchTab('live')" aria-current="page">Live Camera</button>
-      <button id="tab-btn-photo" class="seg-btn" onclick="switchTab('photo')" aria-current="false">Diagnostik Foto</button>
-      <button id="tab-btn-batch" class="seg-btn" onclick="switchTab('batch')" aria-current="false">Batch Dataset</button>
-      <button id="tab-btn-glossary" class="seg-btn" onclick="switchTab('glossary')" aria-current="false">Panduan Klinis</button>
+      <button id="tab-btn-live" class="seg-btn active" onclick="switchTab('live')" aria-current="page">Live
+        Camera</button>
+      <button id="tab-btn-photo" class="seg-btn" onclick="switchTab('photo')" aria-current="false">Diagnostik
+        Foto</button>
+      <button id="tab-btn-batch" class="seg-btn" onclick="switchTab('batch')" aria-current="false">Batch
+        Dataset</button>
+      <button id="tab-btn-glossary" class="seg-btn" onclick="switchTab('glossary')" aria-current="false">Panduan
+        Klinis</button>
     </nav>
   </header>
 
@@ -35,18 +41,20 @@
     <!-- ============================================================== -->
     <div id="tab-content-live" class="tab-pane">
       <div class="live-grid">
-        
+
         <!-- Camera Column (Left) -->
         <section class="video-column" aria-label="Kamera">
-          
+
           <!-- Viewport Box (16:10, max-height 350px, #1C1C1E, 18px radius) -->
-          <div id="live-video-box" class="video-viewport" onclick="handleVideoBoxClick(event)" title="Klik layar atau tekan 'E' untuk beralih mode ekspresi">
-            
+          <div id="live-video-box" class="video-viewport" onclick="handleVideoBoxClick(event)"
+            title="Klik layar atau tekan 'E' untuk beralih mode ekspresi">
+
             <!-- Top Left Floating HUD Pill Badge -->
             <div class="hud-pill top-left" id="live-hud-pill-left">
               <span id="live-status-dot" class="hud-dot"></span>
               <span id="live-status-text">Standby</span>
-              <span id="live-target-status" class="num" style="color: rgba(255,255,255,0.7); font-size: 11px;">| SIAP</span>
+              <span id="live-target-status" class="num" style="color: rgba(255,255,255,0.7); font-size: 11px;">|
+                SIAP</span>
             </div>
 
             <!-- Top Right Floating Telemetry Badge -->
@@ -57,14 +65,17 @@
             <!-- Idle Camera Placeholder (Dashed Ellipse) -->
             <div id="camera-placeholder" class="camera-placeholder">
               <svg width="68" height="90" viewBox="0 0 104 136" aria-hidden="true">
-                <ellipse cx="52" cy="68" rx="46" ry="62" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-dasharray="3 8" stroke-linecap="round"></ellipse>
+                <ellipse cx="52" cy="68" rx="46" ry="62" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2"
+                  stroke-dasharray="3 8" stroke-linecap="round"></ellipse>
               </svg>
               <div class="placeholder-title">Kamera belum aktif</div>
-              <div class="placeholder-desc">Mulai video stream untuk membaca Action Units FACS dan menghitung skor distres.</div>
+              <div class="placeholder-desc">Mulai video stream untuk membaca Action Units FACS dan menghitung skor
+                distres.</div>
             </div>
 
             <!-- Raw Video Stream (Mirrored by default, Upright Overlay Text) -->
-            <video id="webcam-video" autoplay playsinline muted class="camera-mirror" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;"></video>
+            <video id="webcam-video" autoplay playsinline muted class="camera-mirror"
+              style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;"></video>
 
             <!-- Offscreen Processing Canvas -->
             <canvas id="capture-canvas" style="display: none;"></canvas>
@@ -73,7 +84,9 @@
             <div id="live-face-box" class="face-target-box" style="display: none;"></div>
 
             <!-- Legacy OpenCV HUD Overlay (Upright text, rendered when classic mode enabled) -->
-            <img id="live-annotated-overlay" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; display: none;" alt="HUD Stream" />
+            <img id="live-annotated-overlay"
+              style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; display: none;"
+              alt="HUD Stream" />
 
           </div>
 
@@ -84,13 +97,21 @@
               <span id="control-strip-status" class="control-strip-val">Siap Memulai</span>
             </div>
             <div class="control-strip-actions">
-              <button id="btn-start-camera" class="pill-action-btn start" onclick="startCamera()" title="Mulai stream kamera (Hotkey: Spasi)">
-                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"></path></svg>
-                Mulai Kamera <kbd class="kbd-hint" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: #fff;">Space</kbd>
+              <button id="btn-start-camera" class="pill-action-btn start" onclick="startCamera()"
+                title="Mulai stream kamera (Hotkey: Spasi)">
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                  <path d="M3 1.5v11l9-5.5z" fill="currentColor"></path>
+                </svg>
+                Mulai Kamera <kbd class="kbd-hint"
+                  style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: #fff;">Space</kbd>
               </button>
-              <button id="btn-stop-camera" class="pill-action-btn stop" style="display: none;" onclick="stopCamera()" title="Hentikan stream kamera (Hotkey: Spasi)">
-                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"></rect></svg>
-                Hentikan Sesi <kbd class="kbd-hint" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: #fff;">Space</kbd>
+              <button id="btn-stop-camera" class="pill-action-btn stop" style="display: none;" onclick="stopCamera()"
+                title="Hentikan stream kamera (Hotkey: Spasi)">
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                  <rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"></rect>
+                </svg>
+                Hentikan Sesi <kbd class="kbd-hint"
+                  style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); color: #fff;">Space</kbd>
               </button>
             </div>
           </div>
@@ -98,10 +119,12 @@
           <!-- Section: Pengaturan (Apple Inset Grouped Switch Rows) -->
           <div class="section-title">Pengaturan</div>
           <div class="inset-card">
-            
+
             <!-- Toggle 1: Mirror Mode -->
             <div class="card-row-wrapper">
-              <button id="live-mirror-toggle" class="row-btn first" role="switch" aria-checked="true" onclick="toggleCameraMirror()" title="Beralih antara mode cermin (mirrored) atau orientasi sensor asli (Hotkey: M)">
+              <button id="live-mirror-toggle" class="row-btn first" role="switch" aria-checked="true"
+                onclick="toggleCameraMirror()"
+                title="Beralih antara mode cermin (mirrored) atau orientasi sensor asli (Hotkey: M)">
                 <span class="row-btn-text">
                   <span class="row-btn-label">Mirror <kbd class="kbd-hint">M</kbd></span>
                   <span id="live-mirror-label" class="row-btn-note">Balik tampilan seperti cermin</span>
@@ -114,7 +137,9 @@
 
             <!-- Toggle 2: Burn-in klasik (SHORE) -->
             <div class="card-row-wrapper">
-              <button id="live-overlay-toggle" class="row-btn" role="switch" aria-checked="false" onclick="toggleOverlayDisplayMode()" title="Beralih antara retikel bersih atau overlay burn-in lama (Hotkey: C)">
+              <button id="live-overlay-toggle" class="row-btn" role="switch" aria-checked="false"
+                onclick="toggleOverlayDisplayMode()"
+                title="Beralih antara retikel bersih atau overlay burn-in lama (Hotkey: C)">
                 <span class="row-btn-text">
                   <span class="row-btn-label">Burn-in klasik (SHORE) <kbd class="kbd-hint">C</kbd></span>
                   <span id="live-overlay-mode-label" class="row-btn-note">Tampilkan overlay deteksi lama</span>
@@ -127,7 +152,8 @@
 
             <!-- Toggle 3: Mode lengkap (+Emosi) -->
             <div class="card-row-wrapper">
-              <button id="live-emotion-toggle" class="row-btn" role="switch" aria-checked="false" onclick="toggleLiveEmotions()" title="Tekan 'E' untuk beralih mode kalkulasi emosi">
+              <button id="live-emotion-toggle" class="row-btn" role="switch" aria-checked="false"
+                onclick="toggleLiveEmotions()" title="Tekan 'E' untuk beralih mode kalkulasi emosi">
                 <span class="row-btn-text">
                   <span class="row-btn-label">Mode lengkap <kbd class="kbd-hint">E</kbd></span>
                   <span class="row-btn-note">Sertakan pembacaan emosi &amp; radar</span>
@@ -163,7 +189,8 @@
             <div class="card-row-wrapper">
               <div class="subject-row">
                 <span class="subject-label">Tingkat distres</span>
-                <span id="live-distress-badge" class="subject-value num" style="font-weight: 600; color: #1F7A3A;">Low</span>
+                <span id="live-distress-badge" class="subject-value num"
+                  style="font-weight: 600; color: #1F7A3A;">Low</span>
               </div>
             </div>
           </div>
@@ -171,7 +198,7 @@
           <!-- Section: Asesmen DASS-3 -->
           <div class="section-title">Asesmen DASS-3</div>
           <div class="inset-card">
-            
+
             <!-- Depression Scale -->
             <div class="card-row-wrapper">
               <div class="dass-row first">
@@ -185,7 +212,11 @@
                 </div>
                 <div class="dass-track" role="img" aria-label="Depresi">
                   <div class="dass-track-bg">
-                    <div></div><div></div><div></div><div></div><div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
                   </div>
                   <div id="live-dep-bar" class="dass-bar" style="width: 0%; min-width: 0px; background: #34C759;"></div>
                 </div>
@@ -205,7 +236,11 @@
                 </div>
                 <div class="dass-track" role="img" aria-label="Kecemasan">
                   <div class="dass-track-bg">
-                    <div></div><div></div><div></div><div></div><div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
                   </div>
                   <div id="live-anx-bar" class="dass-bar" style="width: 0%; min-width: 0px; background: #34C759;"></div>
                 </div>
@@ -225,7 +260,11 @@
                 </div>
                 <div class="dass-track" role="img" aria-label="Stres">
                   <div class="dass-track-bg">
-                    <div></div><div></div><div></div><div></div><div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
                   </div>
                   <div id="live-str-bar" class="dass-bar" style="width: 0%; min-width: 0px; background: #34C759;"></div>
                 </div>
@@ -233,7 +272,8 @@
             </div>
 
           </div>
-          <div class="section-footer">Zona skor: Normal 0–15 · Mild 15–30 · Moderate 30–60 · Severe 60–80 · Extreme 80+. Dasar: Gavrilescu 2019.</div>
+          <div class="section-footer">Zona skor: Normal 0–15 · Mild 15–30 · Moderate 30–60 · Severe 60–80 · Extreme 80+.
+            Dasar: Gavrilescu 2019.</div>
 
           <!-- Section: Unit otot aktif -->
           <div class="section-title">Unit otot aktif</div>
@@ -242,7 +282,8 @@
               <div class="au-empty-state">Menunggu deteksi wajah pasien…</div>
             </div>
           </div>
-          <div class="section-footer">Intensitas FACS A–E, ditampilkan mulai level A. Menunggu deteksi wajah pasien…</div>
+          <div class="section-footer">Intensitas FACS A–E, ditampilkan mulai level A. Menunggu deteksi wajah pasien…
+          </div>
 
         </aside>
 
@@ -255,7 +296,7 @@
     <!-- ============================================================== -->
     <div id="tab-content-photo" class="tab-pane" style="display: none;">
       <div class="photo-grid">
-        
+
         <!-- Left: Upload Box & Options -->
         <div style="width: 100%;">
           <div class="section-title first">Unggah Citra Pasien</div>
@@ -264,26 +305,35 @@
               Unggah foto wajah beresolusi jelas untuk evaluasi DASS-3 dan dekomposisi 31 Facial Action Units.
             </p>
 
-            <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhotoSelect(event)" />
+            <input type="file" id="photo-input" accept="image/*" style="display: none;"
+              onchange="handlePhotoSelect(event)" />
             <div id="drop-zone" class="dropzone-apple" onclick="document.getElementById('photo-input').click()">
               <div id="drop-zone-content">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)"
+                  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                  style="margin: 0 auto 10px; display: block;">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="17 8 12 3 7 8"></polyline>
                   <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
-                <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">Tarik &amp; lepas file, atau pilih dari disk</div>
-                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">JPG, PNG, WEBP (Maksimal 15 MB)</div>
+                <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">Tarik &amp; lepas file, atau
+                  pilih dari disk</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">JPG, PNG, WEBP (Maksimal 15
+                  MB)</div>
               </div>
             </div>
 
-            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-hairline); display: flex; flex-direction: column; gap: 14px;">
-              <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-primary); cursor: pointer;">
-                <input type="checkbox" id="photo-show-emotions" style="width: 18px; height: 18px; accent-color: var(--accent);" />
+            <div
+              style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-hairline); display: flex; flex-direction: column; gap: 14px;">
+              <label
+                style="display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-primary); cursor: pointer;">
+                <input type="checkbox" id="photo-show-emotions"
+                  style="width: 18px; height: 18px; accent-color: var(--accent);" />
                 <span>Sertakan Radar Dial &amp; Metrik Emosi</span>
               </label>
 
-              <button id="btn-analyze-photo" onclick="uploadAndAnalyzePhoto()" disabled class="apple-btn" style="width: 100%;">
+              <button id="btn-analyze-photo" onclick="uploadAndAnalyzePhoto()" disabled class="apple-btn"
+                style="width: 100%;">
                 Eksekusi Analisis Klinis
               </button>
             </div>
@@ -292,35 +342,49 @@
 
         <!-- Right: Diagnostic Findings -->
         <div style="width: 100%; min-width: 0;">
-          <div id="photo-empty-state" class="inset-card" style="padding: 60px 24px; text-align: center; color: var(--text-secondary);">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 12px; display: block;">
+          <div id="photo-empty-state" class="inset-card"
+            style="padding: 60px 24px; text-align: center; color: var(--text-secondary);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 12px; display: block;">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="8" x2="12" y2="12"></line>
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <div style="font-size: 17px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Belum Ada Citra Terpilih</div>
-            <div style="font-size: 14px; color: var(--text-secondary); max-width: 360px; margin: 0 auto;">Pilih atau unggah berkas foto pada panel sebelah kiri untuk menampilkan telaah klinis.</div>
+            <div style="font-size: 17px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Belum Ada
+              Citra Terpilih</div>
+            <div style="font-size: 14px; color: var(--text-secondary); max-width: 360px; margin: 0 auto;">Pilih atau
+              unggah berkas foto pada panel sebelah kiri untuk menampilkan telaah klinis.</div>
           </div>
 
           <div id="photo-result-container" style="display: none; flex-direction: column; gap: 20px;">
-            
+
             <!-- Side-by-side Visual Inspection -->
             <div class="section-title first">Perbandingan Visual (Citra Asli vs Overlay HUD)</div>
             <div class="inset-card" style="padding: 16px;">
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Citra Asli</span>
+                    <span
+                      style="font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">Citra
+                      Asli</span>
                     <span style="font-size: 11px; color: var(--accent);">Klik untuk zoom</span>
                   </div>
-                  <img id="photo-original-preview" class="zoomable-img" onclick="openLightbox(this.src, 'Citra Asli Pasien')" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;" alt="Original" />
+                  <img id="photo-original-preview" class="zoomable-img"
+                    onclick="openLightbox(this.src, 'Citra Asli Pasien')"
+                    style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;"
+                    alt="Original" />
                 </div>
                 <div>
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="font-size: 13px; font-weight: 600; color: var(--text-primary); text-transform: uppercase;">Deteksi Anotasi FACS</span>
+                    <span
+                      style="font-size: 13px; font-weight: 600; color: var(--text-primary); text-transform: uppercase;">Deteksi
+                      Anotasi FACS</span>
                     <span style="font-size: 11px; color: var(--accent);">Klik untuk zoom</span>
                   </div>
-                  <img id="photo-annotated-preview" class="zoomable-img" onclick="openLightbox(this.src, 'Deteksi FACS &amp; HUD')" style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;" alt="Annotated" />
+                  <img id="photo-annotated-preview" class="zoomable-img"
+                    onclick="openLightbox(this.src, 'Deteksi FACS &amp; HUD')"
+                    style="width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #1C1C1E;"
+                    alt="Annotated" />
                 </div>
               </div>
             </div>
@@ -331,28 +395,34 @@
               <div class="inset-card" style="padding: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                   <span style="font-size: 15px; font-weight: 600;">Depresi</span>
-                  <span id="photo-dep-badge" class="num" style="font-size: 13px; font-weight: 600; color: #1F7A3A;">Normal</span>
+                  <span id="photo-dep-badge" class="num"
+                    style="font-size: 13px; font-weight: 600; color: #1F7A3A;">Normal</span>
                 </div>
                 <div id="photo-dep-score" class="num" style="font-size: 28px; font-weight: 700; margin: 6px 0;">0%</div>
-                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU15, tonus AU6 &amp; relaksasi AU26.</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU15, tonus AU6 &amp; relaksasi
+                  AU26.</div>
               </div>
 
               <div class="inset-card" style="padding: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                   <span style="font-size: 15px; font-weight: 600;">Kecemasan</span>
-                  <span id="photo-anx-badge" class="num" style="font-size: 13px; font-weight: 600; color: #9A5B00;">Mild</span>
+                  <span id="photo-anx-badge" class="num"
+                    style="font-size: 13px; font-weight: 600; color: #9A5B00;">Mild</span>
                 </div>
                 <div id="photo-anx-score" class="num" style="font-size: 28px; font-weight: 700; margin: 6px 0;">0%</div>
-                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU2, elevasi AU5 &amp; kedip AU45.</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU2, elevasi AU5 &amp; kedip AU45.
+                </div>
               </div>
 
               <div class="inset-card" style="padding: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                   <span style="font-size: 15px; font-weight: 600;">Stres</span>
-                  <span id="photo-str-badge" class="num" style="font-size: 13px; font-weight: 600; color: #1F7A3A;">Normal</span>
+                  <span id="photo-str-badge" class="num"
+                    style="font-size: 13px; font-weight: 600; color: #1F7A3A;">Normal</span>
                 </div>
                 <div id="photo-str-score" class="num" style="font-size: 28px; font-weight: 700; margin: 6px 0;">0%</div>
-                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU1, kerutan AU4 &amp; presor AU24.</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">Penanda AU1, kerutan AU4 &amp; presor AU24.
+                </div>
               </div>
             </div>
 
@@ -360,7 +430,8 @@
             <div class="section-title">Rincian 31 Facial Action Units (Ekman)</div>
             <div class="inset-card" style="padding: 16px;">
               <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
-                <input type="text" id="au-search" placeholder="Cari kode AU / otot..." oninput="filterAUTable()" style="padding: 6px 14px; border: 1px solid var(--border-hairline); border-radius: 8px; font-size: 13px; outline: none; background: #F8F8FA; width: 220px;" />
+                <input type="text" id="au-search" placeholder="Cari kode AU / otot..." oninput="filterAUTable()"
+                  style="padding: 6px 14px; border: 1px solid var(--border-hairline); border-radius: 8px; font-size: 13px; outline: none; background: #F8F8FA; width: 220px;" />
               </div>
               <div style="overflow-x: auto; max-height: 380px;">
                 <table class="apple-table">
@@ -393,29 +464,40 @@
     <!-- ============================================================== -->
     <div id="tab-content-batch" class="tab-pane" style="display: none;">
       <div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
-        
+
         <div class="section-title first">Kohort Batch Citra Pasien</div>
         <div class="inset-card" style="padding: 24px;">
           <p style="margin: 0 0 16px; font-size: 14px; line-height: 20px; color: var(--text-secondary);">
-            Unggah kumpulan berkas foto untuk pemrosesan serentak, rekapitulasi DASS-3, dan ekspor instan format CSV (kompatibel SPSS &amp; Python Pandas).
+            Unggah kumpulan berkas foto untuk pemrosesan serentak, rekapitulasi DASS-3, dan ekspor instan format CSV
+            (kompatibel SPSS &amp; Python Pandas).
           </p>
 
           <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
-            <input type="file" id="batch-input" multiple accept="image/*" style="display: none;" onchange="handleBatchSelect(event)" />
-            <button onclick="document.getElementById('batch-input').click()" class="apple-btn secondary">Pilih Berkas Foto</button>
-            <button id="btn-process-batch" onclick="processBatchPhotos()" disabled class="apple-btn">Jalankan Batch</button>
-            <button id="btn-download-csv" onclick="downloadBatchCSV()" disabled class="apple-btn secondary">Unduh Rekap CSV</button>
-            <span id="batch-file-count" class="num" style="font-size: 14px; color: var(--text-secondary); margin-left: auto;">0 berkas terpilih</span>
+            <input type="file" id="batch-input" multiple accept="image/*" style="display: none;"
+              onchange="handleBatchSelect(event)" />
+            <button onclick="document.getElementById('batch-input').click()" class="apple-btn secondary">Pilih Berkas
+              Foto</button>
+            <button id="btn-process-batch" onclick="processBatchPhotos()" disabled class="apple-btn">Jalankan
+              Batch</button>
+            <button id="btn-download-csv" onclick="downloadBatchCSV()" disabled class="apple-btn secondary">Unduh Rekap
+              CSV</button>
+            <span id="batch-file-count" class="num"
+              style="font-size: 14px; color: var(--text-secondary); margin-left: auto;">0 berkas terpilih</span>
           </div>
 
           <!-- Progress Bar -->
-          <div id="batch-progress-container" style="display: none; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-hairline);">
-            <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+          <div id="batch-progress-container"
+            style="display: none; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-hairline);">
+            <div
+              style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
               <span id="batch-progress-text">Memproses 0 / 0...</span>
-              <span id="batch-progress-percent" class="num" style="font-weight: 600; color: var(--text-primary);">0%</span>
+              <span id="batch-progress-percent" class="num"
+                style="font-weight: 600; color: var(--text-primary);">0%</span>
             </div>
             <div style="height: 8px; background: var(--border-hairline); border-radius: 999px; overflow: hidden;">
-              <div id="batch-progress-bar" style="height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.2s;"></div>
+              <div id="batch-progress-bar"
+                style="height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.2s;">
+              </div>
             </div>
           </div>
         </div>
@@ -437,7 +519,8 @@
             </thead>
             <tbody id="batch-table-body">
               <tr>
-                <td colspan="7" style="padding: 32px 14px; text-align: center; color: var(--text-secondary);">Belum ada data batch yang diproses.</td>
+                <td colspan="7" style="padding: 32px 14px; text-align: center; color: var(--text-secondary);">Belum ada
+                  data batch yang diproses.</td>
               </tr>
             </tbody>
           </table>
@@ -452,12 +535,15 @@
     <!-- ============================================================== -->
     <div id="tab-content-glossary" class="tab-pane" style="display: none;">
       <div style="display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin: 0 auto; width: 100%;">
-        
+
         <div class="section-title first">Panduan Ilmiah &amp; Klasifikasi Klinis</div>
         <div class="inset-card" style="padding: 24px;">
-          <h2 style="margin: 0 0 10px; font-size: 20px; font-weight: 700; color: var(--text-primary);">AI-FACE Precision Workstation</h2>
+          <h2 style="margin: 0 0 10px; font-size: 20px; font-weight: 700; color: var(--text-primary);">AI-FACE Precision
+            Workstation</h2>
           <p style="margin: 0; font-size: 15px; line-height: 22px; color: var(--text-secondary);">
-            AI-FACE memadukan pengenalan morfometri 478 landmark MediaPipe dengan sistem Facial Action Coding System (FACS) terstandarisasi untuk mengestimasi dimensi DASS-3 (Depresi, Kecemasan, dan Stres) secara objektif tanpa bias subjektif kuesioner.
+            AI-FACE memadukan pengenalan morfometri 478 landmark MediaPipe dengan sistem Facial Action Coding System
+            (FACS) terstandarisasi untuk mengestimasi dimensi DASS-3 (Depresi, Kecemasan, dan Stres) secara objektif
+            tanpa bias subjektif kuesioner.
           </p>
         </div>
 
@@ -467,7 +553,8 @@
             <div class="subject-row first">
               <div>
                 <span style="font-weight: 600; color: #1F7A3A;">NORMAL (&lt; 15%)</span>
-                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Status afektif stabil, bebas dari indikasi distres atau depresi patologis.</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Status afektif stabil,
+                  bebas dari indikasi distres atau depresi patologis.</div>
               </div>
               <span class="num" style="font-size: 14px; font-weight: 600; color: #1F7A3A;">0.00 – 0.15</span>
             </div>
@@ -476,7 +563,8 @@
             <div class="subject-row">
               <div>
                 <span style="font-weight: 600; color: #9A5B00;">MILD (15% – 30%)</span>
-                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan fisiologis ringan wajar (reaksi adaptasi visual di ruang periksa).</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan fisiologis
+                  ringan wajar (reaksi adaptasi visual di ruang periksa).</div>
               </div>
               <span class="num" style="font-size: 14px; font-weight: 600; color: #9A5B00;">0.15 – 0.30</span>
             </div>
@@ -485,7 +573,8 @@
             <div class="subject-row">
               <div>
                 <span style="font-weight: 600; color: #B14100;">MODERATE (30% – 60%)</span>
-                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan emosional sedang. Kontraksi otot berulang pada dahi (AU4) atau bibir (AU15/AU24).</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan emosional
+                  sedang. Kontraksi otot berulang pada dahi (AU4) atau bibir (AU15/AU24).</div>
               </div>
               <span class="num" style="font-size: 14px; font-weight: 600; color: #B14100;">0.30 – 0.60</span>
             </div>
@@ -494,7 +583,8 @@
             <div class="subject-row">
               <div>
                 <span style="font-weight: 600; color: #C4251C;">SEVERE (60% – 80%)</span>
-                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan berat berkelanjutan. Perlu evaluasi medis atau observasi terarah.</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Ketegangan berat
+                  berkelanjutan. Perlu evaluasi medis atau observasi terarah.</div>
               </div>
               <span class="num" style="font-size: 14px; font-weight: 600; color: #C4251C;">0.60 – 0.80</span>
             </div>
@@ -503,7 +593,8 @@
             <div class="subject-row">
               <div>
                 <span style="font-weight: 600; color: #A50015;">EXTREMELY SEVERE (&ge; 80%)</span>
-                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Indikasi distres akut atau depresi berat (memicu override otomatis pada kombinasi AU kunci).</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">Indikasi distres akut atau
+                  depresi berat (memicu override otomatis pada kombinasi AU kunci).</div>
               </div>
               <span class="num" style="font-size: 14px; font-weight: 600; color: #A50015;">&ge; 0.80</span>
             </div>
@@ -518,15 +609,21 @@
   <!-- ============================================================== -->
   <!-- FOOTER -->
   <!-- ============================================================== -->
-  <footer style="margin-top: auto; padding: 24px 40px; text-align: center; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--border-hairline); background: #FFFFFF;">
-    <p style="margin: 0;">AI-FACE Clinical Workstation · Protocol by Gavrilescu &amp; Vizireanu (Sensors 2019) &amp; Binz et al. (Bonn 2023)</p>
+  <footer
+    style="margin-top: auto; padding: 24px 40px; text-align: center; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--border-hairline); background: #FFFFFF;">
+    <p style="margin: 0;">AI-FACE Clinical Workstation ·
+      <!--<p>Protocol by Gavrilescu &amp; Vizireanu (Sensors 2019) &amp;
+      Binz et al. (Bonn 2023)</p>-->
+    </p>
   </footer>
 
   <!-- Image Zoom Lightbox Modal -->
   <div id="lightbox-modal" class="lightbox-modal" onclick="closeLightbox()">
-    <div style="color: #FFFFFF; font-size: 14px; font-weight: 600; margin-bottom: 12px;" id="lightbox-title">Citra Pasien</div>
+    <div style="color: #FFFFFF; font-size: 14px; font-weight: 600; margin-bottom: 12px;" id="lightbox-title">Citra
+      Pasien</div>
     <img id="lightbox-img" src="" alt="Zoom Preview" onclick="event.stopPropagation()" />
-    <div style="color: #AEAEB2; font-size: 12px; margin-top: 12px;">Klik di luar gambar atau tekan ESC untuk menutup</div>
+    <div style="color: #AEAEB2; font-size: 12px; margin-top: 12px;">Klik di luar gambar atau tekan ESC untuk menutup
+    </div>
   </div>
 
   <!-- Dynamic Toast Container -->
@@ -535,4 +632,5 @@
   <!-- Application Script -->
   <script src="/static/app.js?v=4.2"></script>
 </body>
+
 </html>
