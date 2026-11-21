@@ -118,15 +118,15 @@ function toggleLiveEmotions() {
   if (!btn) return;
 
   if (liveShowEmotions) {
-    btn.innerHTML = `<i data-lucide="toggle-right" class="w-3.5 h-3.5 text-[#67BAF4]"></i>
+    btn.innerHTML = `<i data-lucide="toggle-right" class="w-3.5 h-3.5 text-[#FFE14F]"></i>
                      <span>Mode Lengkap (+Emosi)</span>
-                     <kbd class="px-1 py-0.2 bg-[#1E466B]/60 rounded text-[9px] text-[#FAFAFA]">E</kbd>`;
-    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-mono border flex items-center gap-1.5 transition border-[#67BAF4] bg-[#1E466B]/50 text-[#FAFAFA]";
+                     <kbd class="px-1 py-0.2 bg-[#192853] rounded text-[9px] text-[#ECF4F7]">E</kbd>`;
+    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-mono border flex items-center gap-1.5 transition border-[#FFE14F] bg-[#192853] text-[#FFE14F]";
   } else {
     btn.innerHTML = `<i data-lucide="toggle-left" class="w-3.5 h-3.5"></i>
                      <span>Mode Klinis Murni (OFF)</span>
-                     <kbd class="px-1 py-0.2 bg-[#1E466B]/40 rounded text-[9px] text-[#9DB4C9]">E</kbd>`;
-    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-mono border flex items-center gap-1.5 transition border-[#1E466B] bg-[#0D0D0D] text-[#9DB4C9] hover:border-[#67BAF4] hover:text-[#FAFAFA]";
+                     <kbd class="px-1 py-0.2 bg-[#192853] rounded text-[9px] text-[#BACCD9]">E</kbd>`;
+    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-mono border flex items-center gap-1.5 transition border-[#ECF4F7]/20 bg-[#0B1226] text-[#BACCD9] hover:border-[#FFE14F] hover:text-[#FFE14F]";
   }
   if (window.lucide) lucide.createIcons();
 }
@@ -172,7 +172,7 @@ async function startCamera() {
     btnStop.classList.remove("hidden");
 
     if (statusDot) {
-      statusDot.className = "w-2 h-2 rounded-full bg-[#67BAF4] animate-pulse";
+      statusDot.className = "w-2 h-2 rounded-full bg-[#FFE14F] animate-pulse";
     }
     if (targetStatus) {
       targetStatus.textContent = "| AKTIF";
@@ -382,8 +382,8 @@ function updateLiveDashboard(data, latencyMs = 0) {
         const meta = (clinicalInfo?.facs_metadata || {})[au] || {};
         const titleText = `${au}: ${meta.name || ''} (${meta.muscle || ''}) - ${meta.clinical_meaning || ''}`;
         return `
-          <span class="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded border border-[#1E466B]/60 bg-[#0D0D0D] text-[#FAFAFA] cursor-help" title="${titleText}">
-            <span class="text-[#67BAF4] font-semibold">${au}</span>
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-mono px-2 py-0.5 rounded border border-[#ECF4F7]/15 bg-[#0B1226] text-[#ECF4F7] cursor-help" title="${titleText}">
+            <span class="text-[#FFE14F] font-semibold">${au}</span>
             <span class="px-1 py-0.2 rounded text-[10px] font-bold ${pillClass}">${letter}</span>
           </span>`;
       }).join("");
@@ -406,12 +406,12 @@ function handlePhotoSelect(event) {
   const dropZone = document.getElementById("drop-zone");
   if (dropZone) {
     dropZone.innerHTML = `
-      <div class="w-10 h-10 rounded-full bg-[#1E466B]/30 border border-[#67BAF4]/40 flex items-center justify-center text-[#67BAF4] mx-auto mb-2">
+      <div class="w-10 h-10 rounded-full bg-[#FFE14F]/15 border border-[#FFE14F]/40 flex items-center justify-center text-[#FFE14F] mx-auto mb-2">
         <i data-lucide="check" class="w-5 h-5"></i>
       </div>
-      <p class="text-xs font-semibold text-[#FAFAFA] truncate max-w-xs mx-auto font-mono">${file.name}</p>
-      <p class="text-[10px] text-[#9DB4C9] font-mono mt-0.5">${(file.size / 1024).toFixed(1)} KB</p>
-      <button type="button" class="mt-2 text-[11px] font-mono text-[#67BAF4] hover:underline">Ganti Berkas</button>
+      <p class="text-xs font-semibold text-[#ECF4F7] truncate max-w-xs mx-auto font-mono">${file.name}</p>
+      <p class="text-[10px] text-[#BACCD9] font-mono mt-0.5">${(file.size / 1024).toFixed(1)} KB</p>
+      <button type="button" class="mt-2 text-[11px] font-mono text-[#FFE14F] hover:underline">Ganti Berkas</button>
     `;
     if (window.lucide) lucide.createIcons();
   }
@@ -521,22 +521,22 @@ function populateAUTable(facsAUs) {
     const isHighlight = letter !== "0";
 
     return `
-      <tr class="hover:bg-[#151D2A] transition ${isHighlight ? 'bg-[#1E466B]/15' : ''}">
-        <td class="py-2 px-3 font-mono font-bold ${isHighlight ? 'text-[#67BAF4]' : 'text-[#647C96]'}">${au}</td>
-        <td class="py-2 px-3 text-[#FAFAFA] font-sans">${meta.name}</td>
-        <td class="py-2 px-3 text-[#9DB4C9] italic text-[11px]">${meta.muscle}</td>
+      <tr class="hover:bg-[#16244A] transition ${isHighlight ? 'bg-[#FFE14F]/10' : ''}">
+        <td class="py-2 px-3 font-mono font-bold ${isHighlight ? 'text-[#FFE14F]' : 'text-[#7A93A8]'}">${au}</td>
+        <td class="py-2 px-3 text-[#ECF4F7] font-sans">${meta.name}</td>
+        <td class="py-2 px-3 text-[#BACCD9] italic text-[11px]">${meta.muscle}</td>
         <td class="py-2 px-3 text-center">
           <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${pillClass}">${letter}</span>
         </td>
         <td class="py-2 px-3">
           <div class="flex items-center gap-2">
             <div class="clinical-progress-track w-16">
-              <div class="clinical-progress-fill bg-[#67BAF4]" style="width: ${pct}%"></div>
+              <div class="clinical-progress-fill bg-[#FFE14F]" style="width: ${pct}%"></div>
             </div>
-            <span class="text-[11px] text-[#9DB4C9] font-mono tabular-nums">${pct}%</span>
+            <span class="text-[11px] text-[#BACCD9] font-mono tabular-nums">${pct}%</span>
           </div>
         </td>
-        <td class="py-2 px-3 text-[#9DB4C9] max-w-xs text-[11px] font-sans leading-relaxed">${meta.clinical_meaning}</td>
+        <td class="py-2 px-3 text-[#BACCD9] max-w-xs text-[11px] font-sans leading-relaxed">${meta.clinical_meaning}</td>
       </tr>
     `;
   });
@@ -619,11 +619,11 @@ function appendBatchRow(item) {
   const emo = item.emotions || {};
 
   const tr = document.createElement("tr");
-  tr.className = "hover:bg-[#151D2A] transition";
+  tr.className = "hover:bg-[#16244A] transition";
   tr.innerHTML = `
-    <td class="py-2 px-3 font-semibold text-[#FAFAFA] truncate max-w-[140px] font-mono text-[11px]">${item.image_name}</td>
+    <td class="py-2 px-3 font-semibold text-[#ECF4F7] truncate max-w-[140px] font-mono text-[11px]">${item.image_name}</td>
     <td class="py-2 px-3 text-center">
-      <span class="px-2 py-0.5 rounded text-[10px] font-mono ${item.face_detected ? 'bg-[#1E466B]/30 text-[#67BAF4] border border-[#67BAF4]/40' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'}">
+      <span class="px-2 py-0.5 rounded text-[10px] font-mono ${item.face_detected ? 'bg-[#FFE14F]/15 text-[#FFE14F] border border-[#FFE14F]/40' : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'}">
         ${item.face_detected ? 'TERDETEKSI' : 'NIHIL'}
       </span>
     </td>
@@ -632,17 +632,17 @@ function appendBatchRow(item) {
     </td>
     <td class="py-2 px-3 font-mono text-[11px]">
       <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.depression.level)}">${dass.depression.level || '-'}</span>
-      <span class="text-[#647C96] text-[10px] ml-1">(${Math.round((dass.depression.score || 0) * 100)}%)</span>
+      <span class="text-[#7A93A8] text-[10px] ml-1">(${Math.round((dass.depression.score || 0) * 100)}%)</span>
     </td>
     <td class="py-2 px-3 font-mono text-[11px]">
       <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}">${dass.anxiety.level || '-'}</span>
-      <span class="text-[#647C96] text-[10px] ml-1">(${Math.round((dass.anxiety.score || 0) * 100)}%)</span>
+      <span class="text-[#7A93A8] text-[10px] ml-1">(${Math.round((dass.anxiety.score || 0) * 100)}%)</span>
     </td>
     <td class="py-2 px-3 font-mono text-[11px]">
       <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.stress.level)}">${dass.stress.level || '-'}</span>
-      <span class="text-[#647C96] text-[10px] ml-1">(${Math.round((dass.stress.score || 0) * 100)}%)</span>
+      <span class="text-[#7A93A8] text-[10px] ml-1">(${Math.round((dass.stress.score || 0) * 100)}%)</span>
     </td>
-    <td class="py-2 px-3 font-mono text-[11px] text-[#9DB4C9] tabular-nums">${emo.valence !== undefined ? emo.valence.toFixed(2) : '-'}</td>
+    <td class="py-2 px-3 font-mono text-[11px] text-[#BACCD9] tabular-nums">${emo.valence !== undefined ? emo.valence.toFixed(2) : '-'}</td>
   `;
   tbody.appendChild(tr);
 }
