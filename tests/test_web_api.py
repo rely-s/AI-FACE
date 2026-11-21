@@ -61,3 +61,19 @@ def test_analyze_photo_endpoint(client: TestClient, tmp_path: Path) -> None:
     assert "face_detected" in data
     assert "distress_level" in data
     assert "annotated_image_base64" in data
+
+
+def test_analyze_frame_endpoint(client: TestClient) -> None:
+    img = np.zeros((200, 200, 3), dtype=np.uint8)
+    _, buffer = cv2.imencode(".jpg", img)
+    file_bytes = io.BytesIO(buffer.tobytes())
+
+    res = client.post(
+        "/api/v1/analyze/frame",
+        files={"file": ("live_frame.jpg", file_bytes, "image/jpeg")},
+        data={"show_emotions": "true", "subject_id": "TEST_SUBJ", "mirror": "true"},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["image_name"] == "live_frame.jpg"
+    assert "annotated_image_base64" in data

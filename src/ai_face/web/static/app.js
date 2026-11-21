@@ -101,18 +101,15 @@ function getAUPillClass(letter) {
 function toggleCameraMirror() {
   isCameraMirrored = !isCameraMirrored;
   const video = document.getElementById("webcam-video");
-  const overlay = document.getElementById("live-annotated-overlay");
   const label = document.getElementById("live-mirror-label");
   const btn = document.getElementById("live-mirror-toggle");
 
   if (isCameraMirrored) {
     if (video) video.classList.add("camera-mirror");
-    if (overlay) overlay.classList.add("camera-mirror");
     if (label) label.textContent = "Mirror: ON";
     if (btn) btn.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853] bg-[#192853] text-[#FFE14F] shadow-sm";
   } else {
     if (video) video.classList.remove("camera-mirror");
-    if (overlay) overlay.classList.remove("camera-mirror");
     if (label) label.textContent = "Mirror: OFF";
     if (btn) btn.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853]/20 bg-white text-[#4A5F82] hover:border-[#192853] hover:text-[#192853] shadow-sm";
   }
@@ -275,6 +272,7 @@ async function captureAndSendLiveFrame() {
     formData.append("show_emotions", liveShowEmotions ? "true" : "false");
     const subjId = document.getElementById("live-subject-id")?.textContent || "Subject";
     formData.append("subject_id", subjId);
+    formData.append("mirror", isCameraMirrored ? "true" : "false");
 
     try {
       const res = await fetch("/api/v1/analyze/frame", {

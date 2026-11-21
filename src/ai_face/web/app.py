@@ -278,6 +278,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
         file: UploadFile = File(...),
         show_emotions: bool = Form(False),
         subject_id: str = Form("Subject"),
+        mirror: bool = Form(False),
     ) -> dict[str, Any]:
         if processor is None:
             raise HTTPException(status_code=503, detail="Face Landmarker model is not loaded.")
@@ -320,6 +321,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
             facs_aus=facs_aus,
             show_emotions=show_emotions,
             subject_id=resolved_subject_id[:12],
+            mirror=mirror,
         )
 
         # Encode annotated image to JPEG base64
@@ -358,9 +360,15 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
         file: UploadFile = File(...),
         show_emotions: bool = Form(False),
         subject_id: str = Form("Subject"),
+        mirror: bool = Form(True),
     ) -> dict[str, Any]:
         """Real-time webcam frame snapshot evaluation from the web browser."""
-        return await analyze_photo(file=file, show_emotions=show_emotions, subject_id=subject_id)
+        return await analyze_photo(
+            file=file,
+            show_emotions=show_emotions,
+            subject_id=subject_id,
+            mirror=mirror,
+        )
 
     # Mount static assets
     if STATIC_DIR.is_dir():

@@ -9,7 +9,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Custom Institutional Medical Stylesheet (White-Dominant Theme) -->
-  <link rel="stylesheet" href="/static/styles.css?v=3.5" />
+  <link rel="stylesheet" href="/static/styles.css?v=3.6" />
   <script>
     tailwind.config = {
       theme: {
@@ -154,8 +154,8 @@
               <!-- Dynamic SVG/CSS Face Target Reticle (Gargoyle Gas) -->
               <div id="live-face-box" class="face-target-box hidden"></div>
 
-              <!-- Legacy OpenCV HUD Overlay (Used only if Classic mode is explicitly toggled) -->
-              <img id="live-annotated-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none hidden z-10 camera-mirror" alt="HUD Stream" />
+              <!-- Legacy OpenCV HUD Overlay (Used only if Classic mode is explicitly toggled, rendered upright with server-side mirror) -->
+              <img id="live-annotated-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none hidden z-10" alt="HUD Stream" />
 
               <!-- Idle Camera Placeholder -->
               <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-[#7287A5] bg-[#F4F8FA] z-20">
@@ -634,6 +634,6 @@
   </footer>
 
   <!-- Application Script -->
-  <script src="/static/app.js?v=3.5"></script>
+  <script src="/static/app.js?v=3.6"></script>
 </body>
 </html>
