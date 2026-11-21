@@ -816,6 +816,16 @@ button:active {
   pointer-events: auto;
 }
 
+.toast-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: inherit;
+  flex: none;
+}
+
 .toast-pill.out {
   animation: toast-out 0.20s ease-in forwards;
 }

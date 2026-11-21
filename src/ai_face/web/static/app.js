@@ -134,7 +134,20 @@ function updateDassItem(scoreEl, levelEl, barEl, rawScore) {
 // TAB 1: LIVE WEBCAM MONITORING & TOAST SYSTEM
 // =========================================================================
 
-function showToast(message, icon = "ℹ️") {
+// Precision Apple SF-Symbols style monochrome vector icons (No AI slop emojis)
+const SVG_ICONS = {
+  camera: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`,
+  stop: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF453A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><rect x="9" y="9" width="6" height="6"></rect></svg>`,
+  mirror: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>`,
+  overlay: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>`,
+  radar: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>`,
+  check: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34C759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+  file: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`,
+  download: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
+  info: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
+};
+
+function showToast(message, iconKey = "info") {
   let container = document.getElementById("toast-container");
   if (!container) {
     container = document.createElement("div");
@@ -144,7 +157,8 @@ function showToast(message, icon = "ℹ️") {
   }
   const toast = document.createElement("div");
   toast.className = "toast-pill";
-  toast.innerHTML = `<span style="font-size: 14px;">${icon}</span><span>${message}</span>`;
+  const iconSvg = SVG_ICONS[iconKey] || SVG_ICONS.info;
+  toast.innerHTML = `<span class="toast-icon-wrap">${iconSvg}</span><span>${message}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.classList.add("out");
@@ -172,6 +186,7 @@ function toggleCameraMirror() {
     if (track) track.className = "switch-track";
     if (toggleBtn) toggleBtn.setAttribute("aria-checked", "false");
   }
+  showToast(`Mode Cermin: ${isCameraMirrored ? 'Aktif' : 'Nonaktif'} (M)`, "mirror");
 }
 
 function toggleOverlayDisplayMode() {
@@ -199,6 +214,7 @@ function toggleOverlayDisplayMode() {
     if (pillLeft) pillLeft.style.display = "none";
     if (pillRight) pillRight.style.display = "none";
   }
+  showToast(`Overlay: ${overlayMode === 'clean' ? 'Retikel Bersih' : 'Klasik SHORE'} (C)`, "overlay");
 }
 
 function toggleLiveEmotions() {
@@ -219,7 +235,7 @@ function handleVideoBoxClick(event) {
   // Prevent click bubbling from control buttons inside video container
   if (event.target.closest("button") || event.target.closest("a")) return;
   toggleLiveEmotions();
-  showToast(`Mode Emosi: ${liveShowEmotions ? 'Aktif' : 'Nonaktif'} (E)`, '⚡');
+  showToast(`Mode Emosi: ${liveShowEmotions ? 'Aktif' : 'Nonaktif'} (E)`, "radar");
 }
 
 // Global hotkeys for precision navigation
@@ -237,13 +253,11 @@ window.addEventListener("keydown", (e) => {
 
   if (e.key === "e" || e.key === "E") {
     toggleLiveEmotions();
-    showToast(`Mode Emosi: ${liveShowEmotions ? 'Aktif' : 'Nonaktif'} (E)`, '⚡');
+    showToast(`Mode Emosi: ${liveShowEmotions ? 'Aktif' : 'Nonaktif'} (E)`, "radar");
   } else if (e.key === "m" || e.key === "M") {
     toggleCameraMirror();
-    showToast(`Mode Cermin: ${isCameraMirrored ? 'Aktif' : 'Nonaktif'} (M)`, '🪞');
   } else if (e.key === "c" || e.key === "C") {
     toggleOverlayDisplayMode();
-    showToast(`Overlay: ${overlayMode === 'clean' ? 'Retikel Bersih' : 'Klasik SHORE'} (C)`, '🎯');
   } else if (e.key === " " || e.code === "Space") {
     e.preventDefault();
     if (liveStream) {
@@ -323,7 +337,7 @@ async function startCamera() {
 
     // Stream telemetry frames at ~10-15 Hz (100ms cycle)
     liveInterval = setInterval(captureAndSendLiveFrame, 100);
-    showToast("Kamera aktif · 15 Hz stream", "🟢");
+    showToast("Kamera aktif · 15 Hz stream", "camera");
   } catch (err) {
     alert("Tidak dapat mengakses sensor kamera: " + err.message);
   }
@@ -336,7 +350,7 @@ function stopCamera() {
     liveStream = null;
   }
 
-  showToast("Kamera dinonaktifkan", "⏹️");
+  showToast("Kamera dinonaktifkan", "stop");
 
   const video = document.getElementById("webcam-video");
   if (video) video.srcObject = null;
@@ -587,7 +601,7 @@ function setPhotoFile(file) {
       </div>
     `;
   }
-  showToast(`Foto terpilih: ${file.name}`, "📁");
+  showToast(`Foto terpilih: ${file.name}`, "file");
 }
 
 async function uploadAndAnalyzePhoto() {
@@ -612,7 +626,7 @@ async function uploadAndAnalyzePhoto() {
     if (!res.ok) throw new Error("Gagal mengeksekusi analisis: " + (await res.text()));
     const data = await res.json();
     renderPhotoResults(data);
-    showToast("Analisis klinis foto selesai", "✅");
+    showToast("Analisis klinis foto selesai", "check");
   } catch (err) {
     alert(err.message);
   } finally {
@@ -853,7 +867,7 @@ function downloadBatchCSV() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  showToast("File rekap CSV berhasil diunduh", "📥");
+  showToast("File rekap CSV berhasil diunduh", "download");
 }
 
 // =========================================================================
