@@ -14,6 +14,7 @@ let liveShowEmotions = false;
 let liveStartTime = null;
 let isAnalyzingFrame = false;
 let overlayMode = "clean"; // "clean" (SVG Reticle) or "classic" (OpenCV SHORE Burn-in)
+let isCameraMirrored = true; // Natural selfie/mirror orientation
 
 // Initialize on Load
 document.addEventListener("DOMContentLoaded", async () => {
@@ -96,6 +97,27 @@ function getAUPillClass(letter) {
 // =========================================================================
 // TAB 1: LIVE WEBCAM MONITORING
 // =========================================================================
+
+function toggleCameraMirror() {
+  isCameraMirrored = !isCameraMirrored;
+  const video = document.getElementById("webcam-video");
+  const overlay = document.getElementById("live-annotated-overlay");
+  const label = document.getElementById("live-mirror-label");
+  const btn = document.getElementById("live-mirror-toggle");
+
+  if (isCameraMirrored) {
+    if (video) video.classList.add("camera-mirror");
+    if (overlay) overlay.classList.add("camera-mirror");
+    if (label) label.textContent = "Mirror: ON";
+    if (btn) btn.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853] bg-[#192853] text-[#FFE14F] shadow-sm";
+  } else {
+    if (video) video.classList.remove("camera-mirror");
+    if (overlay) overlay.classList.remove("camera-mirror");
+    if (label) label.textContent = "Mirror: OFF";
+    if (btn) btn.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853]/20 bg-white text-[#4A5F82] hover:border-[#192853] hover:text-[#192853] shadow-sm";
+  }
+  if (window.lucide) lucide.createIcons();
+}
 
 function toggleOverlayDisplayMode() {
   overlayMode = (overlayMode === "clean") ? "classic" : "clean";
@@ -282,9 +304,12 @@ function updateLiveDashboard(data, latencyMs = 0) {
     if (overlay) overlay.classList.add("hidden");
 
     if (data.face_bbox && faceBox) {
-      // Render smooth CSS face tracking bounding box
+      // Render smooth CSS face tracking bounding box (accounting for mirror mode)
       const bb = data.face_bbox;
-      faceBox.style.left = `${Math.max(0, bb.x * 100)}%`;
+      const bbLeft = isCameraMirrored
+        ? Math.max(0, (1.0 - (bb.x + bb.width)) * 100)
+        : Math.max(0, bb.x * 100);
+      faceBox.style.left = `${bbLeft}%`;
       faceBox.style.top = `${Math.max(0, bb.y * 100)}%`;
       faceBox.style.width = `${Math.min(100, bb.width * 100)}%`;
       faceBox.style.height = `${Math.min(100, bb.height * 100)}%`;

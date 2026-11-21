@@ -9,7 +9,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Custom Institutional Medical Stylesheet (White-Dominant Theme) -->
-  <link rel="stylesheet" href="/static/styles.css?v=3.4" />
+  <link rel="stylesheet" href="/static/styles.css?v=3.5" />
   <script>
     tailwind.config = {
       theme: {
@@ -108,6 +108,12 @@
               </div>
               
               <div class="flex items-center gap-2">
+                <!-- Camera Mirror Toggle Switch -->
+                <button id="live-mirror-toggle" onclick="toggleCameraMirror()" class="text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853] bg-[#192853] text-[#FFE14F] shadow-sm" title="Beralih antara mode cermin (mirrored) atau orientasi sensor asli">
+                  <i data-lucide="flip-horizontal" class="w-3.5 h-3.5"></i>
+                  <span id="live-mirror-label">Mirror: ON</span>
+                </button>
+
                 <!-- Overlay Mode Switch (Clean Medical vs Burn-In) -->
                 <button id="live-overlay-toggle" onclick="toggleOverlayDisplayMode()" class="text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853]/20 bg-white text-[#4A5F82] hover:border-[#192853] hover:text-[#192853] shadow-sm" title="Beralih antara retikel medis bersih atau burn-in HUD klasik">
                   <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-[#192853]"></i>
@@ -139,8 +145,8 @@
                 <span id="live-target-status" class="text-[#4A5F82] font-medium font-mono text-[10px]">| SIAP</span>
               </div>
 
-              <!-- Raw High-Framerate Video Stream (Clean 30/60 FPS) -->
-              <video id="webcam-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover"></video>
+              <!-- Raw High-Framerate Video Stream (Clean 30/60 FPS, Mirrored by default) -->
+              <video id="webcam-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover camera-mirror"></video>
 
               <!-- Offscreen Processing Canvas -->
               <canvas id="capture-canvas" class="hidden"></canvas>
@@ -149,7 +155,7 @@
               <div id="live-face-box" class="face-target-box hidden"></div>
 
               <!-- Legacy OpenCV HUD Overlay (Used only if Classic mode is explicitly toggled) -->
-              <img id="live-annotated-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none hidden z-10" alt="HUD Stream" />
+              <img id="live-annotated-overlay" class="absolute inset-0 w-full h-full object-contain pointer-events-none hidden z-10 camera-mirror" alt="HUD Stream" />
 
               <!-- Idle Camera Placeholder -->
               <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-[#7287A5] bg-[#F4F8FA] z-20">
@@ -628,6 +634,6 @@
   </footer>
 
   <!-- Application Script -->
-  <script src="/static/app.js?v=3.4"></script>
+  <script src="/static/app.js?v=3.5"></script>
 </body>
 </html>

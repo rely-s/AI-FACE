@@ -72,6 +72,12 @@ h1, h2, h3, h4, h5, h6 {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* Webcam Video Feed Mirroring */
+.camera-mirror {
+  transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+}
+
 .clinical-card:hover {
   border-color: var(--border-clinical-subtle);
   box-shadow: 0 4px 16px rgba(25, 40, 83, 0.06);
