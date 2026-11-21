@@ -43,14 +43,14 @@
           <div id="live-video-box" class="video-viewport" onclick="handleVideoBoxClick(event)" title="Klik layar atau tekan 'E' untuk beralih mode ekspresi">
             
             <!-- Top Left Floating HUD Pill Badge -->
-            <div class="hud-pill top-left">
+            <div class="hud-pill top-left" id="live-hud-pill-left">
               <span id="live-status-dot" class="hud-dot"></span>
               <span id="live-status-text">Standby</span>
               <span id="live-target-status" class="num" style="color: rgba(255,255,255,0.7); font-size: 11px;">| SIAP</span>
             </div>
 
             <!-- Top Right Floating Telemetry Badge -->
-            <div class="hud-pill top-right num">
+            <div class="hud-pill top-right num" id="live-hud-pill-right">
               <span id="live-latency-indicator">-- ms</span> · <span id="live-fps-indicator">15 Hz</span>
             </div>
 
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Raw Video Stream (Mirrored by default, Upright Overlay Text) -->
-            <video id="webcam-video" autoplay playsinline muted class="camera-mirror" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"></video>
+            <video id="webcam-video" autoplay playsinline muted class="camera-mirror" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;"></video>
 
             <!-- Offscreen Processing Canvas -->
             <canvas id="capture-canvas" style="display: none;"></canvas>
@@ -75,8 +75,15 @@
             <!-- Legacy OpenCV HUD Overlay (Upright text, rendered when classic mode enabled) -->
             <img id="live-annotated-overlay" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; z-index: 10; display: none;" alt="HUD Stream" />
 
-            <!-- Bottom Floating Action Bar -->
-            <div class="video-action-bar">
+          </div>
+
+          <!-- Dedicated Stream Control Bar (Unobstructed camera view & zero overlap) -->
+          <div class="video-control-strip">
+            <div class="control-strip-info">
+              <span class="control-strip-label">Status Sensor</span>
+              <span id="control-strip-status" class="control-strip-val">Siap Memulai</span>
+            </div>
+            <div class="control-strip-actions">
               <button id="btn-start-camera" class="pill-action-btn start" onclick="startCamera()">
                 <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="currentColor"></path></svg>
                 Mulai Kamera
@@ -86,6 +93,7 @@
                 Hentikan Sesi
               </button>
             </div>
+          </div>
 
           </div>
 

@@ -279,6 +279,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
         show_emotions: bool = Form(False),
         subject_id: str = Form("Subject"),
         mirror: bool = Form(False),
+        uptime: float = Form(0.0),
     ) -> dict[str, Any]:
         if processor is None:
             raise HTTPException(status_code=503, detail="Face Landmarker model is not loaded.")
@@ -304,13 +305,22 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
             face = result.face_landmarks[0]
             xs = [float(p.x) for p in face]
             ys = [float(p.y) for p in face]
-            min_x, max_x = max(0.0, min(xs)), min(1.0, max(xs))
-            min_y, max_y = max(0.0, min(ys)), min(1.0, max(ys))
+            min_x, max_x = min(xs), max(xs)
+            min_y, max_y = min(ys), max(ys)
+            box_w = max_x - min_x
+            box_h = max_y - min_y
+            pad_x = box_w * 0.08
+            pad_y_top = box_h * 0.12
+            pad_y_bottom = box_h * 0.06
+            norm_x1 = max(0.0, min_x - pad_x)
+            norm_x2 = min(1.0, max_x + pad_x)
+            norm_y1 = max(0.0, min_y - pad_y_top)
+            norm_y2 = min(1.0, max_y + pad_y_bottom)
             face_bbox = {
-                "x": round(min_x, 4),
-                "y": round(min_y, 4),
-                "width": round(max_x - min_x, 4),
-                "height": round(max_y - min_y, 4),
+                "x": round(norm_x1, 4),
+                "y": round(norm_y1, 4),
+                "width": round(norm_x2 - norm_x1, 4),
+                "height": round(norm_y2 - norm_y1, 4),
             }
 
         annotated_bgr = render_shore_style_overlay(
@@ -321,6 +331,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
             facs_aus=facs_aus,
             show_emotions=show_emotions,
             subject_id=resolved_subject_id[:12],
+            uptime_s=uptime,
             mirror=mirror,
         )
 
@@ -361,6 +372,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
         show_emotions: bool = Form(False),
         subject_id: str = Form("Subject"),
         mirror: bool = Form(True),
+        uptime: float = Form(0.0),
     ) -> dict[str, Any]:
         """Real-time webcam frame snapshot evaluation from the web browser."""
         return await analyze_photo(
@@ -368,6 +380,7 @@ def create_app(model_path: str | Path = DEFAULT_MODEL_PATH) -> FastAPI:
             show_emotions=show_emotions,
             subject_id=subject_id,
             mirror=mirror,
+            uptime=uptime,
         )
 
     # Mount static assets

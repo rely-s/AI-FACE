@@ -129,6 +129,8 @@ function toggleOverlayDisplayMode() {
   const label = document.getElementById("live-overlay-mode-label");
   const overlay = document.getElementById("live-annotated-overlay");
   const faceBox = document.getElementById("live-face-box");
+  const pillLeft = document.getElementById("live-hud-pill-left");
+  const pillRight = document.getElementById("live-hud-pill-right");
   const toggleBtn = document.getElementById("live-overlay-toggle");
   const track = toggleBtn ? toggleBtn.querySelector(".switch-track") : null;
 
@@ -137,11 +139,15 @@ function toggleOverlayDisplayMode() {
     if (track) track.className = "switch-track";
     if (toggleBtn) toggleBtn.setAttribute("aria-checked", "false");
     if (overlay) overlay.style.display = "none";
+    if (pillLeft) pillLeft.style.display = "flex";
+    if (pillRight) pillRight.style.display = "flex";
   } else {
     if (label) label.textContent = "Overlay deteksi lama (ON)";
     if (track) track.className = "switch-track on";
     if (toggleBtn) toggleBtn.setAttribute("aria-checked", "true");
     if (faceBox) faceBox.style.display = "none";
+    if (pillLeft) pillLeft.style.display = "none";
+    if (pillRight) pillRight.style.display = "none";
   }
 }
 
@@ -183,18 +189,32 @@ async function startCamera() {
   const statusDot = document.getElementById("live-status-dot");
   const statusText = document.getElementById("live-status-text");
   const targetStatus = document.getElementById("live-target-status");
+  const stripStatus = document.getElementById("control-strip-status");
 
   try {
+    // Request native high-definition stream without forcing restrictive 4:3 crop
     liveStream = await navigator.mediaDevices.getUserMedia({
       video: {
-        width: { ideal: 640 },
-        height: { ideal: 480 },
+        width: { ideal: 1280, max: 1920 },
+        height: { ideal: 720, max: 1080 },
         facingMode: "user"
       },
       audio: false
     });
     video.srcObject = liveStream;
     await video.play();
+
+    // Dynamically conform the viewport to the exact aspect ratio of the camera
+    const updateViewportRatio = () => {
+      if (video.videoWidth && video.videoHeight) {
+        const box = document.getElementById("live-video-box");
+        if (box) {
+          box.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+        }
+      }
+    };
+    video.onloadedmetadata = updateViewportRatio;
+    updateViewportRatio();
 
     if (placeholder) placeholder.style.display = "none";
     if (btnStart) btnStart.style.display = "none";
@@ -208,6 +228,9 @@ async function startCamera() {
     }
     if (targetStatus) {
       targetStatus.textContent = "| AKTIF";
+    }
+    if (stripStatus) {
+      stripStatus.textContent = "Sensor Aktif (15 Hz)";
     }
 
     liveStartTime = Date.now();
@@ -234,6 +257,9 @@ function stopCamera() {
   const video = document.getElementById("webcam-video");
   if (video) video.srcObject = null;
 
+  const box = document.getElementById("live-video-box");
+  if (box) box.style.aspectRatio = "16 / 9";
+
   const placeholder = document.getElementById("camera-placeholder");
   if (placeholder) placeholder.style.display = "flex";
 
@@ -255,6 +281,9 @@ function stopCamera() {
   const targetStatus = document.getElementById("live-target-status");
   if (targetStatus) targetStatus.textContent = "| TERHENTI";
 
+  const stripStatus = document.getElementById("control-strip-status");
+  if (stripStatus) stripStatus.textContent = "Siap Memulai";
+
   isAnalyzingFrame = false;
 
   const btnStart = document.getElementById("btn-start-camera");
@@ -273,10 +302,15 @@ async function captureAndSendLiveFrame() {
   isAnalyzingFrame = true;
   const startTime = Date.now();
 
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
+  // Scale frame to diagnostic payload size while strictly preserving native aspect ratio
+  const vw = video.videoWidth || 640;
+  const vh = video.videoHeight || 480;
+  const targetW = Math.min(vw, 640);
+  const targetH = Math.round(targetW / (vw / vh));
+  canvas.width = targetW;
+  canvas.height = targetH;
   const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(video, 0, 0, targetW, targetH);
 
   canvas.toBlob(async (blob) => {
     if (!blob) {
@@ -289,6 +323,9 @@ async function captureAndSendLiveFrame() {
     const subjId = document.getElementById("live-subject-id")?.textContent || "Subject";
     formData.append("subject_id", subjId);
     formData.append("mirror", isCameraMirrored ? "true" : "false");
+
+    const uptimeSec = liveStartTime ? ((Date.now() - liveStartTime) / 1000).toFixed(1) : "0.0";
+    formData.append("uptime", uptimeSec);
 
     try {
       const res = await fetch("/api/v1/analyze/frame", {
