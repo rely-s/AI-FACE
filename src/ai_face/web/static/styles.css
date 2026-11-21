@@ -703,9 +703,17 @@ button:active {
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.dropzone-apple:hover {
+.dropzone-apple:hover,
+.dropzone-apple.drag-over {
   border-color: var(--accent);
-  background: #F2F2F7;
+  background: rgba(10, 100, 224, 0.05);
+}
+
+#photo-original-preview:not([src]),
+#photo-annotated-preview:not([src]),
+#photo-original-preview[src=""],
+#photo-annotated-preview[src=""] {
+  display: none !important;
 }
 
 .apple-btn {

@@ -19,7 +19,37 @@ let isCameraMirrored = true; // Natural selfie/mirror orientation
 // Initialize on Load
 document.addEventListener("DOMContentLoaded", async () => {
   await loadClinicalInfo();
+  setupDropZone();
 });
+
+function setupDropZone() {
+  const dropZone = document.getElementById("drop-zone");
+  if (!dropZone) return;
+
+  ["dragenter", "dragover"].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add("drag-over");
+    }, false);
+  });
+
+  ["dragleave", "drop"].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove("drag-over");
+    }, false);
+  });
+
+  dropZone.addEventListener("drop", (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files && files.length > 0) {
+      setPhotoFile(files[0]);
+    }
+  });
+}
 
 // Navigation Tab Switcher
 function switchTab(tabName) {
@@ -480,17 +510,21 @@ function updateLiveDashboard(data, latencyMs = 0) {
 function handlePhotoSelect(event) {
   const file = event.target.files[0];
   if (!file) return;
+  setPhotoFile(file);
+}
+
+function setPhotoFile(file) {
   currentSelectedFile = file;
 
   const btnAnalyze = document.getElementById("btn-analyze-photo");
   if (btnAnalyze) btnAnalyze.disabled = false;
 
-  const dropZone = document.getElementById("drop-zone");
-  if (dropZone) {
-    dropZone.innerHTML = `
+  const dropContent = document.getElementById("drop-zone-content");
+  if (dropContent) {
+    dropContent.innerHTML = `
       <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">${file.name}</div>
       <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${(file.size / 1024).toFixed(1)} KB</div>
-      <button type="button" class="apple-btn secondary" style="margin-top: 12px; min-height: 32px; font-size: 13px;">Ganti Berkas</button>
+      <button type="button" class="apple-btn secondary" style="margin-top: 12px; min-height: 32px; font-size: 13px;" onclick="event.stopPropagation(); document.getElementById('photo-input').click();">Ganti Berkas</button>
     `;
   }
 }
@@ -538,9 +572,11 @@ function renderPhotoResults(data) {
   const annotPreview = document.getElementById("photo-annotated-preview");
   if (origPreview && currentSelectedFile) {
     origPreview.src = URL.createObjectURL(currentSelectedFile);
+    origPreview.style.display = "block";
   }
   if (annotPreview) {
     annotPreview.src = data.annotated_image_base64 || (origPreview ? origPreview.src : "");
+    annotPreview.style.display = "block";
   }
 
   // DASS-3 Diagnosis Cards

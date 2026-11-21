@@ -264,15 +264,17 @@
               Unggah foto wajah beresolusi jelas untuk evaluasi DASS-3 dan dekomposisi 31 Facial Action Units.
             </p>
 
+            <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhotoSelect(event)" />
             <div id="drop-zone" class="dropzone-apple" onclick="document.getElementById('photo-input').click()">
-              <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhotoSelect(event)" />
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
-              <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">Tarik &amp; lepas file, atau pilih dari disk</div>
-              <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">JPG, PNG, WEBP (Maksimal 15 MB)</div>
+              <div id="drop-zone-content">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">Tarik &amp; lepas file, atau pilih dari disk</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">JPG, PNG, WEBP (Maksimal 15 MB)</div>
+              </div>
             </div>
 
             <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-hairline); display: flex; flex-direction: column; gap: 14px;">
@@ -300,7 +302,7 @@
             <div style="font-size: 14px; color: var(--text-secondary); max-width: 360px; margin: 0 auto;">Pilih atau unggah berkas foto pada panel sebelah kiri untuk menampilkan telaah klinis.</div>
           </div>
 
-          <div id="photo-result-container" style="display: none; display: flex; flex-direction: column; gap: 20px;">
+          <div id="photo-result-container" style="display: none; flex-direction: column; gap: 20px;">
             
             <!-- Side-by-side Visual Inspection -->
             <div class="section-title first">Perbandingan Visual (Citra Asli vs Overlay HUD)</div>
