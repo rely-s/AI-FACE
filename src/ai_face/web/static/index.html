@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI-FACE Live Camera | Clinical Workstation</title>
   <!-- Apple System & Inter Typography -->
-  <link rel="stylesheet" href="/static/styles.css?v=4.1" />
+  <link rel="stylesheet" href="/static/styles.css?v=4.2" />
 </head>
 <body>
 
@@ -34,7 +34,7 @@
     <!-- TAB 1: LIVE WEBCAM MONITORING -->
     <!-- ============================================================== -->
     <div id="tab-content-live" class="tab-pane">
-      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; width: 100%;">
+      <div class="live-grid">
         
         <!-- Camera Column (Left) -->
         <section class="video-column" aria-label="Kamera">
@@ -248,10 +248,10 @@
     <!-- TAB 2: SINGLE PHOTO DIAGNOSTIC -->
     <!-- ============================================================== -->
     <div id="tab-content-photo" class="tab-pane" style="display: none;">
-      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; width: 100%;">
+      <div class="photo-grid">
         
         <!-- Left: Upload Box & Options -->
-        <div style="flex: 1 1 380px; max-width: 440px;">
+        <div style="width: 100%;">
           <div class="section-title first">Unggah Citra Pasien</div>
           <div class="inset-card" style="padding: 24px;">
             <p style="margin: 0 0 16px; font-size: 14px; line-height: 20px; color: var(--text-secondary);">
@@ -283,7 +283,7 @@
         </div>
 
         <!-- Right: Diagnostic Findings -->
-        <div style="flex: 999 1 600px; min-width: 0;">
+        <div style="width: 100%; min-width: 0;">
           <div id="photo-empty-state" class="inset-card" style="padding: 60px 24px; text-align: center; color: var(--text-secondary);">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 12px; display: block;">
               <circle cx="12" cy="12" r="10"></circle>

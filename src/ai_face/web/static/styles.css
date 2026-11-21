@@ -1,6 +1,6 @@
 /* =========================================================================
    AI-FACE Web Workstation - Apple Human Interface Guidelines (HIG) System
-   Clean Inset-Grouped Aesthetic (Compact & Responsive Desktop Scale)
+   Clean Inset-Grouped Aesthetic (Compact, Stable & Rock-Solid Responsive)
    ========================================================================= */
 
 :root {
@@ -31,6 +31,12 @@
   box-sizing: border-box;
 }
 
+/* Prevent viewport width shifting and page jitter when scrollbars appear */
+html {
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -40,6 +46,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -64,7 +71,7 @@ button:active {
 }
 
 /* =========================================================================
-   HEADER & SEGMENTED CONTROLS (COMPACT DESKTOP)
+   HEADER & SEGMENTED CONTROLS (RESPONSIVE)
    ========================================================================= */
 
 .app-header {
@@ -131,29 +138,34 @@ button:active {
    ========================================================================= */
 
 .main-container {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 16px;
   padding: 8px 24px 20px;
   max-width: 1140px;
   margin: 0 auto;
   width: 100%;
+  flex: 1;
 }
 
 .tab-pane {
   width: 100%;
 }
 
+/* Rock-solid 2-column grid for the Live Workstation */
+.live-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+}
+
 .video-column {
-  flex: 1 1 540px;
   min-width: 0;
+  width: 100%;
 }
 
 .aside-column {
-  flex: 0 0 340px;
-  max-width: 360px;
-  min-width: 310px;
+  min-width: 0;
+  width: 100%;
 }
 
 .section-title {
@@ -199,6 +211,7 @@ button:active {
   background: var(--bg-video);
   border-radius: 18px;
   overflow: hidden;
+  width: 100%;
 }
 
 .camera-mirror {
@@ -525,12 +538,16 @@ button:active {
 }
 
 /* =========================================================================
-   ACTIVE ACTION UNITS (5-DOT METERS)
+   ACTIVE ACTION UNITS (5-DOT METERS) - ROCK-SOLID FIXED HEIGHT
    ========================================================================= */
 
+/* Fixed stable height: never causes vertical height bouncing when AU count changes */
 #live-active-aus {
-  max-height: 180px;
+  height: 184px;
+  min-height: 184px;
+  max-height: 184px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 #live-active-aus::-webkit-scrollbar {
@@ -610,6 +627,10 @@ button:active {
 }
 
 .au-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   padding: 14px 12px;
   font-size: 12px;
   color: var(--text-secondary);
@@ -619,6 +640,14 @@ button:active {
 /* =========================================================================
    TAB 2 & 3: PHOTO DIAGNOSTIC & BATCH DATASET
    ========================================================================= */
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  width: 100%;
+}
 
 .dropzone-apple {
   border: 2px dashed rgba(60, 60, 67, 0.25);
@@ -702,20 +731,61 @@ button:active {
 }
 
 /* =========================================================================
-   RESPONSIVE ADAPTATIONS
+   COMPREHENSIVE RESPONSIVE ADAPTATIONS
    ========================================================================= */
 
 @media (max-width: 900px) {
+  .live-grid {
+    grid-template-columns: 1fr;
+  }
+  .photo-grid {
+    grid-template-columns: 1fr;
+  }
   .app-header {
     padding: 14px 16px 6px;
   }
   .main-container {
     padding: 8px 16px 24px;
   }
-  .video-column,
   .aside-column {
-    flex: 1 1 100%;
     max-width: 100%;
-    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px 4px;
+  }
+  .segmented-control {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .seg-btn {
+    white-space: nowrap;
+    flex: 1 0 auto;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-container {
+    padding: 6px 12px 20px;
+  }
+  .video-viewport {
+    aspect-ratio: 4 / 3;
+    max-height: 260px;
+    border-radius: 14px;
+  }
+  .app-title {
+    font-size: 20px;
+    line-height: 24px;
+  }
+  .app-subtitle {
+    font-size: 12px;
   }
 }
