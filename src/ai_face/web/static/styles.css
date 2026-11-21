@@ -1,35 +1,36 @@
 /* =========================================================================
    AI-FACE Clinical Platform - Institutional Medical Design System
-   Color Palette:
-     - GARGOYLE GAS: #FFE14F (High-contrast solar yellow accent, reticle, badges, and CTAs)
-     - SPACE CADET:  #192853 (Authoritative cosmic navy base, cards, and structural tone)
-     - ALICE BLUE:    #ECF4F7 (Crisp, clean off-white typography and subtle borders)
+   Dominant Palette:
+     - ALICE BLUE / WHITE: #ECF4F7 / #FFFFFF (Dominant, clean clinical white surfaces)
+     - SPACE CADET:        #192853 (High-contrast typography, structure & cards)
+     - GARGOYLE GAS:       #FFE14F (High-visibility focal accents, buttons & reticles)
    ========================================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* The 3-Color Signature Palette */
-  --color-gargoyle-gas: #FFE14F;
-  --color-space-cadet: #192853;
+  /* The 3-Color Signature Palette (White-Dominant Theme) */
   --color-alice-blue: #ECF4F7;
+  --color-pure-white: #FFFFFF;
+  --color-space-cadet: #192853;
+  --color-gargoyle-gas: #FFE14F;
 
   /* Surfaces & Spatial Architecture */
-  --bg-clinical-base: #0B1226;
-  --bg-clinical-surface: #111B38;
-  --bg-clinical-card: #16244A;
-  --bg-clinical-card-hover: #1C2D5C;
-  --bg-clinical-subtle: #192853;
+  --bg-clinical-base: #ECF4F7;
+  --bg-clinical-surface: #FFFFFF;
+  --bg-clinical-card: #FFFFFF;
+  --bg-clinical-card-hover: #F8FBFC;
+  --bg-clinical-subtle: #E2EDF2;
 
   /* Structural 1px Borders & Dividers */
-  --border-clinical-dim: rgba(236, 244, 247, 0.12);
-  --border-clinical-subtle: rgba(236, 244, 247, 0.22);
-  --border-clinical-active: #FFE14F;
+  --border-clinical-dim: rgba(25, 40, 83, 0.12);
+  --border-clinical-subtle: rgba(25, 40, 83, 0.22);
+  --border-clinical-active: #192853;
 
   /* Typography & Information Density */
-  --text-clinical-primary: #ECF4F7;
-  --text-clinical-secondary: #BACCD9;
-  --text-clinical-muted: #7A93A8;
+  --text-clinical-primary: #192853;
+  --text-clinical-secondary: #4A5F82;
+  --text-clinical-muted: #7287A5;
 
   /* Accents */
   --accent-primary: #FFE14F;
@@ -51,52 +52,54 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Institutional Medical Cards */
+/* Institutional Medical Cards (Clean White with Elevation) */
 .clinical-card {
   background-color: var(--bg-clinical-surface);
   border: 1px solid var(--border-clinical-dim);
   border-radius: 0.75rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  box-shadow: 0 1px 3px rgba(25, 40, 83, 0.04), 0 4px 12px rgba(25, 40, 83, 0.02);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .clinical-card:hover {
   border-color: var(--border-clinical-subtle);
+  box-shadow: 0 4px 16px rgba(25, 40, 83, 0.06);
 }
 
 .clinical-card-highlight {
-  background-color: var(--bg-clinical-card);
+  background-color: #F8FBFC;
   border: 1px solid var(--border-clinical-subtle);
 }
 
 /* Clinical Triage Badges */
 .badge-normal {
-  background-color: rgba(255, 225, 79, 0.12);
-  color: #FFE14F;
-  border: 1px solid rgba(255, 225, 79, 0.40);
+  background-color: #FEF9C3;
+  color: #854D0E;
+  border: 1px solid #FDE047;
 }
 
 .badge-mild {
-  background-color: rgba(236, 244, 247, 0.12);
-  color: #ECF4F7;
-  border: 1px solid rgba(236, 244, 247, 0.35);
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
 }
 
 .badge-moderate {
-  background-color: rgba(245, 158, 11, 0.16);
-  color: #FBBF24;
-  border: 1px solid rgba(245, 158, 11, 0.45);
+  background-color: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FCD34D;
 }
 
 .badge-severe {
-  background-color: rgba(249, 115, 22, 0.18);
-  color: #FB923C;
-  border: 1px solid rgba(249, 115, 22, 0.45);
+  background-color: #FFEDD5;
+  color: #C2410C;
+  border: 1px solid #FDBA74;
 }
 
 .badge-extremely-severe {
-  background-color: rgba(239, 68, 68, 0.22);
-  color: #F87171;
-  border: 1px solid rgba(239, 68, 68, 0.55);
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  border: 1px solid #FCA5A5;
   font-weight: 700;
 }
 
@@ -142,8 +145,8 @@ body {
 .face-target-box {
   position: absolute;
   pointer-events: none;
-  border: 1.5px solid rgba(255, 225, 79, 0.90);
-  background: rgba(255, 225, 79, 0.08);
+  border: 1.5px solid #FFE14F;
+  background: rgba(255, 225, 79, 0.12);
   border-radius: 6px;
   transition: all 0.08s ease-out;
   z-index: 15;
@@ -155,29 +158,28 @@ body {
   position: absolute;
   width: 8px;
   height: 8px;
-  border-color: var(--color-gargoyle-gas);
+  border-color: #FFE14F;
 }
 
 .face-target-box::before {
   top: -1px;
   left: -1px;
-  border-top: 2px solid var(--color-gargoyle-gas);
-  border-left: 2px solid var(--color-gargoyle-gas);
+  border-top: 2px solid #FFE14F;
+  border-left: 2px solid #FFE14F;
 }
 
 .face-target-box::after {
   bottom: -1px;
   right: -1px;
-  border-bottom: 2px solid var(--color-gargoyle-gas);
-  border-right: 2px solid var(--color-gargoyle-gas);
+  border-bottom: 2px solid #FFE14F;
+  border-right: 2px solid #FFE14F;
 }
 
 /* Clinical Telemetry Progress Bar */
 .clinical-progress-track {
   position: relative;
   height: 8px;
-  background-color: #0E162E;
-  border: 1px solid rgba(236, 244, 247, 0.15);
+  background-color: #E2EDF2;
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -185,7 +187,7 @@ body {
 .clinical-progress-fill {
   height: 100%;
   border-radius: 9999px;
-  background-color: var(--color-gargoyle-gas);
+  background-color: var(--color-space-cadet);
   transition: width 0.25s ease-out;
 }
 
@@ -193,64 +195,65 @@ body {
 .btn-primary {
   background-color: var(--color-gargoyle-gas);
   color: var(--color-space-cadet);
-  border: 1px solid rgba(255, 225, 79, 0.8);
+  border: 1px solid rgba(25, 40, 83, 0.25);
   font-weight: 700;
+  box-shadow: 0 1px 3px rgba(25, 40, 83, 0.10);
   transition: background-color 0.15s ease, filter 0.15s ease;
 }
 
 .btn-primary:hover:not(:disabled) {
   background-color: #FFE873;
-  filter: brightness(1.05);
+  filter: brightness(1.03);
 }
 
 .btn-secondary {
-  background-color: #16244A;
-  color: var(--color-alice-blue);
-  border: 1px solid rgba(236, 244, 247, 0.20);
+  background-color: #FFFFFF;
+  color: var(--color-space-cadet);
+  border: 1px solid rgba(25, 40, 83, 0.20);
+  box-shadow: 0 1px 2px rgba(25, 40, 83, 0.04);
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #1C2D5C;
-  border-color: var(--color-gargoyle-gas);
-  color: var(--color-gargoyle-gas);
+  background-color: #F8FBFC;
+  border-color: var(--color-space-cadet);
 }
 
 /* FACS Action Unit Discrete Intensity Pills */
 .au-pill-0 {
-  background-color: #0B1226;
-  color: #7A93A8;
-  border: 1px solid rgba(236, 244, 247, 0.15);
+  background-color: #F1F5F7;
+  color: #7287A5;
+  border: 1px solid #D8E3E7;
 }
 
 .au-pill-a {
-  background-color: rgba(255, 225, 79, 0.10);
-  color: #FFE14F;
-  border: 1px solid rgba(255, 225, 79, 0.35);
+  background-color: #FEF9C3;
+  color: #854D0E;
+  border: 1px solid #FDE047;
 }
 
 .au-pill-b {
-  background-color: rgba(255, 225, 79, 0.20);
-  color: #FFE14F;
-  border: 1px solid rgba(255, 225, 79, 0.50);
+  background-color: #FEF08A;
+  color: #713F12;
+  border: 1px solid #EAB308;
 }
 
 .au-pill-c {
-  background-color: rgba(245, 158, 11, 0.20);
-  color: #FBBF24;
-  border: 1px solid rgba(245, 158, 11, 0.50);
+  background-color: #FED7AA;
+  color: #9A3412;
+  border: 1px solid #F97316;
 }
 
 .au-pill-d {
-  background-color: rgba(249, 115, 22, 0.22);
-  color: #FB923C;
-  border: 1px solid rgba(249, 115, 22, 0.55);
+  background-color: #FFEDD5;
+  color: #C2410C;
+  border: 1px solid #FB923C;
 }
 
 .au-pill-e {
-  background-color: rgba(239, 68, 68, 0.25);
-  color: #F87171;
-  border: 1px solid rgba(239, 68, 68, 0.60);
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  border: 1px solid #FCA5A5;
   font-weight: 700;
 }
 
@@ -264,9 +267,9 @@ body {
 .nav-tab.active {
   background-color: var(--color-space-cadet);
   color: var(--color-gargoyle-gas);
-  border: 1px solid var(--color-gargoyle-gas);
+  border: 1px solid var(--color-space-cadet);
   font-weight: 600;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 3px rgba(25, 40, 83, 0.2);
 }
 
 /* Table Scrollbar & Sticky Headers */
@@ -280,11 +283,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-space-cadet);
+  background: #BACCD9;
   border-radius: 3px;
-  border: 1px solid rgba(236, 244, 247, 0.15);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #23366C;
+  background: #8FAEC2;
 }
