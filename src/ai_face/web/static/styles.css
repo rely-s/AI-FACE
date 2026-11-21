@@ -389,8 +389,6 @@ button:active {
   transition: all 0.06s ease-out;
   z-index: 15;
 }
-  z-index: 15;
-}
 
 /* =========================================================================
    APPLE TOGGLE SWITCHES (PENGATURAN)
