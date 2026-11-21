@@ -120,13 +120,13 @@ function toggleLiveEmotions() {
   if (liveShowEmotions) {
     btn.innerHTML = `<i data-lucide="toggle-right" class="w-3.5 h-3.5 text-[#FFE14F]"></i>
                      <span>Mode Lengkap (+Emosi)</span>
-                     <kbd class="px-1 py-0.2 bg-[#192853] rounded text-[9px] text-[#FFE14F]">E</kbd>`;
-    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-mono border flex items-center gap-1.5 transition border-[#192853] bg-[#192853] text-[#FFE14F] shadow-sm";
+                     <kbd class="px-1 py-0.2 bg-[#192853] rounded text-[9px] font-mono text-[#FFE14F]">E</kbd>`;
+    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853] bg-[#192853] text-[#FFE14F] shadow-sm";
   } else {
     btn.innerHTML = `<i data-lucide="toggle-left" class="w-3.5 h-3.5 text-[#192853]"></i>
                      <span>Mode Klinis Murni (OFF)</span>
-                     <kbd class="px-1 py-0.2 bg-[#ECF4F7] rounded text-[9px] text-[#192853] border border-[#192853]/20">E</kbd>`;
-    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-mono border flex items-center gap-1.5 transition border-[#192853]/20 bg-white text-[#4A5F82] hover:border-[#192853] hover:text-[#192853] shadow-sm";
+                     <kbd class="px-1 py-0.2 bg-[#ECF4F7] rounded text-[9px] font-mono text-[#192853] border border-[#192853]/20">E</kbd>`;
+    btn.className = "text-[11px] px-2.5 py-1 rounded-md font-medium border flex items-center gap-1.5 transition border-[#192853]/20 bg-white text-[#4A5F82] hover:border-[#192853] hover:text-[#192853] shadow-sm";
   }
   if (window.lucide) lucide.createIcons();
 }
@@ -323,7 +323,7 @@ function updateLiveDashboard(data, latencyMs = 0) {
   if (distBadge) {
     const distLvl = data.distress_level || "NO_FACE";
     distBadge.textContent = distLvl;
-    distBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded mt-1 inline-block ${getBadgeClass(distLvl)}`;
+    distBadge.className = `text-[10px] font-bold px-2 py-0.5 rounded mt-1 inline-block ${getBadgeClass(distLvl)}`;
   }
 
   // 4. Tri-Axial DASS-3 Clinical Scales
@@ -338,7 +338,7 @@ function updateLiveDashboard(data, latencyMs = 0) {
     if (depScoreEl) depScoreEl.textContent = `${depScore}%`;
     if (depLvlEl) {
       depLvlEl.textContent = dass.depression.level;
-      depLvlEl.className = `text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.depression.level)}`;
+      depLvlEl.className = `text-[10px] font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.depression.level)}`;
     }
     if (depBarEl) depBarEl.style.width = `${Math.min(100, depScore)}%`;
 
@@ -350,7 +350,7 @@ function updateLiveDashboard(data, latencyMs = 0) {
     if (anxScoreEl) anxScoreEl.textContent = `${anxScore}%`;
     if (anxLvlEl) {
       anxLvlEl.textContent = dass.anxiety.level;
-      anxLvlEl.className = `text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}`;
+      anxLvlEl.className = `text-[10px] font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}`;
     }
     if (anxBarEl) anxBarEl.style.width = `${Math.min(100, anxScore)}%`;
 
@@ -362,7 +362,7 @@ function updateLiveDashboard(data, latencyMs = 0) {
     if (strScoreEl) strScoreEl.textContent = `${strScore}%`;
     if (strLvlEl) {
       strLvlEl.textContent = dass.stress.level;
-      strLvlEl.className = `text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.stress.level)}`;
+      strLvlEl.className = `text-[10px] font-bold px-1.5 py-0.5 rounded ${getBadgeClass(dass.stress.level)}`;
     }
     if (strBarEl) strBarEl.style.width = `${Math.min(100, strScore)}%`;
   }
@@ -410,8 +410,8 @@ function handlePhotoSelect(event) {
         <i data-lucide="check" class="w-5 h-5"></i>
       </div>
       <p class="text-xs font-semibold text-[#192853] truncate max-w-xs mx-auto font-mono">${file.name}</p>
-      <p class="text-[10px] text-[#7287A5] font-mono mt-0.5">${(file.size / 1024).toFixed(1)} KB</p>
-      <button type="button" class="mt-2 text-[11px] font-mono text-[#192853] font-bold underline">Ganti Berkas</button>
+      <p class="text-[10px] text-[#7287A5] font-mono tabular-nums mt-0.5">${(file.size / 1024).toFixed(1)} KB</p>
+      <button type="button" class="mt-2 text-[11px] font-medium text-[#192853] font-bold underline">Ganti Berkas</button>
     `;
     if (window.lucide) lucide.createIcons();
   }
@@ -479,7 +479,7 @@ function renderPhotoResults(data) {
     if (depScoreEl) depScoreEl.textContent = `${depScore}%`;
     if (depBadge) {
       depBadge.textContent = dass.depression.level;
-      depBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.depression.level)}`;
+      depBadge.className = `text-[10px] font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.depression.level)}`;
     }
 
     // Anxiety
@@ -489,7 +489,7 @@ function renderPhotoResults(data) {
     if (anxScoreEl) anxScoreEl.textContent = `${anxScore}%`;
     if (anxBadge) {
       anxBadge.textContent = dass.anxiety.level;
-      anxBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}`;
+      anxBadge.className = `text-[10px] font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}`;
     }
 
     // Stress
@@ -499,7 +499,7 @@ function renderPhotoResults(data) {
     if (strScoreEl) strScoreEl.textContent = `${strScore}%`;
     if (strBadge) {
       strBadge.textContent = dass.stress.level;
-      strBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.stress.level)}`;
+      strBadge.className = `text-[10px] font-bold px-2 py-0.5 rounded ${getBadgeClass(dass.stress.level)}`;
     }
   }
 
@@ -621,28 +621,28 @@ function appendBatchRow(item) {
   const tr = document.createElement("tr");
   tr.className = "hover:bg-[#F3F8FA] transition";
   tr.innerHTML = `
-    <td class="py-2.5 px-3 font-semibold text-[#192853] truncate max-w-[140px] font-mono text-[11px]">${item.image_name}</td>
+    <td class="py-2.5 px-3 font-medium text-[#192853] truncate max-w-[140px] font-mono text-[11px]">${item.image_name}</td>
     <td class="py-2.5 px-3 text-center">
-      <span class="px-2 py-0.5 rounded text-[10px] font-mono ${item.face_detected ? 'bg-[#FEF9C3] text-[#854D0E] border border-[#FDE047]' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
+      <span class="px-2 py-0.5 rounded text-[10px] font-medium ${item.face_detected ? 'bg-[#FEF9C3] text-[#854D0E] border border-[#FDE047]' : 'bg-rose-50 text-rose-700 border border-rose-200'}">
         ${item.face_detected ? 'TERDETEKSI' : 'NIHIL'}
       </span>
     </td>
     <td class="py-2.5 px-3">
-      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${getBadgeClass(item.distress_level)}">${item.distress_level}</span>
+      <span class="px-2 py-0.5 rounded text-[10px] font-bold ${getBadgeClass(item.distress_level)}">${item.distress_level}</span>
     </td>
-    <td class="py-2.5 px-3 font-mono text-[11px]">
-      <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.depression.level)}">${dass.depression.level || '-'}</span>
+    <td class="py-2.5 px-3 font-mono tabular-nums text-[11px]">
+      <span class="px-1.5 py-0.5 rounded font-sans font-medium ${getBadgeClass(dass.depression.level)}">${dass.depression.level || '-'}</span>
       <span class="text-[#7287A5] text-[10px] ml-1">(${Math.round((dass.depression.score || 0) * 100)}%)</span>
     </td>
-    <td class="py-2.5 px-3 font-mono text-[11px]">
-      <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.anxiety.level)}">${dass.anxiety.level || '-'}</span>
+    <td class="py-2.5 px-3 font-mono tabular-nums text-[11px]">
+      <span class="px-1.5 py-0.5 rounded font-sans font-medium ${getBadgeClass(dass.anxiety.level)}">${dass.anxiety.level || '-'}</span>
       <span class="text-[#7287A5] text-[10px] ml-1">(${Math.round((dass.anxiety.score || 0) * 100)}%)</span>
     </td>
-    <td class="py-2.5 px-3 font-mono text-[11px]">
-      <span class="px-1.5 py-0.5 rounded ${getBadgeClass(dass.stress.level)}">${dass.stress.level || '-'}</span>
+    <td class="py-2.5 px-3 font-mono tabular-nums text-[11px]">
+      <span class="px-1.5 py-0.5 rounded font-sans font-medium ${getBadgeClass(dass.stress.level)}">${dass.stress.level || '-'}</span>
       <span class="text-[#7287A5] text-[10px] ml-1">(${Math.round((dass.stress.score || 0) * 100)}%)</span>
     </td>
-    <td class="py-2.5 px-3 font-mono text-[11px] text-[#192853] tabular-nums font-semibold">${emo.valence !== undefined ? emo.valence.toFixed(2) : '-'}</td>
+    <td class="py-2.5 px-3 font-mono tabular-nums text-[11px] text-[#192853] font-semibold">${emo.valence !== undefined ? emo.valence.toFixed(2) : '-'}</td>
   `;
   tbody.appendChild(tr);
 }
