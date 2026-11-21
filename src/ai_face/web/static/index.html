@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI-FACE Live Camera | Clinical Workstation</title>
   <!-- Apple System & Inter Typography -->
-  <link rel="stylesheet" href="/static/styles.css?v=4.0" />
+  <link rel="stylesheet" href="/static/styles.css?v=4.1" />
 </head>
 <body>
 
@@ -34,12 +34,12 @@
     <!-- TAB 1: LIVE WEBCAM MONITORING -->
     <!-- ============================================================== -->
     <div id="tab-content-live" class="tab-pane">
-      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; width: 100%;">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; width: 100%;">
         
         <!-- Camera Column (Left) -->
         <section class="video-column" aria-label="Kamera">
           
-          <!-- Viewport Box (16:10, #1C1C1E, 24px radius) -->
+          <!-- Viewport Box (16:10, max-height 350px, #1C1C1E, 18px radius) -->
           <div id="live-video-box" class="video-viewport" onclick="handleVideoBoxClick(event)" title="Klik layar atau tekan 'E' untuk beralih mode ekspresi">
             
             <!-- Top Left Floating HUD Pill Badge -->
@@ -56,7 +56,7 @@
 
             <!-- Idle Camera Placeholder (Dashed Ellipse) -->
             <div id="camera-placeholder" class="camera-placeholder">
-              <svg width="104" height="136" viewBox="0 0 104 136" aria-hidden="true">
+              <svg width="68" height="90" viewBox="0 0 104 136" aria-hidden="true">
                 <ellipse cx="52" cy="68" rx="46" ry="62" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-dasharray="3 8" stroke-linecap="round"></ellipse>
               </svg>
               <div class="placeholder-title">Kamera belum aktif</div>
@@ -509,6 +509,6 @@
   </footer>
 
   <!-- Application Script -->
-  <script src="/static/app.js?v=4.0"></script>
+  <script src="/static/app.js?v=4.1"></script>
 </body>
 </html>

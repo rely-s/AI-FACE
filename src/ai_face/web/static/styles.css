@@ -1,11 +1,6 @@
 /* =========================================================================
    AI-FACE Web Workstation - Apple Human Interface Guidelines (HIG) System
-   Clean Inset-Grouped Aesthetic
-   - Page background: #F2F2F7 (Apple System Gray 6 / Grouped Background)
-   - Cards & Tables:  #FFFFFF Inset Cards (border-radius: 20px, hairline dividers: #E5E5EA)
-   - Typography:      -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif
-   - Accent:          #0A64E0 (Apple System Blue)
-   - Switches:        #34C759 (Apple System Green) / #E9E9EB (Inactive)
+   Clean Inset-Grouped Aesthetic (Compact & Responsive Desktop Scale)
    ========================================================================= */
 
 :root {
@@ -60,8 +55,8 @@ button {
 }
 
 button:focus-visible {
-  outline: 3px solid #7FB0FF;
-  outline-offset: 2px;
+  outline: 2px solid #7FB0FF;
+  outline-offset: 1px;
 }
 
 button:active {
@@ -69,7 +64,7 @@ button:active {
 }
 
 /* =========================================================================
-   HEADER & SEGMENTED CONTROLS
+   HEADER & SEGMENTED CONTROLS (COMPACT DESKTOP)
    ========================================================================= */
 
 .app-header {
@@ -77,23 +72,26 @@ button:active {
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px 32px;
-  padding: 32px 40px 8px;
+  gap: 12px 24px;
+  padding: 16px 24px 6px;
+  max-width: 1140px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .app-title {
   margin: 0;
-  font-size: 34px;
-  line-height: 41px;
+  font-size: 24px;
+  line-height: 28px;
   font-weight: 700;
-  letter-spacing: 0.37px;
+  letter-spacing: 0.2px;
   color: var(--text-primary);
 }
 
 .app-subtitle {
   margin: 2px 0 0;
-  font-size: 15px;
-  line-height: 20px;
+  font-size: 13px;
+  line-height: 16px;
   color: var(--text-secondary);
 }
 
@@ -103,17 +101,17 @@ button:active {
   gap: 2px;
   padding: 2px;
   background: rgba(118, 118, 128, 0.12);
-  border-radius: 11px;
+  border-radius: 9px;
 }
 
 .seg-btn {
-  min-height: 40px;
-  padding: 0 18px;
+  min-height: 32px;
+  padding: 0 13px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 7px;
   background: transparent;
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 500;
   transition: background 0.15s ease, box-shadow 0.15s ease;
 }
@@ -124,7 +122,7 @@ button:active {
 
 .seg-btn.active {
   background: #FFFFFF;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.10), 0 1px 1px rgba(0, 0, 0, 0.04);
   font-weight: 600;
 }
 
@@ -136,9 +134,9 @@ button:active {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  gap: 24px;
-  padding: 16px 40px 40px;
-  max-width: 1440px;
+  gap: 16px;
+  padding: 8px 24px 20px;
+  max-width: 1140px;
   margin: 0 auto;
   width: 100%;
 }
@@ -148,24 +146,24 @@ button:active {
 }
 
 .video-column {
-  flex: 999 1 600px;
+  flex: 1 1 540px;
   min-width: 0;
 }
 
 .aside-column {
-  flex: 1 1 360px;
-  max-width: 460px;
-  min-width: 0;
+  flex: 0 0 340px;
+  max-width: 360px;
+  min-width: 310px;
 }
 
 .section-title {
-  margin: 24px 0 8px 16px;
-  font-size: 13px;
-  line-height: 18px;
-  letter-spacing: -0.08px;
+  margin: 14px 0 6px 12px;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: -0.06px;
   text-transform: uppercase;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .section-title.first {
@@ -173,21 +171,21 @@ button:active {
 }
 
 .section-footer {
-  margin: 8px 16px 0;
-  font-size: 13px;
-  line-height: 18px;
+  margin: 5px 12px 0;
+  font-size: 11px;
+  line-height: 15px;
   color: var(--text-secondary);
 }
 
 .inset-card {
   background: var(--bg-card);
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .card-row-wrapper {
-  padding-left: 16px;
+  padding-left: 14px;
 }
 
 /* =========================================================================
@@ -197,9 +195,9 @@ button:active {
 .video-viewport {
   position: relative;
   aspect-ratio: 16 / 10;
-  min-height: 380px;
+  max-height: 350px;
   background: var(--bg-video);
-  border-radius: 24px;
+  border-radius: 18px;
   overflow: hidden;
 }
 
@@ -210,33 +208,33 @@ button:active {
 
 .hud-pill {
   position: absolute;
-  top: 16px;
+  top: 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
+  gap: 6px;
+  padding: 4px 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: #FFFFFF;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
   z-index: 25;
   pointer-events: none;
 }
 
 .hud-pill.top-left {
-  left: 16px;
+  left: 12px;
 }
 
 .hud-pill.top-right {
-  right: 16px;
+  right: 12px;
 }
 
 .hud-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--text-tertiary);
   transition: background 0.2s ease;
@@ -244,7 +242,7 @@ button:active {
 
 .hud-dot.active {
   background: var(--color-green);
-  box-shadow: 0 0 8px rgba(52, 199, 89, 0.6);
+  box-shadow: 0 0 6px rgba(52, 199, 89, 0.6);
   animation: pulse-dot 1.5s infinite;
 }
 
@@ -261,24 +259,24 @@ button:active {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   text-align: center;
-  padding: 56px 32px 104px;
+  padding: 24px 20px 60px;
   z-index: 10;
   background: var(--bg-video);
 }
 
 .placeholder-title {
-  font-size: 20px;
-  line-height: 25px;
+  font-size: 16px;
+  line-height: 20px;
   font-weight: 600;
   color: #FFFFFF;
 }
 
 .placeholder-desc {
-  max-width: 340px;
-  font-size: 15px;
-  line-height: 20px;
+  max-width: 280px;
+  font-size: 12px;
+  line-height: 16px;
   color: #AEAEB2;
 }
 
@@ -286,7 +284,7 @@ button:active {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 24px;
+  bottom: 16px;
   display: flex;
   justify-content: center;
   z-index: 30;
@@ -295,15 +293,15 @@ button:active {
 .pill-action-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 50px;
-  padding: 0 28px;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 20px;
   border: 0;
   border-radius: 999px;
-  font-size: 17px;
+  font-size: 13px;
   font-weight: 600;
   color: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
   transition: transform 0.1s ease, filter 0.15s ease;
 }
 
@@ -330,7 +328,7 @@ button:active {
   pointer-events: none;
   border: 2px solid rgba(255, 255, 255, 0.85);
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: 10px;
   transition: all 0.08s ease-out;
   z-index: 15;
 }
@@ -345,9 +343,9 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 56px;
-  padding: 8px 16px 8px 0;
+  gap: 12px;
+  min-height: 42px;
+  padding: 6px 14px 6px 0;
   border: 0;
   border-top: 1px solid var(--border-hairline);
   background: transparent;
@@ -370,23 +368,24 @@ button:active {
 }
 
 .row-btn-label {
-  font-size: 17px;
-  line-height: 22px;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 500;
   color: var(--text-primary);
 }
 
 .row-btn-note {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 14px;
   color: var(--text-secondary);
 }
 
 .switch-track {
   position: relative;
   flex: none;
-  width: 51px;
-  height: 31px;
-  border-radius: 16px;
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
   background: var(--border-track);
   transition: background 0.2s ease;
 }
@@ -399,16 +398,16 @@ button:active {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 27px;
-  height: 27px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: #FFFFFF;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.12);
   transition: left 0.2s cubic-bezier(0.2, 0.85, 0.32, 1.2);
 }
 
 .switch-track.on .switch-thumb {
-  left: 22px;
+  left: 20px;
 }
 
 /* =========================================================================
@@ -419,9 +418,9 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 48px;
-  padding-right: 16px;
+  gap: 12px;
+  min-height: 36px;
+  padding-right: 14px;
   border-top: 1px solid var(--border-hairline);
 }
 
@@ -430,14 +429,15 @@ button:active {
 }
 
 .subject-label {
-  font-size: 17px;
-  line-height: 22px;
+  font-size: 13px;
+  line-height: 18px;
   color: var(--text-primary);
 }
 
 .subject-value {
-  font-size: 17px;
-  line-height: 22px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
   color: var(--text-secondary);
 }
 
@@ -446,7 +446,7 @@ button:active {
    ========================================================================= */
 
 .dass-row {
-  padding: 14px 16px 16px 0;
+  padding: 8px 14px 10px 0;
   border-top: 1px solid var(--border-hairline);
 }
 
@@ -458,19 +458,19 @@ button:active {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .dass-name {
-  font-size: 17px;
-  line-height: 22px;
+  font-size: 13px;
+  line-height: 17px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .dass-score {
-  font-size: 17px;
-  line-height: 22px;
+  font-size: 13px;
+  line-height: 17px;
   color: var(--text-secondary);
 }
 
@@ -478,19 +478,19 @@ button:active {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  margin: 2px 0 10px;
+  gap: 10px;
+  margin: 2px 0 6px;
 }
 
 .dass-aus {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 14px;
   color: var(--text-secondary);
 }
 
 .dass-level {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 14px;
   font-weight: 600;
   color: var(--color-green-text);
   transition: color 0.2s ease;
@@ -498,7 +498,7 @@ button:active {
 
 .dass-track {
   position: relative;
-  height: 8px;
+  height: 6px;
 }
 
 .dass-track-bg {
@@ -506,21 +506,21 @@ button:active {
   inset: 0;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 3px;
+  gap: 2.5px;
 }
 
 .dass-track-bg div {
   background: var(--border-hairline);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .dass-bar {
   position: absolute;
   left: 0;
   top: 0;
-  height: 8px;
+  height: 6px;
   background: var(--color-green);
-  border-radius: 4px;
+  border-radius: 3px;
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
 }
 
@@ -528,13 +528,31 @@ button:active {
    ACTIVE ACTION UNITS (5-DOT METERS)
    ========================================================================= */
 
+#live-active-aus {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+#live-active-aus::-webkit-scrollbar {
+  width: 4px;
+}
+
+#live-active-aus::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#live-active-aus::-webkit-scrollbar-thumb {
+  background: #D1D1D6;
+  border-radius: 2px;
+}
+
 .au-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 52px;
-  padding-right: 16px;
+  gap: 12px;
+  min-height: 36px;
+  padding-right: 14px;
   border-top: 1px solid var(--border-hairline);
 }
 
@@ -549,21 +567,21 @@ button:active {
 }
 
 .au-name {
-  font-size: 17px;
-  line-height: 22px;
+  font-size: 13px;
+  line-height: 16px;
   color: var(--text-primary);
 }
 
 .au-code {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 14px;
   color: var(--text-secondary);
 }
 
 .au-meter-col {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .au-dots {
@@ -572,8 +590,8 @@ button:active {
 }
 
 .au-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--border-track-dark);
   transition: background 0.2s ease;
@@ -584,16 +602,16 @@ button:active {
 }
 
 .au-letter {
-  width: 14px;
-  font-size: 15px;
+  width: 12px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   text-align: right;
 }
 
 .au-empty-state {
-  padding: 18px 16px;
-  font-size: 15px;
+  padding: 14px 12px;
+  font-size: 12px;
   color: var(--text-secondary);
   text-align: center;
 }
@@ -604,9 +622,9 @@ button:active {
 
 .dropzone-apple {
   border: 2px dashed rgba(60, 60, 67, 0.25);
-  border-radius: 18px;
+  border-radius: 14px;
   background: #F8F8FA;
-  padding: 36px 20px;
+  padding: 24px 16px;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease;
@@ -621,12 +639,12 @@ button:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 20px;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 16px;
   border: 0;
   border-radius: 999px;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   color: #FFFFFF;
   background: var(--accent);
@@ -655,13 +673,13 @@ button:active {
 .apple-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 13px;
   text-align: left;
 }
 
 .apple-table th {
-  padding: 10px 14px;
-  font-size: 12px;
+  padding: 8px 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -670,7 +688,7 @@ button:active {
 }
 
 .apple-table td {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-hairline);
   color: var(--text-primary);
 }
@@ -689,14 +707,15 @@ button:active {
 
 @media (max-width: 900px) {
   .app-header {
-    padding: 20px 20px 8px;
+    padding: 14px 16px 6px;
   }
   .main-container {
-    padding: 12px 20px 32px;
+    padding: 8px 16px 24px;
   }
   .video-column,
   .aside-column {
     flex: 1 1 100%;
     max-width: 100%;
+    min-width: 0;
   }
 }
